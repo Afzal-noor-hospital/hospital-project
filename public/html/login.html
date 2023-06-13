@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/login.css">
+    <link rel="stylesheet" href="../css/general.css">
+    <link rel="stylesheet" href="../css/all.css">
+    <title>Login Form - Afzal Noor Trust Hospital</title>
+</head>
+<body>
+    
+    <form action="#" onsubmit="return false;" method="post" class="wrapper">
+
+        <div class="body">
+            <div class="input">
+                <input type="text" name="email" required>
+                <span>E-mail</span>
+                <i></i>
+            </div>
+    
+            <div class="input">
+                <input type="password" name="password" required>
+                <span>Password</span>
+                <img src="../res/visible.png" alt="..." class="show-password">
+                <i></i>
+            </div>
+    
+            <div class="remember-username input">
+                <input type="checkbox" name="remember-username">
+                <label>Remember Username</label>
+            </div>
+            <button type="submit" style="--clr: var(--neon-blue);">Login</button>
+            <span class="divider">OR</span>
+            <a href="#" style="--clr: var(--neon-blue);" onclick="show_dialog('forgot-password-dialog');">forgot password?</a>
+
+        </div>
+
+    </form>
+
+
+
+
+    <div class="dialog">
+
+        <div class="forgot-password-dialog">
+            <span class="cancel" onclick="hide_dialog(this);"><i class="fa-solid fa-xmark"></i></span>
+            <h2>Forgot Password</h2>
+            <div class="input">
+                <input type="text" name="id" required>
+                <span>Enter ID</span>
+                <i></i>
+            </div>
+            <div class="input">
+                <input type="text" name="cnic" required>
+                <span>CNIC</span>
+                <i></i>
+            </div>
+            <div class="controls">
+                <button style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement);">Cancel</button>
+                <button style="--clr: var(--neon-blue);" onclick="forgot_request();">Send Request</button>
+            </div>
+        </div>
+
+    </div>
+
+
+    <script src="../js/general.js"></script>
+    <script src="../js/login.js"></script>
+    <script src="../js/all.js"></script>
+    
+</body>
+</html>

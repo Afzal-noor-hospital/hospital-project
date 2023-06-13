@@ -1,0 +1,50 @@
+body{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+form.wrapper{
+    padding: 50px 0px !important;
+}
+
+
+
+
+
+
+
+
+
+
+.dialog .forgot-password-dialog{
+    position: relative;
+    width: 280px;
+    height: 330px;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: rgba(0,0,0,0.5);
+    display: none;
+    flex-direction: column;
+}
+.dialog .forgot-password-dialog.show{
+    display: flex;
+    animation: dialog-anim 0.5s linear forwards;
+}
+.dialog .forgot-password-dialog h2{
+    margin-bottom: 40px;
+    text-align: center;
+}
+.dialog .forgot-password-dialog .controls{
+    flex-direction: column-reverse;
+}
+
+
+
+
+@media(max-width:850px){
+    div.remember-username label{
+        font-size: 17px !important;
+    }
+}

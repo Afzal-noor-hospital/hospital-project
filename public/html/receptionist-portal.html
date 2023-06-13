@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/general.css">
+    <link rel="stylesheet" href="../css/receptionist-portal.css">
+    <link rel="stylesheet" href="../css/all.css">
+    <title>Receptionist Portal - Afzal Noor Trust Hospital</title>
+</head>
+<body>
+    
+    <div class="top-of-page"></div>
+    <div class="top-navigation no-print"></div>
+
+
+    <div class="main-container no-print">
+
+        <div class="id-sec">
+            <h2>New Appointment</h2>
+            <div class="side-by-side">
+                <div class="id-container">
+                    <div class="input">
+                        <input type="number" name="id" onkeyup="(!this.value)?reset_appointment_container():''" required>
+                        <span>Enter ID</span>
+                        <i></i>
+                    </div>
+                    <a title="Search patient without ID (?)" style="--clr: var(--neon-blue);" onclick="document.querySelector('.try-another-way-container').scrollIntoView({behavior:'smooth'});">Try Another Way</a>
+                </div>
+                <div class="controls">
+                    <button id="scan-qrcode" title="Scan QrCode (S)" style="--clr: var(--neon-pink);" onclick="open_qrcode_camera('qrcode-camera-dialog')">
+                        <i class="fa-solid fa-qrcode"></i>
+                    </button>
+                    <button title="Proceed (Enter)" style="--clr: var(--neon-blue);" onclick="select_patient('-1');">
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="patient-info"></div>
+        </div>
+
+        <div class="app-detail">
+            <h2>Appointment Data</h2>
+            
+            <p class="not-selected show">Enter id of patient and press "Enter" or use search patient section to Proceed</p>
+
+            <div class="tests">
+                <div class="side-by-side">
+                    <div class="input">
+                        <input type="text" name="BP" required>
+                        <span>BP</span>
+                        <i></i>
+                    </div>
+                    <div class="input">
+                        <input type="text" name="Pulse" required>
+                        <span>Pulse</span>
+                        <i></i>
+                    </div>
+                </div>
+                <div class="side-by-side">
+                    <div class="input">
+                        <input type="text" name="Temp" required>
+                        <span>Temp</span>
+                        <i></i>
+                    </div>
+                    <div class="input">
+                        <input type="text" name="Weight" required>
+                        <span>Weight</span>
+                        <i></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button style="--clr: var(--neon-pink);" onclick="generate_new_report_dialog()">
+                    <i class="fa-solid fa-vial-circle-check"></i>
+                </button>
+                <button style="--clr: var(--neon-blue);" onclick="configure_appointment()">Generate Appointment</button>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="try-another-way-container no-print">
+        <span class="btn reset-data" style="--clr: var(--neon-pink);" onclick="reset_filters();"><i class="fa-solid fa-eraser"></i></span>
+        <h2>Search Patient</h2>
+        <div class="search-filters">
+            <div class="side-by-side">
+                <div class="input">
+                    <input type="text" name="by-name" required>
+                    <span>Name</span>
+                    <i></i>
+                </div>
+                <div class="input">
+                    <input type="text" name="by-father-name" required>
+                    <span>Father Name</span>
+                    <i></i>
+                </div>
+            </div>
+            <div class="side-by-side">
+                <div class="input">
+                    <select name="gender" required>
+                        <option value="Male,Female,Other" selected>--Select--</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <span>Gender</span>
+                    <i></i>
+                </div>
+                <div class="input">
+                    <input type="number" name="by-number" required>
+                    <span>Number</span>
+                    <i></i>
+                </div>
+            </div>
+        </div>
+        <div class="patients"></div>
+    </div>
+
+    <div class="patient-card only-for-print">
+
+        <div class="front">
+            <div class="header">
+                <p class="org-name">Afzal Noor Trust Hospital</p>
+                <img src="../res/icon.png">
+            </div>
+            <p class="id">20210001</p>
+            <div class="content">
+                <div class="qrcode" id="qrcode"></div>
+                <div class="data">
+                    <div class="datum">
+                        <span>Name: </span>
+                        <span>Muhammad Amir Hamza</span>
+                    </div>
+                    <div class="datum">
+                        <span>Father Name: </span>
+                        <span>Ali Sher</span>
+                    </div>
+                    <div class="datum">
+                        <span>CNIC: </span>
+                        <span>Not Mentioned</span>
+                    </div>
+                    <div class="datum">
+                        <span>Blood Group: </span>
+                        <span>Not Mentioned</span>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">
+                <p>This card is only applicable for our organization</p>
+            </div>
+        </div>
+
+        <div class="back">
+
+            <div class="header">
+                <p class="org-name">Afzal Noor Trust Hospital</p>
+                <img src="../res/icon.png">
+            </div>
+            <div class="content">
+                <p class="heading">Instructions</p>
+                <ol class="instructions">
+                    <li>Please bring this card on every visit</li>
+                    <li>This card is only for patient identification</li>
+                    <li>If you lost this card, then contact to hospital</li>
+                    <li>If you found any lost card, then please give it on the receptionist desk of hospital</li>
+                </ol>
+            </div>
+            <div class="footer">
+                <p>Afzal Noor Trust, Chak 18GD, Okara</p>
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    
+
+    <div class="dialog">
+
+        <div class="add-new-patient-dialog no-print">
+            <span class="cancel" onclick="hide_dialog(this); this.parentElement.querySelector('.controls button:nth-child(3)').innerHTML='Register';"><i class="fa-solid fa-xmark"></i></span>
+            <h2>Add New Patient</h2>
+
+            <div class="form">
+
+                <div class="side-by-side">
+                    <div class="input">
+                        <input type="text" name="first-name" required>
+                        <span>First Name</span>
+                        <i></i>
+                    </div>
+                    <div class="input">
+                        <input type="text" name="last-name" required>
+                        <span>Last Name</span>
+                        <i></i>
+                    </div>
+                </div>
+
+                <div class="input">
+                    <input type="text" name="father-name" required>
+                    <span>Father Name</span>
+                    <i></i>
+                </div>
+
+                <div class="side-by-side">
+                    <div class="input">
+                        <select name="gender" required>
+                            <option value="Male">Male</option>
+                            <option value="Female"selected>Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <span>Gender</span>
+                        <i></i>
+                    </div>
+                    <div class="input">
+                        <select name="marital-status" required>
+                            <option value="Married" selected>Married</option>
+                            <option value="Unmarried">Unmarried</option>
+                            <option value="Widow">Widow</option>
+                            <option value="Divorced">Divorced</option>
+                        </select>
+                        <span>Marital Status</span>
+                        <i></i>
+                    </div>
+                </div>
+
+                <div class="side-by-side">
+                    <div class="input">
+                        <input type="date" name="dob" required>
+                        <span>DOB</span>
+                        <i></i>
+                    </div>
+                    <div class="input">
+                        <select name="blood-group" required>
+                            <option value="not specified" selected>--select--</option>
+                            <option value="A-">A-</option>
+                            <option value="A+">A+</option>
+                            <option value="B-">B-</option>
+                            <option value="B+">B+</option>
+                            <option value="O-">O-</option>
+                            <option value="O+">O+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="AB+">AB+</option>
+                        </select>
+                        <span>Blood Group</span>
+                        <i></i>
+                    </div>
+                </div>
+
+                <div class="side-by-side">
+                    <div class="input">
+                        <input type="number" name="contact" required>
+                        <span>Contact</span>
+                        <i></i>
+                    </div>
+                    <div class="input">
+                        <input type="number" name="cnic" required>
+                        <span>CNIC</span>
+                        <i></i>
+                    </div>
+                </div>
+
+                <div class="input">
+                    <textarea name="address" rows="5" required></textarea>
+                    <span>Address</span>
+                    <i></i>
+                </div>
+
+            </div>
+
+            <div class="controls">
+                <button style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement); this.parentElement.querySelector('button:nth-child(3)').innerHTML='Register';">Cancel</button>
+                <button style="--clr: var(--neon-pink);" onclick="reset_fields(this.parentElement.parentElement)">Reset</button>
+                <button style="--clr: var(--neon-blue);" onclick="register_new_patient('add-new-patient-dialog');">Register</button>
+
+            </div>
+        </div>
+
+        <div class="doctor-selection-dialog no-print">
+            <span class="cancel" onclick="hide_dialog(this);"><i class="fa-solid fa-xmark"></i></span>
+            <h2>Select Doctor</h2>
+            <div class="input">
+                <select name="doctor-name" required></select>
+                <span>Select Doctor</span>
+                <i></i>
+            </div>
+            <div class="controls">
+                <button style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement);">Cancel</button>
+                <button style="--clr: var(--neon-blue);" onclick="generate_appointment(this.parentElement.parentElement);">Confirm</button>
+            </div>
+        </div>
+
+        <div class="print-card-dialog no-print"> 
+            <span class="cancel" onclick="hide_dialog(this);"><i class="fa-solid fa-xmark"></i></span>
+            <h2>Patient Card</h2>
+            <p></p>
+            <div class="controls">
+                <button style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement);">Cancel</button>
+                <button style="--clr: var(--neon-blue);" onclick="print_card('-1');">Print Card</button>
+            </div>
+        </div>
+
+        <div class="qrcode-camera-dialog no-print">
+            <span class="cancel" onclick="hide_dialog(this)"><i class="fa-solid fa-xmark"></i></span>
+            <h2>Scan QrCode</h2>
+            <div class="camera-data">
+                <div class="scanner" id="scanner"></div>
+                <span class="line">No Impleted Yet</span> 
+                <span class="cornors"></span>
+            </div>
+            <div class="controls">
+                <button class="cancel-btn" style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement)">Cancel</button>
+            </div>
+        </div>
+
+        <div class="template-selection-dialog no-print">
+            <span class="cancel" onclick="hide_dialog(this)"><i class="fa-solid fa-xmark"></i></span>
+            <h2>Select Template</h2>
+            <div class="templates">
+                <div class="template cbc" onclick="show_report('cbc')">
+                    <img src="../res/cbc-test-icon.png" alt="...">
+                    <p class="bold">CBC Test</p>
+                </div>
+                <div class="template hematology" onclick="show_report('hematology')">
+                    <img src="../res/hematology-test-icon.png" alt="...">
+                    <p class="bold">Hematology Test</p>
+                </div>
+                <div class="template urine" onclick="show_report('urine')">
+                    <img src="../res/urine-test-icon.png" alt="...">
+                    <p class="bold">Urine Test</p>
+                </div>
+            </div>
+            <div class="controls">
+                <button style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement);">Cancel</button>
+            </div>
+        </div>
+
+        <div class="generate-new-report-dialog no-print">
+            <span class="cancel" onclick="hide_dialog(this)"><i class="fa-solid fa-xmark"></i></span>
+            <h2>New Report</h2>
+
+            <div class="info">
+                <div class="input">
+                    <input type="text" name="sample-id" required>
+                    <span>Sample ID</span>
+                    <i></i>
+                </div>
+                <div class="input">
+                    <select name="operator" required></select>
+                    <span>Operator</span>
+                    <i></i>
+                </div>
+                <div class="input">
+                    <select name="test-name" required></select>
+                    <span>Test Name</span>
+                    <i></i>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement);">Cancel</button>
+                <button style="--clr: var(--neon-blue);" onclick="generate_new_report(this.parentElement);">Generate</button>
+            </div>
+        </div>
+
+    </div>
+
+
+
+
+
+    <div class="reports no-print">
+
+        <div class="report cbc">
+            <div class="header">
+                <p>
+                    <span class="bold">Patient ID: </span>
+                    <span class="id">20210001</span>
+                </p>
+                <p>
+                    <span class="bold">Patient Name: </span>
+                    <span class="name">Muhammad Amir Hamza</span>
+                </p>
+                <p>
+                    <span class="bold">Sample ID: </span>
+                    <span class="s-id">00002</span>
+                </p>
+                <p>
+                    <span class="bold">Type: </span>
+                    <span class="type">Standard</span>
+                </p>
+                <p>
+                    <span class="bold">Operator ID: </span>
+                    <span class="op-id">ah5958076@gmail.com</span>
+                </p>
+                <p>
+                    <span class="bold">Reg Date: </span>
+                    <span class="reg-date">9 Mar 2023, 12:51</span>
+                </p>
+            </div>
+            <div class="table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Result</th>
+                            <th>Flags</th>
+                            <th>Unit</th>
+                            <th>Normal Limits</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="comment input">
+                <textarea name="comments" rows="5"></textarea>
+                <span>Comments</span>
+                <i></i>
+            </div>
+            <div class="controls">
+                <button style="--clr: var(--neon-blue);" onclick="save_report(this.parentElement.parentElement)">Finish <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+        </div>
+
+    </div>
+
+
+
+
+    <script src="../js/qrcode.js"></script>
+    <script src="../js/general.js"></script>
+    <script src="../js/receptionist-portal.js"></script>
+    <script src="../js/all.js"></script>
+
+</body>
+</html>

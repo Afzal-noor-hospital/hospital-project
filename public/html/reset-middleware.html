@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/general.css">
+    <link rel="stylesheet" href="../css/reset-middleware.css">
+    <link rel="stylesheet" href="../css/all.css">
+    <title>Complete your Password reset</title>
+</head>
+<body>
+    
+    <form action="#" onsubmit="return false;" method="post" class="wrapper">
+    
+        <div class="body">
+
+            <h2>Reset Password</h2>
+            <p>Either someone is a new user or he/she has reset his/her password, then he/she will first change his/her password for security purpose</p>
+
+            <div class="input">
+                <input type="password" name="new-password" required>
+                <span>New Password</span>
+                <i></i>
+            </div>
+
+            <div class="input">
+                <input type="password" name="confirm-password" required>
+                <span>Confirm Password</span>
+                <i></i>
+            </div>
+
+            <div class="controls">
+                <button style="--clr: rgb(121, 121, 3);" type="reset">Reset</button>
+                <button style="--clr: var(--neon-blue);" onclick="proceed_to_portal();">Proceed</button>
+            </div>
+
+        </div>
+
+    </form>
+
+
+    <script src="../js/general.js"></script>
+    <script src="../js/reset-middleware.js"></script>
+    <script src="../js/all.js"></script>
+
+</body>
+</html>

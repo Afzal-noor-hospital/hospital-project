@@ -1,0 +1,686 @@
+body{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+
+
+
+
+
+
+
+.main-container{
+    display: flex;
+    align-items: center;
+    width: calc(100% - 20px);
+    height: auto;
+    gap: 10px;
+    margin-top: 10px;
+    margin-bottom: 30px;
+    padding: 10px;
+}
+.main-container .container{
+    position: relative;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: calc(500px - 10px);
+    padding: 5px;
+}
+.main-container .tests{
+    border: 2px solid var(--neon-blue);
+    width: calc(20% - 10px);
+}
+.main-container .prescription{
+    border:2px solid var(--disabled-clr);
+    width: 50%;
+}
+.main-container .appointments{
+    border:2px solid var(--neon-pink);
+    width: 30%;
+}
+
+
+
+
+
+.main-container .tests button.new-test{
+    transform: translateY(calc(-100% - 10px));
+    visibility: hidden;
+}
+.main-container .tests h2{
+    margin-top: -50px;
+}
+.main-container .tests .all-test{
+    overflow: auto;
+    background-color: black;
+    width: calc(100% - 20px);
+    height: 100%;
+    padding: 10px;
+    gap: 5px;
+    display: flex;
+    flex-direction: column;
+}
+.main-container .tests .all-test::-webkit-scrollbar{
+    width: 15px;
+}
+.main-container .tests .all-test::-webkit-scrollbar-track{
+    background-color: var(--disabled-clr);
+}
+.main-container .tests .all-test::-webkit-scrollbar-thumb{
+    background-color: var(--neon-blue);
+}
+.main-container .tests .all-test .test{
+    display: flex;
+    flex-direction: column;
+}
+.main-container .tests .all-test .test.disabled{
+    background-color: var(--disabled-clr);
+}
+.main-container .tests .all-test .test p:last-child{
+    font-family: poppins;
+}
+
+
+
+
+
+
+
+
+
+.main-container .appointments .all-app{
+    width: calc(100% - 20px);
+    height: 100%;
+    gap: 5px;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    overflow: auto;
+    background-color: black;
+}
+.main-container .appointments .all-app button.selected{
+    background: rgb(112, 112, 5);
+}
+.main-container .appointments .all-app button{
+    display: flex;
+    flex-direction: column;
+}
+.main-container .appointments .all-app button p:nth-child(2),
+.main-container .appointments .all-app button p:nth-child(3){
+    font-family: poppins;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    width: 100%;
+    text-align: left;
+}
+.main-container .appointments .all-app::-webkit-scrollbar{
+    width: 15px;
+}
+.main-container .appointments .all-app::-webkit-scrollbar-track{
+    background-color: var(--disabled-clr);
+}
+.main-container .appointments .all-app::-webkit-scrollbar-thumb{
+    background-color: var(--neon-pink);
+}
+
+
+
+
+
+
+
+
+
+.main-container .prescription .precautions{
+    transform: translateY(calc(-100% - 10px));
+    width: 200px;
+    display: flex;
+    visibility: hidden;
+    justify-content: center;
+    align-self: flex-end;
+}
+.main-container .prescription h2{
+    margin-top: -50px;
+    text-align: center;
+}
+.main-container .prescription a.diagnosis{
+    font-family: poppins-bold;
+    font-size: 20px;
+    display: none;
+    margin-top: -50px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    width: 100%;
+}
+.main-container .prescription a.diagnosis.show{
+    display: block;
+}
+.main-container .prescription a.diagnosis.show + h2{
+    display: none;
+}
+.main-container .prescription .main{
+    width: 100%;
+    height: calc(100% - 35px);
+    padding-bottom: 10px;
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+}
+.main-container .prescription .main .prescriptions::-webkit-scrollbar{
+    width: 15px;
+}
+.main-container .prescription .main .prescriptions::-webkit-scrollbar-thumb{
+    background-color: var(--neon-blue);
+    border-radius: 10px;
+}
+.main-container .prescription .main .prescriptions::-webkit-scrollbar-track{
+    background-color: var(--disabled-clr);
+    border-radius: 10px;
+}
+.main-container .prescription .main .prescriptions{
+    width: calc(100% - 20px);
+    height: 100%;
+    overflow: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.main-container .prescription .main .prescriptions .data{
+    width: calc(100% - 20px);
+    font-family: poppins;
+    background-color: var(--clr);
+    padding: 10px;
+    border-radius: 5px;
+}
+.main-container .prescription .main .prescriptions .data div{
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+.main-container .prescription .main .prescriptions .data div button{
+    width: 50px;
+    background-color: var(--clr);
+    color: var(--fg);
+    padding: 5px 0px;
+    text-align: center;
+    font-size: 20px;
+    border-radius: 5px;
+}
+.main-container .prescription .controls{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: calc(100% - 20px);
+    height: auto;
+    padding: 0px 10px;
+}
+.main-container .prescription .controls *{
+    width: auto;
+} 
+.main-container .prescription .controls .prev-record{
+    color: var(--neon-blue);
+    visibility: hidden;
+}
+.main-container .prescription .controls .submit-app{
+    visibility: hidden;
+}
+.main-container .prescription .controls .add-new{
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 25px;
+    overflow: hidden;
+}
+
+
+
+
+
+
+
+
+
+.dialog .reffer-test-dialog{
+    position: relative;
+    width: 300px;
+    height: 200px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+.dialog .reffer-test-dialog.show{
+    display: flex;
+    animation: dialog-anim 0.5s linear forwards;
+}
+.dialog .reffer-test-dialog p.show + div.input{
+    display: none;
+}
+.dialog .reffer-test-dialog p.show{
+    display: block;
+}
+.dialog .reffer-test-dialog p{
+    font-size: 18px;
+    display: none;
+}
+.dialog .controls{
+    width: 100%;
+}
+
+
+
+
+
+
+
+.dialog .precaution-dialog{
+    position: relative;
+    width: 300px;
+    height: 250px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+.dialog .precaution-dialog.show{
+    display: flex;
+    animation: dialog-anim 0.5s linear forwards;
+}
+.dialog .precaution-dialog .input{
+    margin-top: 20px;
+}
+
+
+
+
+
+
+
+.dialog .select-appointment-dialog{
+    position: relative;
+    width: 300px;
+    height: 250px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+.dialog .select-appointment-dialog .input{
+    margin-top: 30px;
+}
+.dialog .select-appointment-dialog.show{
+    display: flex;
+    animation: dialog-anim 0.5s linear forwards;
+}
+
+
+
+
+
+
+
+
+
+
+.dialog .create-prescription-dialog{
+    position: relative;
+    width: 30%;
+    min-width: 260px;
+    height: 450px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+.dialog .create-prescription-dialog.show{
+    display: flex;
+    animation: dialog-anim 0.5s linear forwards;
+}
+.dialog .create-prescription-dialog .form{
+    width: 100%;
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.dialog .create-prescription-dialog .form .prescription-name{
+    width: 100%;
+    position: relative;
+}
+.dialog .create-prescription-dialog .form .prescription-name .suggestion-dropdown{
+    position: absolute;
+    width: 100%;
+    height: 280px;
+    left: 0;
+    background-color: var(--fg);
+    z-index: 5;
+    border-radius: 10px;
+    transform: translateY(-25px);
+    display: none;
+}
+.dialog .create-prescription-dialog .form .prescription-name .suggestion-dropdown span{
+    width: 25px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: var(--bg);
+    color: var(--fg);
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    cursor: pointer;
+}
+.create-prescription-dialog .form .prescription-name .suggestion-dropdown .suggestion::-webkit-scrollbar{
+    width: 15px;
+}
+.create-prescription-dialog .form .prescription-name .suggestion-dropdown .suggestion::-webkit-scrollbar-track{
+    background-color: var(--disabled-clr);
+    border-radius: 10px;
+}
+.create-prescription-dialog .form .prescription-name .suggestion-dropdown .suggestion::-webkit-scrollbar-thumb{
+    border-radius: 10px;
+    background-color: var(--neon-pink);
+}
+.dialog .create-prescription-dialog .form .prescription-name .suggestion-dropdown .suggestion{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 30px;
+    padding: 5px;
+    color: var(--bg);
+    overflow-y: auto;
+    height: 240px;
+    width: calc(100% - 10px);
+}
+.dialog .create-prescription-dialog .form .prescription-name .suggestion-dropdown .suggestion p{
+    padding: 10px 5px;
+    border-radius: 5px;
+    background-color: var(--disabled-clr);
+    color: var(--fg);
+    cursor: pointer;
+}
+.dialog .create-prescription-dialog .form .prescription-name .suggestion-dropdown .suggestion p.expired{
+    background-color: red;
+}
+.dialog .create-prescription-dialog .timings{
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 100%;
+}
+.dialog .create-prescription-dialog .timings div:nth-child(3),
+.dialog .create-prescription-dialog .timings div:nth-child(1){
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+}
+.dialog .create-prescription-dialog .timings div:nth-child(3) span,
+.dialog .create-prescription-dialog .timings div:nth-child(1) span{
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.dialog .create-prescription-dialog .timings div:nth-child(3) input,
+.dialog .create-prescription-dialog .timings div:nth-child(1) input{
+    width: 20px;
+    height: 20px;
+}
+.dialog .create-prescription-dialog .timings div:nth-child(2){
+    width: 2px;
+    height: 100%;
+    background-color: var(--disabled-clr);
+}
+.dialog .create-prescription-dialog .controls{
+    margin-top: 10px;
+
+}
+
+
+
+
+
+
+
+
+
+.dialog .delete-prescription-dialog{
+    position: relative;
+    width: 260px;
+    height: 180px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+.dialog .delete-prescription-dialog.show{
+    display: flex;
+    animation: dialog-anim 0.5s linear forwards;
+}
+
+
+
+
+
+
+
+
+
+
+
+.dialog .prev-record-dialog{
+    position: relative;
+    width: 30%;
+    min-width: 300px;
+    height: 500px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    display: none;
+    gap: 10px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+.dialog .prev-record-dialog.show{
+    display: flex;
+    animation: dialog-anim 0.5s linear forwards;
+}
+.dialog .prev-record-dialog h2{
+    margin: 5px 20px;
+}
+.dialog .prev-record-dialog .no-records{
+    color: var(--neon-pink);
+    font-family: poppins-bold;
+    font-size: 20px;
+}
+.dialog .prev-record-dialog .data{
+    position: relative;
+    width: calc(100% - 20px);
+    height: calc(100% - 20px);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    overflow: auto;
+}
+.dialog .prev-record-dialog .data .record .datum::-webkit-scrollbar,
+.dialog .prev-record-dialog .data::-webkit-scrollbar{
+    width: 15px;
+}
+.dialog .prev-record-dialog .data .record .datum::-webkit-scrollbar-track,
+.dialog .prev-record-dialog .data::-webkit-scrollbar-track{
+    background-color: var(--fg);
+    border-radius: 10px;
+}
+.dialog .prev-record-dialog .data::-webkit-scrollbar-thumb{
+    background-color: var(--neon-blue);
+    border-radius: 10px;
+}
+.dialog .prev-record-dialog .data .record{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    background-color: var(--fg);
+    color: var(--bg);
+    min-height: 50px;
+    height: 50px;
+    width: calc(100% - 10px);
+    border-radius: 5px;
+    padding: 5px;
+    transition: 1s min-height,height;
+    overflow: hidden;
+}
+.dialog .prev-record-dialog .data .record .datum::-webkit-scrollbar-thumb{
+    background-color: var(--neon-pink);
+    border-radius: 10px;
+}
+.dialog .prev-record-dialog .data .record.show .datum{
+    overflow: auto;
+}
+.dialog .prev-record-dialog .data .record.show{
+    min-height: 400px;   
+}
+.dialog .prev-record-dialog .data .record.show h3 span:last-child{
+    rotate: 180deg;
+}
+.dialog .prev-record-dialog .data .record h3{
+    display: flex;
+    justify-content: space-between;
+    width: calc(100% - 20px);
+    cursor: pointer;
+    color: var(--fg);
+    padding: 10px;
+    border-radius: 5px;
+    background-color: var(--bg);
+}
+.dialog .prev-record-dialog .data .record h3 span:last-child{
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.5s;
+}
+.dialog .prev-record-dialog .data .record .datum h3{
+    background-color: var(--disabled-clr);
+    text-align: center;
+    justify-content: center;
+}
+.dialog .prev-record-dialog .data .record .datum .prescriptions .prescription p.heading{
+    text-align: center;
+    font-size: 20px;
+}
+.dialog .prev-record-dialog .controls{
+    display: none;
+    margin: 0px 20px !important;
+}
+
+
+
+
+
+
+
+
+
+.dialog .prescription-days-dialog{
+    position: relative;
+    width: 260px;
+    height: 200px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    display: none;
+    gap: 10px;
+    padding: 20px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+.dialog .prescription-days-dialog.show{
+    display: flex;
+    animation: dialog-anim 0.5s linear forwards;
+}
+.dialog .prescription-days-dialog .input{
+    margin-top: 30px;
+}
+
+
+
+
+
+
+
+
+
+
+@media (max-width:900px){
+    .main-container{
+        display: grid;
+        grid-template-areas: 'tests appointments' 'prescription prescription';
+        
+    }
+    .main-container .container{
+        grid-area: var(--area-name);
+        width: calc(100% - 20px);
+    }
+    .main-container .prescription{
+        margin-top: 80px;
+    }
+}
+@media (max-width:550px){
+    .main-container{
+        display: grid;
+        grid-template-areas: 'appointments' 'tests' 'prescription';
+    }
+    .main-container .container{
+        grid-area: var(--area-name);
+        width: calc(100% - 20px);
+    }
+    .main-container .tests{
+        margin-top: 80px;
+    }
+    .main-container .tests .new-test{
+        background-color: var(--neon-blue);
+    }
+}
+@media (max-width: 400px){
+    .dialog .precaution-dialog,
+    .dialog .reffer-test-dialog{
+        width: 260px;
+    }
+    .dialog .prev-record-dialog .controls{
+        display: flex;
+    }
+}

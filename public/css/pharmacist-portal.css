@@ -1,0 +1,574 @@
+body{
+    min-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+
+
+
+
+.cards{
+    width: 100%;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    transform: translateY(-50px);
+}
+.cards .card{
+    width: 300px;
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: space-between;
+}
+.cards .card h2{
+    font-family: poppins;
+    font-size: 22px;
+}
+.cards .card span{
+    font-size: 30px;
+}
+
+
+
+
+
+
+.main-container{
+    width: calc(100% - 40px);
+    padding: 0px 20px;
+    display: flex;
+    height: 500px;
+    gap: 20px;
+    transform: translateY(10px);
+    margin-bottom: 50px;
+}
+.main-container .explained-app{
+    border:2px solid var(--neon-pink);
+    width: 60%;
+    height: 100%;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.main-container .app-container{
+    border:2px solid  var(--neon-pink);
+    width: 40%;
+    height: 100%;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+}
+
+
+
+
+
+.print-dialog .info,
+.main-container .explained-app .data{
+    width: calc(100% - 20px);
+    height: 100%;
+    margin-top: 10px;
+    padding: 0px 10px;
+    overflow: auto;
+    display: flex;
+    gap: 5px;
+    flex-direction: column;
+}
+.print-dialog .info p span.bold,
+.main-container .explained-app .data p span.bold{
+    color: var(--neon-blue);
+    font-size: 18px;
+}
+.main-container .explained-app .data p span:last-child input[name='recieved-amt']{
+    padding: 5px;
+    font-size: 18px;
+    background-color: transparent;
+    color: var(--fg);
+    border: 2px solid var(--neon-blue);
+    outline: none;
+    border-radius: 10px;
+    width: 80px;
+    text-align: center;
+    font-family: poppins-bold;
+}
+.print-dialog .info .tests h3,
+.main-container .explained-app .data .tests h3{
+    width: calc(100% - 20px);
+    background-color: var(--disabled-clr);
+    text-align: center;
+    padding: 10px;
+    border-radius: 10px;
+}
+.print-dialog .info .tests .test,
+.main-container .explained-app .data .tests .test{
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin: 5px 0px;
+}
+.print-dialog .info .prescriptions,
+.main-container .explained-app .data .prescriptions{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.print-dialog .info .prescriptions h3,
+.main-container .explained-app .data .prescriptions h3{
+    background-color: var(--disabled-clr);
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    font-size: 20px;
+    border-radius: 10px;
+}
+.print-dialog .info .prescriptions .prescription,
+.main-container .explained-app .data .prescriptions .prescription{
+    display: flex;
+    flex-direction: column;
+}
+.print-dialog .info .prescriptions .prescription span,
+.main-container .explained-app .data .prescriptions .prescription span{
+    font-size: 20px;
+    text-align: center;
+    width: 100%;
+}
+.print-dialog .info .prescriptions .prescription p span,
+.main-container .explained-app .data .prescriptions .prescription p span{
+    font-size: 17px;
+}
+.print-dialog .info .prescriptions .prescription p span.bold,
+.main-container .explained-app .data .prescriptions .prescription p span.bold{
+    color: var(--neon-pink);
+}
+.main-container .explained-app .data .prescriptions .prescription span input{
+    padding: 5px;
+    font-size: 18px;
+    background-color: transparent;
+    color: var(--fg);
+    border: 2px solid var(--neon-pink);
+    outline: none;
+    border-radius: 10px;
+    width: 50px;
+    text-align: center;
+    font-family: poppins-bold;
+}
+.print-dialog .info .prescriptions .prescription hr,
+.main-container .explained-app .data .prescriptions .prescription hr{
+    width: 100%;
+    margin: 20px 0px;
+}
+.main-container .explained-app .data::-webkit-scrollbar{
+    width: 15px;
+}
+.main-container .explained-app .data::-webkit-scrollbar-track{
+    border-radius: 10px;
+    background-color: var(--fg);
+}
+.main-container .explained-app .data::-webkit-scrollbar-thumb{
+    border-radius: 10px;
+    background-color: var(--neon-pink);
+}
+
+
+
+
+
+
+.main-container .app-container .all-app{
+    width: calc(100% - 20px);
+    margin-top: 10px;
+    display: flex;
+    gap: 5px;
+    flex-direction: column;
+    overflow: auto;
+    padding: 10px;
+}
+.main-container .app-container .all-app::-webkit-scrollbar{
+    width: 15px;
+}
+.main-container .app-container .all-app::-webkit-scrollbar-track{
+    background-color: var(--fg);
+    border-radius: 10px;
+}
+.main-container .app-container .all-app::-webkit-scrollbar-thumb{
+    background-color: var(--neon-pink);
+    border-radius: 10px;
+}
+.main-container .app-container .all-app .appointment.selected{
+    background-color: rgb(112, 112, 5);
+}
+.main-container .app-container .all-app .appointment{
+    display: flex;
+    flex-direction: column;
+}
+.main-container .app-container .all-app .appointment span:nth-child(2),
+.main-container .app-container .all-app .appointment span:nth-child(3){
+    font-family: poppins;
+}
+.main-container .controls{
+    display: flex;
+    width: calc(100% - 20px);
+    gap: 10px;
+    margin: 10px 0px;
+    padding: 0px 10px;
+}
+
+
+
+
+
+
+
+
+
+
+
+.medicine-container{
+    position: relative;
+    display: flex;
+    gap: 20px;
+    width: calc(100% - 40px);
+    padding: 20px;
+    height: 500px;
+    margin-bottom: 50px;
+}
+
+
+
+
+.medicine-detail{
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-color: var(--clr);
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+.medicine-detail h2{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+.medicine-detail .data::-webkit-scrollbar{
+    width: 15px;
+}
+.medicine-detail .data::-webkit-scrollbar-track{
+    border-radius: 10px;
+    background-color: var(--fg);
+}
+.medicine-detail .data::-webkit-scrollbar-thumb{
+    border-radius: 10px;
+    background-color: var(--neon-pink);
+}
+.medicine-detail .data{
+    width: calc(100% - 10px);
+    height: 100%;
+    padding: 5px;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.medicine-detail .data .medicine{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    background-color: rgba(0,0,0,0.1);
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+.medicine-detail .data .medicine .edit{
+    background-color: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    color: var(--fg);
+    font-size: 30px;
+    border-radius: 10px;
+    scale: 0;
+    border-radius: 50%;
+    transition: 0.5s scale, border-radius;
+}
+.medicine-detail .data .medicine:hover .edit{
+    scale: 1;
+    border-radius: 10px;
+}
+.medicine-detail .personal-navigation{
+    width: 100%;
+    transform: none;
+    margin: 0;
+}
+.medicine-detail .personal-navigation .search{
+    min-width: 200px;
+    width: 100% !important;
+}
+.medicine-detail .personal-navigation .search input{
+    width: 100%;
+}
+
+
+
+
+
+
+
+
+
+
+
+.dialog .appointment-confirmation-dialog{
+    position: relative;
+    width: 260px;
+    height: 150px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+.dialog .appointment-confirmation-dialog.show{
+    display: flex;
+    animation: dialog-anim 0.5s linear forwards;
+}
+.dialog .appointment-confirmation-dialog .input{
+    margin-top: 20px;
+}
+.dialog .controls{
+    width: 100%;
+}
+
+
+
+
+
+
+
+
+.dialog .add-new-medicine-dialog{
+    position: relative;
+    min-width: 260px;
+    width: 40%;
+    height: 450px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: -20px;
+}
+.dialog .add-new-medicine-dialog.show{
+    display: flex;
+    animation: dialog-anim 0.5s linear forwards;
+}
+.dialog .add-new-medicine-dialog .form::-webkit-scrollbar{
+    width: 15px;
+}
+.dialog .add-new-medicine-dialog .form::-webkit-scrollbar-track{
+    border-radius: 10px;
+    background-color: var(--fg);
+}
+.dialog .add-new-medicine-dialog .form::-webkit-scrollbar-thumb{
+    border-radius: 10px;
+    background-color: var(--neon-pink);
+}
+.dialog .add-new-medicine-dialog .form{
+    width: calc(100% - 10px);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 30px;
+    overflow: auto;
+    padding: 20px 5px 5px 5px;
+    scroll-behavior: smooth;
+}
+.dialog .add-new-medicine-dialog .form .multi-input{
+    display: flex;
+    gap: 20px;
+    align-items: baseline;
+}
+.dialog .add-new-medicine-dialog .form .multi-input label{
+    white-space: nowrap;
+    font-size: 18px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+.dialog .edit-medicine-dialog{
+    position: relative;
+    min-width: 260px;
+    width: 40%;
+    height: 450px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: -20px;
+}
+.dialog .edit-medicine-dialog.show{
+    display: flex;
+    animation: dialog-anim 0.5s linear forwards;
+}
+.dialog .edit-medicine-dialog .form::-webkit-scrollbar{
+    width: 15px;
+}
+.dialog .edit-medicine-dialog .form::-webkit-scrollbar-track{
+    border-radius: 10px;
+    background-color: var(--fg);
+}
+.dialog .edit-medicine-dialog .form::-webkit-scrollbar-thumb{
+    border-radius: 10px;
+    background-color: var(--neon-pink);
+}
+.dialog .edit-medicine-dialog .data{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 17px;
+    margin-bottom: -20px;
+}
+.dialog .edit-medicine-dialog .form{
+    width: calc(100% - 10px);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 30px;
+    overflow: auto;
+    padding: 20px 5px 5px 5px;
+    scroll-behavior: smooth;
+    border: 2px solid var(--neon-blue);
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+.dialog .edit-medicine-dialog .form .multi-input{
+    display: flex;
+    gap: 20px;
+    align-items: baseline;
+}
+.dialog .edit-medicine-dialog .form .multi-input label{
+    white-space: nowrap;
+    font-size: 18px;
+}
+
+
+
+
+
+
+
+
+
+.print-dialog{
+    width: calc(100% - 40px);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    color: var(--bg);
+    background-color: var(--fg);
+    padding: 20px;
+}
+.print-dialog .title{
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    align-items: center;
+}
+.print-dialog .title div{
+    width: 100%;
+}
+.print-dialog .title img{
+    width: 150px;
+}
+.print-dialog hr{
+    width: 100%;
+}
+
+
+
+
+
+
+@media(max-width:650px){
+    .cards{
+        flex-wrap: wrap;
+    }
+    .cards .card{
+        width: calc(100% - 40px);
+    }
+    .main-container{
+        flex-wrap: wrap-reverse;
+        height: auto;
+    }
+    .main-container .explained-app,
+    .main-container .app-container{
+        width: 100%;
+        height: 500px;
+    }
+    .medicine-container{
+        flex-wrap: wrap;
+    }
+}
+@media (max-width:450px), (max-width:750px) and (min-width:650px){
+    .main-container .explained-app .controls{
+        flex-wrap: wrap;
+    }
+}
+@media (max-width:400px){
+    .dialog .medicine-detail .controls{
+        display: flex;
+    }
+    .dialog .add-new-medicine-dialog .form .multi-input{
+        gap: 10px;
+    }
+}
+
+
+
+@media print{
+    @page{
+        margin: 0;
+    }
+    .no-print{
+        display: none !important;
+    }
+    .print-dialog{
+        display: flex;
+        -webkit-print-color-adjust: exact;
+    }
+}

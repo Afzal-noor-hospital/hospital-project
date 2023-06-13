@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/general.css">
+    <link rel="stylesheet" href="../css/doctor-portal.css">
+    <link rel="stylesheet" href="../css/all.css">
+    <title>Doctor Portal - Afzal Noor Trust Hospital</title>
+</head>
+<body>      
+
+    <a href="top-of-page" class="top-of-page"></a>
+    <div class="top-navigation"></div>
+
+    <div class="main-container">
+        <div class="container tests" style="--area-name: tests;">
+            <button class="new-test" style="--clr: var(--neon-pink);" onclick="populate_new_test_dialog('reffer-test-dialog');">New Test</button>
+            <h2>Tests</h2>
+            <div class="all-test"></div>
+        </div>
+
+        <div class="container prescription" style="--area-name: prescription;">
+            <button class="precautions" style="--clr: var(--disabled-clr);" onclick="precautions_dialog()">Precautions</button>
+            <a title="Update Diagnosis" class="diagnosis" style="--clr: var(--neon-blue);"></a>
+            <h2>Select appointment from Appointments Tab to proceed</h2>
+            <div class="main">
+                <div class="prescriptions"></div>
+
+                <div class="controls">
+                    <a onclick="populate_prev_record();" class="btn prev-record">prev record</a>
+                    <button class="submit-app" onclick="show_dialog('prescription-days-dialog')" style="--clr: var(--neon-blue);">Submit</button>
+                    <button onclick="show_dialog('create-prescription-dialog');" style="--clr: var(--neon-pink);" class="add-new"><i class="fa-solid fa-plus"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="container appointments" style="--area-name: appointments;">
+            <h2>Appointments</h2>
+            <div class="all-app"></div>
+        </div>
+
+    </div>
+
+
+    <div class="dialog">
+
+        <div class="reffer-test-dialog">
+            <span class="cancel" onclick="hide_dialog(this);
+                                this.parentElement.parentElement.querySelector('p').classList.remove('show');">
+                <i class="fa-solid fa-xmark"></i>
+            </span>
+            <h2>Reffer Test</h2>
+            <p>Reffer <b class="bold">BP</b> test Again</p>
+            <div class="input">
+                <select name="test-name" required>
+                    <option value="BP">BP</option>
+                </select>
+                <span>Test Name</span>
+                <i></i>
+            </div>
+            <div class="controls">
+                <button onclick="hide_dialog(this.parentElement);
+                                this.parentElement.parentElement.querySelector('p').classList.remove('show');" 
+                                style="--clr: var(--disabled-clr);">Cancel</button>
+                <button onclick="reffer_test();" style="--clr: var(--neon-blue);">Confirm</button>
+            </div>
+        </div>
+
+        <div class="precaution-dialog">
+            <span class="cancel" onclick="hide_dialog(this);"><i class="fa-solid fa-xmark"></i></span>
+            <h2>Precaution Dialog</h2>
+            <div class="input">
+                <textarea name="precaution" rows="3" required></textarea>
+                <span>Precautions</span>
+                <i></i>
+            </div>
+            <div class="controls">
+                <button style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement);">Cancel</button>
+                <button style="--clr: var(--neon-blue);" onclick="save_precautions()">Save</button>
+            </div>
+        </div>
+
+        <div class="select-appointment-dialog">
+            <span class="cancel" onclick="hide_dialog(this);"><i class="fa-solid fa-xmark"></i></span>
+            <h2>Diagnosis</h2>
+            <div class="input">
+                <textarea name="diagnosis" rows="3" required></textarea>
+                <span>Diagnosis</span>
+                <i></i>
+            </div>
+            <div class="controls">
+                <button style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement);">Cancel</button>
+                <button style="--clr: var(--neon-blue);" onclick="proceed_appointment()">Proceed</button>
+            </div>
+        </div>
+
+        <div class="create-prescription-dialog">
+            <span class="cancel" onclick="hide_dialog(this);
+                    document.querySelector('.prescription .precautions').scrollIntoView({behavior: 'smooth'});
+                    document.querySelector('.create-prescription-dialog .controls button:last-child').innerHTML='Save';">
+                <i class="fa-solid fa-xmark"></i>
+            </span>
+            <h2>Prescription Dialog</h2>
+            <div class="form">
+                <div class="prescription-name">
+                    <div class="input">
+                        <textarea name="med-name" rows="3" required></textarea>
+                        <span>Medicine Name</span>
+                        <i></i>
+                    </div>
+                    <div class="suggestion-dropdown">
+                        <span onclick="this.parentElement.style.display='none';"><i class="fa-solid fa-xmark"></i></span>
+                        <div class="suggestion"></div>
+                    </div>
+                </div>
+                <div class="input">
+                    <input type="text" name="med-quantity" required>
+                    <span>Medicine Quantity</span>
+                    <i></i>
+                </div>
+                <div class="timings">
+                    <div>
+                        <span><input type="checkbox" name="time" value="Morning" checked> Morning</span>
+                        <span><input type="checkbox" name="time" value="Afternoon" checked> Afternoon</span>
+                        <span><input type="checkbox" name="time" value="Evening" checked> Evening</span>
+                    </div>
+                    <div></div>
+                    <div>
+                        <span><input type="checkbox" name="meal" value="Before Meal"> Before Meal</span>
+                        <span><input type="checkbox" name="meal" value="After Meal" checked> After Meal</span>
+                    </div>
+                </div>
+            </div>       
+            <div class="controls">
+                <button style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement);
+                document.querySelector('.prescription .precautions').scrollIntoView({behavior: 'smooth'});
+                document.querySelector('.create-prescription-dialog .controls button:last-child').innerHTML='Save';">Cancel</button>
+                <button style="--clr: var(--neon-blue);" onclick="save_prescription(this);">Save</button>
+            </div>     
+        </div>
+
+        <div class="delete-prescription-dialog">
+            <span class="cancel" onclick="hide_dialog(this)"><i class="fa-solid fa-xmark"></i></span>
+            <h2>Confirmation Dialog</h2>
+            <p>Are you want to delete prescription?</p>
+            <div class="controls">
+                <button style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement)">Cancel</button>
+                <button style="--clr: red;" onclick="delete_prescription();">Delete</button>
+            </div>
+        </div>
+
+        <div class="prev-record-dialog">
+            <span class="cancel" onclick="hide_dialog(this);"><i class="fa-solid fa-xmark"></i></span>
+            <h2>Previous Record</h2>
+            <p class="no-records">No Previous Record Found</p>
+            <div class="data"></div>
+            <div class="controls">
+                <button style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement);">Cancel</button>
+            </div>
+        </div>
+
+        <div class="prescription-days-dialog">
+            <span class="cancel" onclick="hide_dialog(this);"><i class="fa-solid fa-xmark"></i></span>
+            <h2>Medicine Duration</h2>
+            <div class="input">
+                <input type="text" name="duration" required>
+                <span>Duration</span>
+                <i></i>
+            </div>
+            <div class="controls">
+                <button style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement)">Cancel</button>
+                <button style="--clr: var(--neon-blue);" onclick="submit_appointment()">Proceed</button>
+            </div>
+        </div>
+
+    </div>
+
+
+
+
+
+    <div class="reports">
+
+        <div class="report cbc">
+            <div class="header">
+                <p>
+                    <span class="bold">Patient ID: </span>
+                    <span class="id">20210001</span>
+                </p>
+                <p>
+                    <span class="bold">Patient Name: </span>
+                    <span class="name">Muhammad Amir Hamza</span>
+                </p>
+                <p>
+                    <span class="bold">Sample ID: </span>
+                    <span class="s-id">00002</span>
+                </p>
+                <p>
+                    <span class="bold">Type: </span>
+                    <span class="type">Standard</span>
+                </p>
+                <p>
+                    <span class="bold">Operator ID: </span>
+                    <span class="op-id">ah5958076@gmail.com</span>
+                </p>
+                <p>
+                    <span class="bold">Reg Date: </span>
+                    <span class="reg-date">9 Mar 2023, 12:51</span>
+                </p>
+            </div>
+            <div class="table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Result</th>
+                            <th>Flags</th>
+                            <th>Unit</th>
+                            <th>Normal Limits</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="comment">
+                <span>Comments</span>
+                <p>comment</p>
+            </div>
+            <div class="controls">
+                <button style="--clr: var(--bg);" onclick="this.parentElement.parentElement.classList.remove('show');">Dismiss <i class="fa-solid fa-xmark"></i></button>
+            </div>
+        </div>
+
+    </div>
+
+
+
+    <script src="../js/general.js"></script>
+    <script src="../js/doctor-portal.js"></script>
+    <script src="../js/all.js"></script>
+
+</body>
+</html>

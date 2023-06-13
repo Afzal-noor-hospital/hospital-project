@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/general.css">
+    <link rel="stylesheet" href="../css/pharmacist-portal.css">
+    <link rel="stylesheet" href="../css/all.css">
+    <title class="no-print">Pharmacist Portal - Afzal Noor Trust Hospital</title>
+</head>
+<body>
+    <div class="top-of-page no-print"></div>
+    <div class="top-navigation no-print"></div>
+    
+
+    <div class="cards no-print">
+        <button class="card correct" style="--clr: var(--neon-pink);" onclick="document.querySelector('.medicine-detail.useable').scrollIntoView({behavior:'smooth'})">
+            <h2>Useable Medicines</h2>
+            <span>10</span>
+        </button>
+
+        <button class="card Expired" style="--clr: red;" onclick="document.querySelector('.medicine-detail.expired').scrollIntoView({behavior:'smooth'})">
+            <h2>Expired Medicines</h2>
+            <span>10</span>
+        </button>
+    </div>
+
+    <div class="main-container no-print">
+        
+        <div class="explained-app">
+            <h2>Opened Appointment</h2>
+
+            <div class="data"></div>
+
+            <div class="controls">
+                <button style="--clr: var(--neon-blue);" onclick="send_back_app()">Send Back</button>
+                <button style="--clr: rgb(112,112,5);" onclick="print_reciept()">Print</button>
+                <button style="--clr: var(--neon-pink);" onclick="show_dialog('appointment-confirmation-dialog');">Proceed</button>
+            </div>
+
+        </div>
+
+        <div class="app-container">
+            <h2>Appointments</h2>
+            <div class="all-app"></div>
+        </div>
+
+    </div>
+
+
+
+    <div class="medicine-container no-print">
+
+        <div class="medicine-detail useable" style="--clr: var(--neon-blue);">
+            <h2>
+                Useable Medicines
+                <div class="personal-navigation">
+                    <div class="search">
+                        <input type="text" name="search" placeholder="Search Here">
+                        <i class="fa-solid fa-search"></i>
+                    </div>
+                </div>
+            </h2>    
+            <div class="data"></div>
+        </div>
+
+        <div class="medicine-detail expired" style="--clr: var(--disabled-clr);">
+            <h2>
+                Expired Medicines
+                <div class="personal-navigation">
+                    <div class="search">
+                        <input type="text" name="search" placeholder="Search Here">
+                        <i class="fa-solid fa-search"></i>
+                    </div>
+                </div>
+            </h2>
+            <div class="data"></div>    
+        </div>
+    
+    </div>
+
+
+
+
+    <div class="dialog no-print">
+
+        <div class="appointment-confirmation-dialog">
+            <span class="cancel" onclick="hide_dialog(this);"><i class="fa-solid fa-xmark"></i></span>
+            <h2>Finalizing</h2>
+            <p>Are you sure to confirm?<p>
+            <div class="controls">
+                <button style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement);">Cancel</button>
+                <button style="--clr: var(--neon-blue);" onclick="complete_app()">Proceed</button>
+            </div>
+        </div>
+
+        <div class="add-new-medicine-dialog">
+            <span class="cancel" onclick="hide_dialog(this);"><i class="fa-solid fa-xmark"></i></span>
+            <h2>Add New Medicine</h2>
+
+            <div class="form">
+                <div class="input">
+                    <input type="text" name="name" required>
+                    <span>Medicine Name</span>
+                    <i></i>
+                </div>
+                <div class="side-by-side">
+                    <div class="input">
+                        <input type="number" name="quantity" min="0" required>
+                        <span>Quantity</span>
+                        <i></i>
+                    </div>
+                    <div class="input">
+                        <select name="type">
+                            <option value="Syrup" selected>Syrup</option>
+                            <option value="Tablet">Tablet</option>
+                            <option value="Injection">Injection</option>
+                        </select>
+                        <span>Type</span>
+                        <i></i>
+                    </div>
+                </div>
+                <div class="input">
+                    <input type="number" name="price" required>
+                    <span>Price</span>
+                    <i></i>
+                </div>
+                <div class="multi-input">
+                    <label>MFG Date: </label>
+                    <div class="input">
+                        <input type="number" name="mfg-month" min="1" max="12" required>
+                        <span>Month</span>
+                        <i></i>
+                    </div>
+                    <div class="input">
+                        <input type="number" name="mfg-year" min="1500" required>
+                        <span>Year</span>
+                        <i></i>
+                    </div>
+                </div>
+                <div class="multi-input">
+                    <label>Exp Date: </label>
+                    <div class="input">
+                        <input type="number" name="exp-month" min="1" max="12" required>
+                        <span>Month</span>
+                        <i></i>
+                    </div>
+                    <div class="input">
+                        <input type="number" name="exp-year" min="1500" required>
+                        <span>Year</span>
+                        <i></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement);">Cancel</button>
+                <button style="--clr: rgb(112,112,5);" onclick="reset_fields(this.parentElement.parentElement)">Reset</button>
+                <button style="--clr: var(--neon-blue);" onclick="save_medicine(this.parentElement.parentElement);">Save</button>
+            </div>
+        </div>
+
+        <div class="edit-medicine-dialog">
+            <span class="cancel" onclick="hide_dialog(this);"><i class="fa-solid fa-xmark"></i></span>
+            <h2>Edit Medicine</h2>
+
+            <div class="data">
+                <p>
+                    <span class="bold">Name: </span>
+                    <span>Calpol</span>
+                </p>
+                <p>
+                    <span class="bold">Type: </span>
+                    <span>Syrup</span>
+                </p>
+            </div>
+
+            <div class="form">
+                <div class="input">
+                    <input type="number" name="quantity" min="0" required>
+                    <span>Quantity</span>
+                    <i></i>
+                </div>
+                <div class="input">
+                    <input type="number" name="price" required>
+                    <span>Price</span>
+                    <i></i>
+                </div>
+                <div class="multi-input">
+                    <label>MFG Date: </label>
+                    <div class="input">
+                        <input type="number" name="mfg-month" min="1" max="12" required>
+                        <span>Month</span>
+                        <i></i>
+                    </div>
+                    <div class="input">
+                        <input type="number" name="mfg-year" min="1500" required>
+                        <span>Year</span>
+                        <i></i>
+                    </div>
+                </div>
+                <div class="multi-input">
+                    <label>Exp Date: </label>
+                    <div class="input">
+                        <input type="number" name="exp-month" min="1" max="12" required>
+                        <span>Month</span>
+                        <i></i>
+                    </div>
+                    <div class="input">
+                        <input type="number" name="exp-year" min="1500" required>
+                        <span>Year</span>
+                        <i></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement);">Cancel</button>
+                <button style="--clr: rgb(112,112,5);" onclick="reset_fields(this.parentElement.parentElement)">Reset</button>
+                <button style="--clr: var(--neon-blue);" onclick="update_medicine(this.parentElement.parentElement);">Update</button>
+            </div>
+        </div>
+
+    </div>
+
+
+
+    
+
+    <div class="print-dialog">
+        <div class="title">
+            <div>
+                <h1>Afzal Noor Trust Hospital</h1>
+                <p>18 GD, Okara</p>
+                <p>Contact #: 0313-8978675</p>
+            </div>
+            <img src="../res/icon.png">
+        </div>
+        <hr>
+        <div class="info"></div>
+    </div>
+
+
+    <script src="../js/general.js"></script>
+    <script src="../js/pharmacist-portal.js"></script>
+    <script src="../js/all.js"></script>
+
+</body>
+</html>

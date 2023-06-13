@@ -1,0 +1,694 @@
+body{
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+
+
+
+
+.main-container{
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    transform: translateY(-50px);
+}
+.main-container .id-sec,
+.main-container .app-detail{
+    min-width: 260px;
+    height: 400px;
+    width: calc(40% - 40px);
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.main-container .id-sec{
+    justify-content: space-between;
+}
+.main-container .id-sec .patient-info{
+    width: calc(100% - 40px);
+    height: calc(100% - 40px);
+    background-color: rgba(255,255,255,0.2);
+    margin-top: 10px;
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    visibility: hidden;
+}
+.main-container:has(.app-detail .not-selected:not(.show)) .id-sec .patient-info{
+    visibility: visible;
+}
+.main-container .id-sec .side-by-side{
+    width: 100%;
+    gap: 5px;
+    margin-top: 20px;
+}
+.main-container .id-sec .side-by-side .id-container{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+}
+.main-container .id-sec .side-by-side .controls{
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+}
+.main-container .id-sec .side-by-side .controls button{
+    width: 50px;
+}
+.main-container .id-sec .patient-info .controls{
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+.main-container .id-sec .patient-info .controls button{
+    width: 50px;
+}
+
+
+
+
+
+.main-container .app-detail .tests::-webkit-scrollbar{
+    width: 15px;
+}
+.main-container .app-detail .tests::-webkit-scrollbar-track{
+    border-radius: 10px;
+    background-color: var(--fg);
+}
+.main-container .app-detail .tests::-webkit-scrollbar-thumb{
+    border-radius: 10px;
+    background-color: var(--neon-blue);
+}
+.main-container .app-detail .not-selected{
+    text-align: center;
+    margin-top: 50px;
+    color: var(--neon-pink);
+    font-size: 20px;
+    font-family: poppins-bold;
+    display: none;
+}
+.main-container .app-detail .not-selected.show{
+    display: flex;
+}
+.main-container .app-detail:has(.not-selected:not(.show)) .tests,
+.main-container .app-detail:has(.not-selected:not(.show)) .controls{
+    display: flex;
+}
+.main-container .app-detail .tests{
+    width: calc(100% - 20px);
+    height: 100%;
+    padding: 20px 10px;
+    overflow: auto;
+    display: none;
+    flex-direction: column;
+    gap: 30px;
+}
+.main-container .app-detail .tests button{
+    border-radius: 10px 0px 10px 0px;
+    width: 100%;
+}
+.main-container .app-detail .tests button.finalized{
+    background-color: var(--disabled-clr) !important;
+}
+.main-container .app-detail .tests .input{
+    margin-top: 10px;
+}
+.main-container .app-detail .tests .input input.disabled{
+    color: var(--bg);
+}
+.main-container .app-detail .tests .input input.disabled ~ span{
+    transform: translateY(-40px);
+}
+.main-container .app-detail .tests .input input.disabled ~ i{
+    height: 100%;
+    background: var(--fg);
+}
+.main-container .app-detail .controls{
+    display: none;
+    width: 100%;
+    gap: 5px;
+}
+.main-container .app-detail .controls button:nth-child(1){
+    width: 60px;
+}
+
+
+
+
+
+
+
+
+
+
+
+.try-another-way-container{
+    position: relative;
+    width: calc(80% - 20px);
+    min-width: 260px;
+    padding: 20px;
+    display: flex;
+    gap: 20px;
+    flex-direction: column;
+    align-self: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    height: 550px;
+    margin-bottom: 50px;
+}
+.try-another-way-container .reset-data{
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    width: 30px;
+    height: 30px;
+    display: flex; 
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;   
+}
+.try-another-way-container .search-filters{
+    width: 100%;
+    display: flex;
+    gap: 30px;
+}
+.try-another-way-container .search-filters .side-by-side{
+    width: 100%;
+}
+.try-another-way-container .search-filters input[name='by-father-name'] ~ span{
+    letter-spacing: 0;
+    font-size: 17px;
+}
+.try-another-way-container .patients::-webkit-scrollbar{
+    width: 15px;
+}
+.try-another-way-container .patients::-webkit-scrollbar-track{
+    border-radius: 10px;
+    background-color: var(--fg);
+}
+.try-another-way-container .patients::-webkit-scrollbar-thumb{
+    border-radius: 10px;
+    background-color: var(--neon-pink);
+}
+.try-another-way-container .patients{
+    height: 100%;
+    width: calc(100% - 10px);
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 10px;
+    overflow: auto;
+    scroll-behavior: smooth;
+}
+.try-another-way-container .patients button{
+    text-align: left;
+    font-family: poppins;
+}
+.try-another-way-container .patients button p:nth-child(2){
+    color: rgba(255,255,255,0.8);
+}
+.try-another-way-container .patients button p:nth-child(3){
+    color: rgba(255,255,255,0.5);
+}
+
+
+
+
+
+
+
+
+
+
+.patient-card{
+    display: flex;
+    background-color: var(--fg);
+    width: 100%;
+    height: 100vh;
+    background-color: var(--fg);
+    flex-direction: column;
+    gap: 20px;
+    color: var(--bg);
+    padding-top: 20px;
+    padding-left: 20px;
+}
+.patient-card .front,
+.patient-card .back{
+    border:2px dashed red;
+    width: 336px;
+    height: 192px;
+    border-radius: 10px;   
+    padding: 5px;
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    justify-content: space-between; 
+    overflow: hidden;
+}
+.patient-card .header{
+    position: relative;
+    background-color: red;
+    display: flex;
+    justify-content: space-between;
+    border-radius: 10px 10px 0px 0px;
+    padding: 5px;
+    align-items: center;
+}
+.patient-card .header p{
+    font-family: poppins-bold;
+    color: var(--fg);
+    font-size: 18px;
+}
+.patient-card .header img{
+    width: 50px;
+    height: 50px;
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    background-color: aqua;
+    border: 3px solid var(--fg);
+    border-radius: 50%;
+}
+.patient-card .id{
+    text-align: center;
+    font-family: poppins-bold;
+    font-size: 15px;
+}
+.patient-card .content{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.patient-card .content .qrcode{
+    width: 100px;
+    height: 100px;
+    background-color: red;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.patient-card .content .data{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.patient-card .content .data .datum{
+    display: flex;
+    gap: 2px;
+}
+.patient-card .content .data .datum span:first-child{
+    font-family: poppins-bold;
+}
+.patient-card .content .data .datum span{
+    font-size: 12px;
+}
+.patient-card .content:has(.heading){
+    flex-direction: column;
+    gap: 0;
+}
+.patient-card .content .heading{
+    text-align: left;
+    width: 100%;
+    font-size: 15px;
+    font-family: poppins-bold;
+    text-decoration: underline;
+}
+.patient-card .content .instructions{
+    font-size: 12px;
+    margin: 0;
+    padding: 0px 0px 0px 40px;
+}
+.patient-card .footer{
+    background-color: var(--bg);
+    border-radius: 0px 0px 10px 10px;
+    color: var(--fg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+    height: 25px;
+}
+.patient-card .footer p{
+    font-size: 12px;
+}
+
+
+
+
+
+
+
+
+
+.dialog .add-new-patient-dialog{
+    position: relative;
+    min-width: 260px;
+    width: 40%;
+    height: 450px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    justify-content: space-between;
+    margin-top: -20px;
+}
+.dialog .add-new-patient-dialog.show{
+    display: flex;
+    animation: dialog-anim 0.5s linear forwards;
+}
+.dialog .add-new-patient-dialog .form::-webkit-scrollbar{
+    width: 15px;
+}
+.dialog .add-new-patient-dialog .form::-webkit-scrollbar-track{
+    border-radius: 10px;
+    background-color: var(--fg);
+}
+.dialog .add-new-patient-dialog .form::-webkit-scrollbar-thumb{
+    border-radius: 10px;
+    background-color: var(--neon-blue);
+}
+.dialog .add-new-patient-dialog .form{
+    width: calc(100% - 20px);
+    height: 100%;
+    padding: 20px 10px 10px 10px;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    scroll-behavior: smooth;
+}
+.dialog .add-new-patient-dialog .controls{
+    width: 100%;
+}
+
+
+
+
+
+
+
+.dialog .doctor-selection-dialog{
+    position: relative;
+    min-width: 260px;
+    height: 200px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    justify-content: space-between;
+    margin-top: -20px;
+}
+.dialog .doctor-selection-dialog.show{
+    display: flex;
+    animation: dialog-anim 0.5s linear forwards;
+}
+.dialog .doctor-selection-dialog .input{
+    margin: 20px;
+}
+.dialog .doctor-selection-dialog .controls{
+    width: 100%;
+}
+
+
+
+
+
+
+
+.dialog .print-card-dialog{
+    position: relative;
+    min-width: 260px;
+    height: 200px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    justify-content: space-between;
+    margin-top: -20px;
+}
+.dialog .print-card-dialog.show{
+    display: flex;
+    animation: dialog-anim 0.5s linear forwards;
+}
+.dialog .print-card-dialog .controls{
+    width: 100%;
+}
+
+
+
+
+
+
+
+
+.dialog .qrcode-camera-dialog{
+    position: relative;
+    min-width: 260px;
+    height: 200px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    justify-content: space-between;
+    margin-top: -20px;
+}
+.dialog .qrcode-camera-dialog.show{
+    display: flex;
+    animation: dialog-anim 0.5s linear forwards;
+}
+.dialog .qrcode-camera-dialog .camera-data{
+    position: relative;
+    width: 150px;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.dialog .qrcode-camera-dialog .camera-data span.line{
+    font-family: poppins-bold;
+    font-size: 17px;
+    color: var(--neon-pink);
+}
+.dialog .qrcode-camera-dialog .controls{
+    width: 100%;
+}
+
+
+
+
+
+
+
+
+
+.dialog .template-selection-dialog{
+    position: relative;
+    min-width: 260px;
+    height: 350px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    justify-content: space-between;
+    margin-top: -20px;
+}
+.dialog .template-selection-dialog.show{
+    display: flex;
+    animation: dialog-anim 0.5s linear forwards;
+}
+.dialog .template-selection-dialog .templates::-webkit-scrollbar{
+    width: 15px;
+}
+.dialog .template-selection-dialog .templates::-webkit-scrollbar-track{
+    background-color: var(--fg);
+    border-radius: 10px;
+}
+.dialog .template-selection-dialog .templates::-webkit-scrollbar-thumb{
+    background-color: var(--neon-pink);
+    border-radius: 10px;
+}
+.dialog .template-selection-dialog .templates{
+    width: 100%;
+    overflow: auto;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 0px 10px;
+}
+.dialog .template-selection-dialog .templates .template::before{
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.2);
+    scale: 0;
+    border-radius: 50%;
+    transition: 0.5s scale;
+}
+.dialog .template-selection-dialog .templates .template:hover::before{
+    scale: 1;
+    border-radius: 0;
+}
+.dialog .template-selection-dialog .templates .template{
+    position: relative;
+    border: 1px solid var(--fg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    cursor: pointer;
+    border-radius: 5px;
+}
+.dialog .template-selection-dialog .templates .template img{
+    width: 100px;
+}
+.dialog .template-selection-dialog .controls{
+    width: 100%;
+    display: none;
+}
+
+
+
+
+
+
+
+
+
+
+
+.dialog .generate-new-report-dialog{
+    position: relative;
+    min-width: 260px;
+    height: 330px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+.dialog .generate-new-report-dialog.show{
+    display: flex;
+    animation: dialog-anim 0.5s linear forwards;
+}
+.dialog .generate-new-report-dialog .info{
+    width: 100%;
+    margin-top: 20px;
+}
+.dialog .generate-new-report-dialog .controls{
+    width: 100%;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+@media(max-width: 900px){
+    .dialog .add-new-patient-dialog{
+        height: 500px;
+    }
+    .dialog .add-new-patient-dialog .form .side-by-side{
+        flex-wrap: wrap;
+    }
+    .dialog .add-new-patient-dialog .controls{
+        flex-wrap: wrap-reverse;
+    }
+}
+@media(max-width: 850px) and (min-width: 650px), (max-width: 410px){
+    .app-detail .controls button:last-child{
+        font-size: 15px;
+    }
+}
+@media(max-width:800px){
+    .try-another-way-container .search-filters{
+        flex-wrap: wrap;
+    }
+}
+@media (max-width:650px){
+    .main-container{
+        flex-wrap: wrap;
+        width: calc(100% - 40px);
+        padding: 20px;
+    }
+    .main-container .id-sec,
+    .main-container .app-detail{
+        width: calc(100% - 60px);
+        height: 500px;
+    }
+}
+@media(max-width:400px){
+    .dialog .template-selection-dialog{
+        height: 350px;
+    }
+    .dialog .template-selection-dialog .controls{
+        display: flex;
+        margin-top: 10px;
+    }
+}
+@media (max-width: 350px){
+    .try-another-way-container .search-filters input[name='by-father-name'] ~ span{
+        font-size: 15px;
+    }
+}
+
+.only-for-print{
+    display: none;
+}
+@media print{
+    @page{
+        margin: 0;
+        padding: 0;
+    }
+    .no-print{
+        display: none;
+        visibility: hidden;
+    }
+    .patient-card .header{
+        background-color: red !important;
+        -webkit-print-color-adjust: exact;
+    }
+    .patient-card .footer{
+        background-color: var(--bg) !important;
+        -webkit-print-color-adjust: exact;
+    }
+    .only-for-print{
+        display: flex;
+    }
+}

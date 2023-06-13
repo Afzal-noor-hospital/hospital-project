@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/general.css">
+    <link rel="stylesheet" href="../css/admin-portal.css">
+    <link rel="stylesheet" href="../css/all.css">
+    <title>Admin Portal - Afzal Noor Trust Hospital</title>
+</head>
+<body>
+
+    <a href="top-of-page" class="top-of-page"></a>
+
+    <div class="top-navigation">
+
+        <div class="cards">
+            <div data-online="9+" class="card admin online active" style="--area-name: admin;" onclick="populate_admin(true);">
+                <p>Admin</p>
+                <p>10</p>
+            </div>
+            <div data-online="9+" class="card doctor online" style="--area-name: doctor;" onclick="populate_doctor(true);">
+                <p>Doctor</p>
+                <p>10</p>
+            </div>
+            <div data-online="9+" class="card receptionist online" style="--area-name: receptionist;" onclick="populate_receptionist(true);">
+                <p>Receptionist</p>
+                <p>10</p>
+            </div>
+            <div data-online="9+" class="card pharmacist online" style="--area-name: pharmacist;" onclick="populate_pharmacist(true);">
+                <p>Pharmacist</p>
+                <p>10</p>
+            </div>
+        </div>
+
+        <div class="main-container">
+
+            <div class="offline-users" style="--clr: var(--neon-blue);">
+                <h2>All Admins</h2>
+                <div class="users"></div>
+            </div>
+
+            <div class="online-users" style="--clr: var(--neon-pink);">
+                <h2>Online Admins</h2>
+                <div class="users"></div>
+            </div>
+
+        </div>
+
+
+        <div class="patient_info_container">
+            <div class="info patients" style="--clr: var(--neon-blue);">
+                <div class="special-card">
+                    <h2>Patients</h2>
+                    <p>9</p>
+                </div>
+                <div class="expanded-info">
+                    <div class="search">
+                        <input type="text" name="search" placeholder="Search Here">
+                        <i class="fa-solid fa-search"></i>
+                    </div>
+                    <div class="info-cards"></div>      
+                </div>
+            </div>
+            <div class="info appointments" style="--clr: var(--neon-pink);">
+                <div class="special-card" data-count="4">
+                    <h2>Appointments</h2>
+                    <p>9</p>
+                </div>
+                <div class="expanded-info">
+                    <button onclick="show_filter_dialog('appointment-filter-dialog');" class="filter"><i class="fa-solid fa-filter"></i></button>
+                    <div class="info-cards"></div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="download-report">
+            <div class="input">
+                <select name="record-type">
+                    <option value="All" selected>All</option>
+                    <option value="Staff">Only Staff</option>
+                    <option value="Patients">Only Patients</option>
+                    <option value="Appointments">Only Appointments</option>
+                </select>
+                <span>Record Type</span>
+                <i></i>
+            </div>
+
+            <div class="input">
+                <select name="staff-type" class="download-type">
+                    <option value="All" selected>Download All</option>
+                    <option value="Admins">Only Admins</option>
+                    <option value="Receptionists">Only Receptionists</option>
+                    <option value="Doctors">Only Doctors</option>
+                    <option value="Pharmacists">Only Pharmacists</option>
+                </select>
+                <span>Download Type</span>
+                <i></i>
+            </div>
+
+            <div class="input">
+                <select name="patients-type" class="download-type">
+                    <option value="All" selected>Download All</option>
+                    <option value="Custom">Custom Download</option>
+                </select>
+                <span>Download Type</span>
+                <i></i>
+            </div>
+
+            <div class="input">
+                <select name="appointments-type" class="download-type">
+                    <option value="All" selected>Download All</option>
+                    <option value="Filtered">Download with filters</option>
+                </select>
+                <span>Download Type</span>
+                <i></i>
+            </div>
+            <button style="--clr: var(--neon-blue);" onclick="download_report(this.parentElement);">Download</button>
+        </div>
+
+    </div>
+
+
+
+
+
+    <div class="dialog">
+
+        <div class="update-staff-dialog">
+            <span class="cancel" onclick="hide_dialog(this);"><i class="fa-solid fa-xmark"></i></span>
+            <h2>Update Staff</h2>
+            
+            <div class="container">
+                <div class="side-by-side">
+                    <div class="input">
+                        <input type="text" name="first-name" required>
+                        <span>First Name</span>
+                        <i></i>
+                    </div>
+                    <div class="input">
+                        <input type="text" name="last-name" required>
+                        <span>Last Name</span>
+                        <i></i>
+                    </div>
+                </div>
+    
+                <div class="side-by-side">
+                    <div class="input">
+                        <input type="text" name="father-name" required>
+                        <span>Father Name</span>
+                        <i></i>
+                    </div>
+                    <div class="input">
+                        <input type="date" name="dob" required>
+                        <span>Birth Date</span>
+                        <i></i>
+                    </div>
+                </div>
+    
+                <div class="side-by-side">
+                    <div class="input">
+                        <select name="gender" required>
+                            <option value="Male" selected>Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <span>Gender</span>
+                        <i></i>
+                    </div>
+                    <div class="input">
+                        <select name="role" required>
+                            <option value="Admin" selected>Admin</option>
+                            <option value="Doctor">Doctor</option>
+                            <option value="Receptionist">Receptionist</option>
+                            <option value="Pharmacist">Pharmacist</option>
+                        </select>
+                        <span>Role</span>
+                        <i></i>
+                    </div>
+                </div>
+    
+                <div class="side-by-side">
+                    <div class="input">
+                        <input type="text" name="cnic" required>
+                        <span>CNIC</span>
+                        <i></i>
+                    </div>
+                    <div class="input">
+                        <input type="text" name="number" required>
+                        <span>Contact Number</span>
+                        <i></i>
+                    </div>
+                </div>
+                
+                <div class="input">
+                    <label name="username" title=""></label>
+                </div>
+                
+                <div class="input">
+                    <textarea name="address" rows="5" required></textarea>
+                    <span>Address</span>
+                    <i></i>
+                </div>
+    
+            </div>
+    
+            <div class="controls">
+                <button style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement)">Cancel</button>
+                <button style="--clr: var(--neon-blue);">Update</button>
+            </div>
+    
+        </div>
+
+        <div class="add_new_test_dialog">
+            <span class="cancel" onclick="hide_dialog(this);"><i class="fa-solid fa-xmark"></i></span>
+            <h2>Add New Test</h2>
+
+            <div class="input">
+                <input type="text" name="test-name" required>
+                <span>Test Name</span>
+                <i></i>
+            </div>
+            <div class="input"> 
+                <input type="number" name="test-price" min="0" required>
+                <span>Test Price</span>
+                <i></i>
+            </div>
+            <div class="input">
+                <select name="test-type">
+                    <option value="Basic" selected>Basic</option>
+                    <option value="Standard">Standard</option>
+                </select>
+                <span>Test Type</span>
+                <i></i>
+            </div>
+
+            <div class="controls">
+                <button style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement);">Cancel</button>
+                <button style="--clr: var(--neon-blue);" onclick="save_test(this.parentElement)">Save</button>
+            </div>
+        </div>
+
+        <div class="update_test_dialog">
+            <span class="cancel" onclick="hide_dialog(this);"><i class="fa-solid fa-xmark"></i></span>
+            <h2>Update Test</h2>
+            
+            <span class="test-name"></span>
+
+            <div class="input"> 
+                <input type="number" name="test-price" min="0" required>
+                <span>Test Price</span>
+                <i></i>
+            </div>
+            <div class="input">
+                <select name="test-type">
+                    <option value="Basic" selected>Basic</option>
+                    <option value="Standard">Standard</option>
+                </select>
+                <span>Test Type</span>
+                <i></i>
+            </div>
+
+            <div class="controls">
+                <button style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement);">Cancel</button>
+                <button style="--clr: var(--neon-blue);" onclick="update_test(this.parentElement)">Update</button>
+            </div>
+        </div>
+
+        <div class="appointment-filter-dialog">
+            <span class="cancel" onclick="hide_dialog(this);"><i class="fa-solid fa-xmark"></i></span>
+            <h2>Set Filters</h2>
+
+            <div class="form">
+                <div class="input">
+                    <input type="text" name="patient-id" required>
+                    <span>Patient ID</span>
+                    <i></i>
+                </div>
+                <div class="input">
+                    <input type="text" name="patient-name" required>
+                    <span>Patient Name</span>
+                    <i></i>
+                </div>
+                <div class="side-by-side">
+                    <div class="input">
+                        <input type="date" name="range-from" required>
+                        <span>From</span>
+                        <i></i>
+                    </div>
+                    <div class="input">
+                        <input type="date" name="range-to" required>
+                        <span>To</span>
+                        <i></i>
+                    </div>
+                </div>
+                <div class="input">
+                    <select name="status" required>
+                        <option value="all" selected>All</option>
+                        <option value="at receptionist">At Receptionist</option>
+                        <option value="at doctor">At Doctor</option>
+                        <option value="at pharmacist">At Pharmacist</option>
+                        <option value="done">Done</option>
+                        <option value="dismiss">Dismiss</option>
+                    </select>
+                    <span>Order</span>
+                    <i></i>
+                </div>
+                <div class="input">
+                    <select name="order" required>
+                        <option value="-" selected>--SELECT--</option>
+                        <option value="Descending">Descending</option>
+                        <option value="Ascending">Ascending</option>
+                    </select>
+                    <span>Order</span>
+                    <i></i>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button onclick="hide_dialog(this.parentElement);" style="--clr: var(--disabled-clr);">Cancel</button>
+                <button onclick="reset_filter_fields(this.parentElement.parentElement);" style="--clr: rgb(104, 104, 7);">Reset</button>
+                <button onclick="apply_filters(this.parentElement);" style="--clr: var(--neon-blue);">Apply</button>
+            </div>
+        </div>
+
+    </div>
+
+
+    <script src="../js/general.js"></script>
+    <script src="../js/admin-portal.js"></script>
+    <script src="../js/all.js"></script>
+
+</body>
+</html>
