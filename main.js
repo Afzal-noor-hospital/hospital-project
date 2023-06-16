@@ -1,4 +1,4 @@
-const { app, BrowserWindow, screen, ipcMain, Menu, powerMonitor, shell } = require('electron')
+const { app, BrowserWindow, screen, ipcMain, Menu, powerMonitor, shell, dialog } = require('electron')
 const {initializeApp} = require("firebase/app");
 const {getDatabase, ref, set, get, remove, onValue} = require("firebase/database");
 const package_json = require("./package.json")
@@ -131,6 +131,16 @@ ipcMain.on("fetch", (event, path, reply_id) => {
 
 
 
+ipcMain.on("get-path", (event, reply_id) => {
+  dialog.showSaveDialog(main).then((val) => {
+    event.reply(reply_id, val.filePath);
+  }).catch((e) => {
+    event.reply(reply_id, false);
+  })
+})
+
+
+
 
 onValue(ref(database, "/"), (snapshot) => {
   if(main)
@@ -156,7 +166,7 @@ const laod_portal = () => {
 
 
 powerMonitor.on("lock-screen", (e) => {
-  if(main){
+  if(main && loginProfile){
     set(ref(database, `staff/${loginProfile.id}/status`), "offline").then((val) => {
       main.loadFile(process.cwd()+"/public/html/login.html");
     });

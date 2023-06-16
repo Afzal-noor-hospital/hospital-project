@@ -48,7 +48,6 @@
 
         </div>
 
-
         <div class="patient_info_container">
             <div class="info patients" style="--clr: var(--neon-blue);">
                 <div class="special-card">
@@ -75,7 +74,6 @@
             </div>
         </div>
 
-
         <div class="download-report">
             <div class="input">
                 <select name="record-type">
@@ -88,35 +86,6 @@
                 <i></i>
             </div>
 
-            <div class="input">
-                <select name="staff-type" class="download-type">
-                    <option value="All" selected>Download All</option>
-                    <option value="Admins">Only Admins</option>
-                    <option value="Receptionists">Only Receptionists</option>
-                    <option value="Doctors">Only Doctors</option>
-                    <option value="Pharmacists">Only Pharmacists</option>
-                </select>
-                <span>Download Type</span>
-                <i></i>
-            </div>
-
-            <div class="input">
-                <select name="patients-type" class="download-type">
-                    <option value="All" selected>Download All</option>
-                    <option value="Custom">Custom Download</option>
-                </select>
-                <span>Download Type</span>
-                <i></i>
-            </div>
-
-            <div class="input">
-                <select name="appointments-type" class="download-type">
-                    <option value="All" selected>Download All</option>
-                    <option value="Filtered">Download with filters</option>
-                </select>
-                <span>Download Type</span>
-                <i></i>
-            </div>
             <button style="--clr: var(--neon-blue);" onclick="download_report(this.parentElement);">Download</button>
         </div>
 

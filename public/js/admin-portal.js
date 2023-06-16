@@ -1,3 +1,6 @@
+var writer = require("exceljs");
+
+
 let profile=null,
 admins_list=[],
 doctors_list=[],
@@ -15,7 +18,8 @@ appointment_filtered_name="",
 appointment_filtered_range_from="",
 appointment_filtered_range_to="",
 appointment_filtered_status="",
-appointment_filtered_order="";
+appointment_filtered_order="",
+filtered_appointments_list=[];
 
 
 
@@ -683,21 +687,84 @@ const reset_filter_fields = (dialog_elem) => {
     appointment_filtered_order=null;
 }
 
-const download_report = (report_elem) => {
-    let record_type=report_elem.querySelector("select[name='record-type']").value,
-    download_type=report_elem.querySelector("select[name='download-type']").value;
+const write_excel_file = (type) => {
+    let staff=[], patients=[], appointments=[];
 
-    let download_list=[];
-
-    if(record_type==="All"){
-
-    }else if(record_type==="Staff"){
-
-    }else if(record_type==="Patients"){
-
-    }else if(record_type==="Appointments"){
-
+    if(type==="All"){
+        staff=[...admins_list, ...doctors_list, ...receptionists_list, ...pharmacists_list];
+        patients=[...patients_list];
+        appointments=[...appointments_list];
+    }else if(type==="Staff"){
+        staff=[...admins_list, ...doctors_list, ...receptionists_list, ...pharmacists_list];
+    }else if(type==="Patients"){
+        patients=[...patients_list];
+    }else if(type==="Appointments"){
+        appointments=[...appointments_list];
     }
+
+    if(staff.length+patients.length+appointments.length===0){
+        hide_loader();
+        show_notification("There is no data to write in a file", true);
+        setTimeout(() => {
+            hide_notification();
+        }, 5500);
+        return;
+    }
+
+
+    let wbook = new writer.Workbook();
+    let sheet = wbook.addWorksheet("Sheet 1");
+
+
+    if(staff.length!=0){
+        
+    }
+
+    sheet.getCell("A1").value="Patients";
+    sheet.getCell("A1").font={bold: true, size: 20}
+    sheet.getCell("A1").alignment={vertical: "middle", horizontal: "center"};
+    sheet.mergeCells("A1:H3");
+
+    ipcRenderer.send("get-path", "get-path-result");
+    ipcRenderer.on("get-path-result", (event, data) => {
+        if(typeof(data) === typeof(false)){
+            hide_loader();
+            show_notification("Path could not be choosen. Please try again");
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+        }else if(!data){
+            hide_loader();            
+            show_notification("You cannot choose the path of file. Please try again", true);
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+        }else{
+            if(data.split(".").pop()!=="xlsx"){
+                data+=".xlsx";
+            }
+            wbook.xlsx.writeFile(data).then((val) => {
+                hide_loader();
+                show_notification("file written successfully");
+                setTimeout(() => {
+                    hide_notification();
+                }, 5500);
+            }).catch((e) => {
+                hide_loader();
+                show_notification("file could not be written on specified path", true);
+                setTimeout(() => {
+                    hide_notification();
+                }, 5500);
+            });
+        }
+    });
+}
+
+const download_report = (report_elem) => {
+    show_loader();
+    let record_type=report_elem.querySelector("select[name='record-type']");
+
+    write_excel_file(record_type.value);
 }
 
 create_navigation(true); // generating menus located at blue layer...   

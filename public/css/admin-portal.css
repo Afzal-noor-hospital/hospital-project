@@ -562,18 +562,6 @@ body{
     padding: 40px 50px 30px 50px;
     border-radius: 10px;
 }
-.download-report div:has(select[class='download-type']){
-    display: none;
-}
-.download-report div:has(select[name="record-type"] option:nth-child(2):checked) ~ div:has(select[name="staff-type"]){
-    display: flex;
-}
-.download-report div:has(select[name="record-type"] option:nth-child(3):checked) ~ div:has(select[name="patients-type"]){
-    display: flex;
-}
-.download-report div:has(select[name="record-type"] option:nth-child(4):checked) ~ div:has(select[name="appointments-type"]){
-    display: flex;
-}
 .download-report button{
     width: 200px;
 }
