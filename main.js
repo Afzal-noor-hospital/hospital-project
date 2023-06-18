@@ -185,7 +185,13 @@ let is_update_downloaded=false;
 let update_file_name="";
 
 const get_updates = async () => {
-  fetch("https://hamza-info.000webhostapp.com/latest.yml").then((res) => {
+  // latest.yml file format:
+  // version: 1.0.0
+  // name: "filename.exe"
+  // description: "this is a release"
+  // url: "https://afzalnoortrust.000webhostapp.com/latest.yml"
+
+  fetch("https://afzalnoortrust.000webhostapp.com/latest.yml").then((res) => {
     if(res.ok){
       return res.text();
     }else{
