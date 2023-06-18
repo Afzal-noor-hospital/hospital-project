@@ -49,6 +49,10 @@ app.on('ready', indexWindow)
 let firebaseApp=initializeApp(firebaseConfig);
 let database=getDatabase(firebaseApp);
 
+ipcMain.on("get-version", (event, reply_id) => {
+  event.reply(reply_id, package_json.version);
+})
+
 ipcMain.on("reset-middleware", (event, password) => {
   if(password){
     set(ref(database, `staff/${loginProfile.id}/password`), password).then((val) => {

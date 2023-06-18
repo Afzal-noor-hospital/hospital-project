@@ -1,6 +1,15 @@
 /* importing main modules used by every portal */
 const {ipcRenderer} = require("electron")
 
+
+
+/* setting version of app */
+ipcRenderer.send("get-version", "getting-version-result");
+ipcRenderer.on("getting-version-result", (event, version) => {
+    document.title+=" "+version;
+});
+
+
 /* .............. Adding pre loader in DOM .............. */
 let allElems=document.body.innerHTML;
 let newDOM=`<span title="Refresh (F5)" class="refresh no-print" onclick="window.location.reload();">
