@@ -13,12 +13,7 @@ notifications=[];
 let updateableProfile=null;
 let active_card_tab="admin";
 
-let appointment_filtered_id="",
-appointment_filtered_name="",
-appointment_filtered_range_from="",
-appointment_filtered_range_to="",
-appointment_filtered_status="",
-appointment_filtered_order="";
+let filtered_appointments_list=[];
 
 let months_array = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -585,7 +580,7 @@ const populate_appointments = (filtered_list=null) => {
     if(!filtered_list){
         for(let i=0; i<appointments_list.length; i++){
             for(let j=i+1; j<appointments_list.length; j++){
-                if(appointments_list[i].app_time<appointments_list[j].app_time){
+                if(appointments_list[i].app_time>appointments_list[j].app_time){
                     let temp=appointments_list[i];
                     appointments_list[i]=appointments_list[j];
                     appointments_list[j]=temp;
@@ -622,6 +617,7 @@ const populate_appointments = (filtered_list=null) => {
             </div>
         </div>`
     }
+    filtered_appointments_list=filtered_list;
 }
 
 const populate_notifications = () => {
@@ -653,39 +649,50 @@ const isFocus_anyInput = () => {
     return false;
 }
 
-const show_filter_dialog = (dialog_class) => {
-    let dialog_id_inp=document.querySelector(".appointment-filter-dialog input[name='patient-id']"),
-    dialog_name_inp=document.querySelector(".appointment-filter-dialog input[name='patient-name']"),
-    dialog_range_from_inp=document.querySelector(".appointment-filter-dialog input[name='range-from']"),
-    dialog_range_to_inp=document.querySelector(".appointment-filter-dialog input[name='range-to']"),
-    dialog_order_inp=document.querySelector(".appointment-filter-dialog select[name='order']"),
-    dialog_status_inp=document.querySelector(".appointment-filter-dialog select[name='status']");
-
-    if(appointment_filtered_id)
-        dialog_id_inp.value=appointment_filtered_id;
-    if(appointment_filtered_name)
-        dialog_name_inp.value=appointment_filtered_name;
-    if(appointment_filtered_range_from)
-        dialog_range_from_inp.value=appointment_filtered_range_from;
-    if(appointment_filtered_range_to)
-        dialog_range_to_inp.value=appointment_filtered_range_to;
-    if(appointment_filtered_order)
-        dialog_order_inp.value=appointment_filtered_order;
-    if(appointment_filtered_status)
-        dialog_status_inp.value=appointment_filtered_status;
-
-    show_dialog(dialog_class);
+const has_numbers = (string_Data) => {
+    for(i of string_Data){
+        if(i>='0' && i<='9'){
+            return true;
+        }
+    }
+    return false;
 }
 
-const reset_filter_fields = (dialog_elem) => {
-    reset_fields(dialog_elem);
+const has_alphabet = (string_Data) => {
+    for(i of string_Data){
+        if((i>='A' && i<='Z') || (i>='a' && i<='z')){
+            return true;
+        }
+    }
+    return false;
+}
 
-    appointment_filtered_id=null;
-    appointment_filtered_name=null;
-    appointment_filtered_range_from=null;
-    appointment_filtered_range_to=null;
-    appointment_filtered_status=null;
-    appointment_filtered_order=null;
+const sort_appointments = (elem) => {
+    show_loader();
+    let svg = elem.querySelector(".svg-inline--fa");
+    let asc_order=true;
+    if(svg.classList[1].includes("fa-arrow-up-9-1")){ // sort in descending order...
+        svg.classList.remove("fa-arrow-up-9-1");
+        svg.classList.add("fa-arrow-down-9-1");
+        asc_order=false;
+    }else if(svg.classList[1].includes("fa-arrow-down-9-1")){ // sort in ascending order...
+        svg.classList.remove("fa-arrow-down-9-1");
+        svg.classList.add("fa-arrow-up-9-1");
+        asc_order=true;
+    }
+
+    // main login of sorting here...
+    for(let i=0; i<filtered_appointments_list.length; i++){
+        for(let j=i+1; j<filtered_appointments_list.length; j++){
+            if((asc_order && filtered_appointments_list[i].app_time<filtered_appointments_list[j].app_time) || (!asc_order && filtered_appointments_list[i].app_time>filtered_appointments_list[j].app_time)){
+                    let temp = filtered_appointments_list[i];
+                    filtered_appointments_list[i]=filtered_appointments_list[j];
+                    filtered_appointments_list[j]=temp;
+            }
+        }
+    }
+    populate_appointments(filtered_appointments_list);
+    hide_loader();
 }
 
 const calc_Age = (dob) => {
@@ -764,6 +771,19 @@ const write_excel_file = (type) => {
         patients=[];
         appointments=[...appointments_list];
     }
+
+    if(appointments.length!=0){
+        for(let i=0; i<appointments.length; i++){
+            for(let j=i+1; j<appointments.length; j++){
+                if(appointments[i].app_time<appointments[j].app_time){
+                    let temp = appointments[i];
+                    appointments[i]=appointments[j];
+                    appointments[j]=temp;
+                }
+            }
+        }
+    }
+
 
     if(staff.length+patients.length+appointments.length===0){
         hide_loader();
@@ -1442,257 +1462,29 @@ document.querySelector(".patient_info_container .patients .search input").addEve
     populate_patients(e.target.value);
 });
 
-// for appointment...
-const apply_filters = (hidding_elem) => {
-    let dialog_id_inp=document.querySelector(".appointment-filter-dialog input[name='patient-id']"),
-    dialog_name_inp=document.querySelector(".appointment-filter-dialog input[name='patient-name']"),
-    dialog_range_from_inp=document.querySelector(".appointment-filter-dialog input[name='range-from']"),
-    dialog_range_to_inp=document.querySelector(".appointment-filter-dialog input[name='range-to']"),
-    dialog_order_inp=document.querySelector(".appointment-filter-dialog select[name='order']"),
-    dialog_status_inp=document.querySelector(".appointment-filter-dialog select[name='status']"),
+// for appointments...
+document.querySelector(".patient_info_container .appointments .filters input").addEventListener("input", (e) => {
+    let search_str = e.target.value.trim();
+    let filtered_app_list=[];
 
-    button = document.querySelector(".patient_info_container .appointments .expanded-info .filter");
-
-    // validation ...
-    if(dialog_id_inp.value){
-        for(i of dialog_id_inp.value){
-            if(!(i>='0' && i<='9')){
-                show_notification("ID does not contain characters other then numbers", true);
-                setTimeout(() => {
-                    hide_notification();
-                }, 5500);
-                return;
+    if(!has_alphabet(search_str)){ // ID based search...
+        for(i of appointments_list){
+            if(i.id.includes(search_str)){
+                filtered_app_list.push(i);
             }
         }
-    }
-
-    if(dialog_name_inp.value){
-        for(i of dialog_name_inp.value){
-            if(!((i>='A' && i<='Z') || (i>='a' && i<='z') || i===" ")){
-                show_notification("Invalid name. Please correct and try again", true);
-                setTimeout(() => {
-                    hide_notification();
-                }, 5500);
-                return;
+    }else if(!has_numbers(search_str)){ // name based search...
+        for(i of appointments_list){
+            if((i.first_name+" "+i.last_name).toLowerCase().includes(search_str.toLowerCase())){
+                filtered_app_list.push(i);
             }
         }
+    }else{ // other searches ...
+
     }
+    populate_appointments(filtered_app_list);
+});
 
-
-
-    // main filtering starts from here...
-    appointment_filtered_id=dialog_id_inp.value;
-    appointment_filtered_name=dialog_name_inp.value.toLowerCase();
-    appointment_filtered_range_from=dialog_range_from_inp.value;
-    appointment_filtered_range_to=dialog_range_to_inp.value;
-    appointment_filtered_status=dialog_status_inp.value;
-    appointment_filtered_order=dialog_order_inp.value;
-
-    if(!appointment_filtered_id && !appointment_filtered_name && !appointment_filtered_range_from && !appointment_filtered_range_to && appointment_filtered_status==="all"){
-        button.classList.remove("active");
-        populate_appointments(appointments_list);
-        hide_dialog(hidding_elem);
-        return;
-    }
-
-
-    button.classList.add("active");
-    let filtered_list;
-
-    let copy_filtered_list=appointments_list;
-    filtered_list=[];
-    // id filter done here...
-    if(appointment_filtered_id){
-        for(i of copy_filtered_list){
-            if(i.id.includes(appointment_filtered_id))
-                filtered_list.push(i);
-        }
-    }
-
-    // name filter done here...
-    if(appointment_filtered_name){
-        for(i of copy_filtered_list){
-            let name = (i.first_name+" "+i.last_name).toLowerCase();
-            if(name.includes(appointment_filtered_name)){
-                let found=false;
-                for(j of filtered_list){
-                    if(j.app_id===i.app_id){
-                        found=true;
-                        break;                        
-                    }
-                }
-                if(!found){
-                    filtered_list.push(i);
-                }
-            }else{
-                let index=-1;
-                for(j in filtered_list){
-                    if(filtered_list[j].app_id===i.app_id){
-                        index=j;
-                        break;                        
-                    }
-                }
-                if(index!==-1){
-                    filtered_list.splice(index, 1);
-                }
-            }
-        }
-    }
-
-    // range from filter done here ...
-    if(appointment_filtered_range_from && !appointment_filtered_range_to){
-        let [y,m,d]=appointment_filtered_range_from.split("-");
-        [y, m, d] = [parseInt(y), parseInt(m), parseInt(d)];
-        for(i of copy_filtered_list){
-            let date=new Date(i.app_time);
-            if(date.getFullYear()>=y && date.getMonth()>=m && date.getDate()>=d){
-                let found=false;
-                for(j of filtered_list){
-                    if(j.app_id===i.app_id){
-                        found=true;
-                        break;                        
-                    }
-                }
-                if(!found){
-                    filtered_list.push(i);
-                }
-            }else{
-                let index=-1;
-                for(j in filtered_list){
-                    if(filtered_list[j].app_id===i.app_id){
-                        index=j;
-                        break;                        
-                    }
-                }
-                if(index!==-1){
-                    filtered_list.splice(index,1);  
-                }
-            }
-        }
-    }
-
-    // range to filter done here...
-    if(appointment_filtered_range_to && !appointment_filtered_range_from){
-        let [y,m,d]=appointment_filtered_range_from.split("-");
-        [y, m, d] = [parseInt(y), parseInt(m), parseInt(d)];
-        for(i of copy_filtered_list){
-            let date=new Date(i.app_time);
-            if(date.getFullYear()<=y && date.getMonth()<=m && date.getDate()<=d){
-                let found=false;
-                for(j of filtered_list){
-                    if(j.app_id===i.app_id){
-                        found=true;
-                        break;                        
-                    }
-                }
-                if(!found){
-                    filtered_list.push(i);
-                }
-            }else{
-                let index=-1;
-                for(j in filtered_list){
-                    if(filtered_list[j].app_id===i.app_id){
-                        index=j;
-                        break;                        
-                    }
-                }
-                if(index!==-1){
-                    filtered_list.splice(index,1);  
-                }
-            }
-        }
-    }
-
-    // combined range from and to filter done here ...
-    if(appointment_filtered_range_to && appointment_filtered_range_from){
-        let [y1,m1,d1]=appointment_filtered_range_from.split("-");
-        let [y2,m2,d2]=appointment_filtered_range_to.split("-");
-        [y1, m1, d1] = [parseInt(y1), parseInt(m1), parseInt(d1)];
-        [y2, m2, d2] = [parseInt(y2), parseInt(m2), parseInt(d2)];
-        for(i of copy_filtered_list){
-            let date=new Date(i.app_time);
-            if((date.getFullYear()>=y1 && date.getFullYear()<=y2) && (date.getMonth()>=m && date.getMonth()<=m) && (date.getDate()>=d && date.getDate()<=d)){
-                let found=false;
-                for(j of filtered_list){
-                    if(j.app_id===i.app_id){
-                        found=true;
-                        break;                        
-                    }
-                }
-                if(!found){
-                    filtered_list.push(i);
-                }
-            }else{
-                let index=-1;
-                for(j in filtered_list){
-                    if(filtered_list[j].app_id===i.app_id){
-                        index=j;
-                        break;                        
-                    }
-                }
-                if(index!==-1){
-                    filtered_list.splice(index,1);  
-                }
-            }
-        }
-    }
-
-    // status filteration done here...
-    if(appointment_filtered_status!=="All"){
-        for(i of copy_filtered_list){
-            if(i.status===appointment_filtered_status){
-                let found=false;
-                for(j of filtered_list){
-                    if(j.app_id===i.app_id){
-                        found=true;
-                        break;                        
-                    }
-                }
-                if(!found){
-                    filtered_list.push(i);
-                }
-            }else{
-                let index=-1;
-                for(j in filtered_list){
-                    if(filtered_list[j].app_id===i.app_id){
-                        index=j;
-                        break;                        
-                    }
-                }
-                if(index!==-1){
-                    filtered_list.splice(index, 1);
-                }
-            }
-        }
-    }
-    
-    // order filteration done here...
-    if(appointment_filtered_order==="Descending"){
-        for(let i=0; i<filtered_list.length; i++){
-            for(let j=i+1; j<filtered_list.length; j++){
-                if(filtered_list[i].app_time<filtered_list[j].app_time){
-                    let temp=filtered_list[i];
-                    filtered_list[i]=filtered_list[j];
-                    filtered_list[j]=temp;
-                }
-            }        
-        }
-    }
-    else if(appointment_filtered_order==="Ascending"){
-        for(let i=0; i<filtered_list.length; i++){
-            for(let j=i+1; j<filtered_list.length; j++){
-                if(filtered_list[i].app_time>filtered_list[j].app_time){
-                    let temp=filtered_list[i];
-                    filtered_list[i]=filtered_list[j];
-                    filtered_list[j]=temp;
-                }
-            }        
-        }
-    }
-
-    populate_appointments(filtered_list);
-    hide_dialog(hidding_elem);
-}
 
 
 

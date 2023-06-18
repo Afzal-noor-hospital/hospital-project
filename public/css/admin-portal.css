@@ -437,6 +437,23 @@ body{
     justify-content: center;
     color: var(--fg);
 }
+.patient_info_container .info.appointments .expanded-info .filters{
+    display: flex;
+    gap: 10px;
+    padding: 5px;
+}
+.patient_info_container .info.appointments .expanded-info .filters .search{
+    width: 100%;
+    margin: 0;
+    padding: 0px 10px;
+}
+.patient_info_container .info.appointments .expanded-info .filters .order{
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 25px;
+}
 .patient_info_container .expanded-info{
     border: 2px solid var(--clr);
     border-radius: 10px;
@@ -467,22 +484,6 @@ body{
     height: 100%;
     padding: 5px;
     overflow: auto;
-}
-.patient_info_container .expanded-info .filter{
-    width: 50px;
-    align-self: flex-end;
-    margin: 5px 5px 5px;
-}
-.patient_info_container .expanded-info .filter.active::after{
-    content: '';
-    position: absolute;
-    width: 15px;
-    height: 15px;
-    background-color: red;
-    border-radius: 50%;
-    bottom: 0;
-    right: 0;
-    transform: translate(30%, 30%);
 }
 .patient_info_container .expanded-info .info-cards::-webkit-scrollbar{
     width: 15px;
@@ -696,69 +697,6 @@ body{
 
 
 
-
-
-
-
-
-.appointment-filter-dialog{
-    position: relative;
-    width: 280px;
-    height: 400px;
-    padding: 20px;
-    border-radius: 10px;
-    background-color: rgba(0,0,0,0.5);
-    display: none;
-    flex-direction: column;
-    gap: 10px;
-    text-align: center;
-}
-.appointment-filter-dialog.show{
-    display: flex;
-    animation: dialog-anim 0.5s linear forwards;
-}
-.appointment-filter-dialog .form::-webkit-scrollbar{
-    width: 15px;
-}
-.appointment-filter-dialog .form::-webkit-scrollbar-track{
-    border-radius: 10px;
-    background-color: var(--fg);
-}
-.appointment-filter-dialog .form::-webkit-scrollbar-thumb{
-    border-radius: 10px;
-    background-color: var(--neon-pink);
-}
-.appointment-filter-dialog .form{
-    width: calc(100% - 20px);
-    overflow: auto;
-    padding: 30px 10px 10px 10px;
-}
-.appointment-filter-dialog .side-by-side{
-    flex-direction: column;
-    gap: 0;
-    padding: 40px 10px 10px 10px;
-    border: 2px solid var(--fg);
-    border-radius: 10px;
-    position: relative;
-    margin-bottom: 30px;
-}
-.appointment-filter-dialog .side-by-side::before{
-    content: 'Range';
-    position: absolute;
-    z-index: 2;
-    font-size: 17px;
-    background-color: var(--bg);
-    padding: 0px 10px;
-    top: -15px;
-    left: 10px;
-    border-radius: 10px;
-}
-.appointment-filter-dialog .side-by-side .input:last-child{
-    margin-bottom: 0;
-}
-.appointment-filter-dialog .controls{
-    width: 100%;
-}
 
 
 
