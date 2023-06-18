@@ -1,4 +1,4 @@
-var writer = require("exceljs");
+const writer = require("exceljs");
 
 
 let profile=null,
@@ -18,8 +18,9 @@ appointment_filtered_name="",
 appointment_filtered_range_from="",
 appointment_filtered_range_to="",
 appointment_filtered_status="",
-appointment_filtered_order="",
-filtered_appointments_list=[];
+appointment_filtered_order="";
+
+let months_array = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 
 
@@ -687,6 +688,62 @@ const reset_filter_fields = (dialog_elem) => {
     appointment_filtered_order=null;
 }
 
+const calc_Age = (dob) => {
+    let month_days=[31,28,31,30,31,30,31,31,30,31,30,31];
+    let given_year=dob.split("-")[0];
+    let given_month=dob.split("-")[1];
+    let given_day=dob.split("-")[2];
+    given_y=parseInt(given_year);
+    given_m=parseInt(given_month);
+    given_d=parseInt(given_day);
+    let given_total_days=0;
+
+    let new_year = (given_y-1)
+    let leap_year=Math.floor(new_year/4)
+    given_total_days=(leap_year*366)+((new_year-leap_year)*365);
+    for(let i=0; i<given_m-1; i++){
+        if(i==1 && given_y%4==0)
+            given_total_days+=month_days[i]+1;
+        else
+            given_total_days+=month_days[i];
+    }
+    given_total_days+=given_d;
+
+    let date=new Date(Date.now())
+    let current_y=date.getFullYear();
+    let current_m=date.getMonth();
+    let current_d=date.getDate();
+    let current_total_days=0;
+
+    new_year = (current_y-1)
+    leap_year=Math.floor(new_year/4)
+    current_total_days=(leap_year*366)+((new_year-leap_year)*365);
+    for(let i=0; i<current_m; i++){
+        if(i==1 && current_y%4==0)
+            current_total_days+=month_days[i]+1;
+        else
+            current_total_days+=month_days[i];
+    }
+    current_total_days+=current_d;
+
+    let difference=current_total_days-given_total_days;
+
+    let calc_year=Math.floor(difference/365);
+    let calc_month=0;
+    let calc_days=difference%365;
+    calc_days+=Math.floor(calc_year/4);
+    for(i of month_days){
+        if(calc_days>i){
+            calc_month++;
+            calc_days-=i;
+        }else{
+            break;
+        }
+    }
+
+    return `${calc_year?(calc_year)+"Y":""} ${calc_month?(calc_month)+"M":""} ${calc_days?(calc_days)+"D":""}`.trim();
+}
+
 const write_excel_file = (type) => {
     let staff=[], patients=[], appointments=[];
 
@@ -696,9 +753,15 @@ const write_excel_file = (type) => {
         appointments=[...appointments_list];
     }else if(type==="Staff"){
         staff=[...admins_list, ...doctors_list, ...receptionists_list, ...pharmacists_list];
+        appointments=[];
+        patients=[];
     }else if(type==="Patients"){
+        staff=[];
+        appointments=[];
         patients=[...patients_list];
     }else if(type==="Appointments"){
+        staff=[];
+        patients=[];
         appointments=[...appointments_list];
     }
 
@@ -711,19 +774,356 @@ const write_excel_file = (type) => {
         return;
     }
 
-
+    let row=1;
     let wbook = new writer.Workbook();
     let sheet = wbook.addWorksheet("Sheet 1");
 
+    // writting heading for total records...
+    sheet.getCell(`A${row}`).value="Total Records";
+    sheet.getCell(`A${row}`).font={size: 25, bold: true};
+    sheet.getCell(`A${row}`).alignment={vertical: "middle", horizontal: "center"};
+    sheet.mergeCells(`A${row}:H${row+2}`);
+    sheet.getCell(`I${row}`).value=staff.length+patients.length+appointments.length;
+    sheet.getCell(`I${row}`).font={size: 25, bold: true}
+    sheet.getCell(`I${row}`).alignment={vertical: "middle", horizontal: "center"};
+    sheet.mergeCells(`I${row}:K${row+2}`);
+    row+=3;
 
+
+    // writting staff size there...
     if(staff.length!=0){
-        
+        sheet.getCell(`A${row}`).value="Total Staff";
+        sheet.getCell(`A${row}`).font={size: 20, bold: true}
+        sheet.getCell(`A${row}`).alignment={vertical: "middle", horizontal: "center"} 
+        sheet.mergeCells(`A${row}:D${row+3}`);
+
+
+        sheet.getCell(`E${row}`).value="Total Admins";
+        sheet.getCell(`E${row}`).font={size: 15, bold: false}
+        sheet.getCell(`E${row}`).alignment={vertical: "middle", horizontal: "left"} 
+        sheet.mergeCells(`E${row}:H${row}`)
+        sheet.getCell(`I${row}`).value=admins_list.length;
+        sheet.getCell(`I${row}`).font={size: 15, bold: false}
+        sheet.getCell(`I${row}`).alignment={vertical: "middle", horizontal: "center"} 
+
+
+        sheet.getCell(`E${row+1}`).value="Total Doctors";
+        sheet.getCell(`E${row+1}`).font={size: 15, bold: false}
+        sheet.getCell(`E${row+1}`).alignment={vertical: "middle", horizontal: "left"} 
+        sheet.mergeCells(`E${row+1}:H${row+1}`)
+        sheet.getCell(`I${row+1}`).value=doctors_list.length;
+        sheet.getCell(`I${row+1}`).font={size: 15, bold: false}
+        sheet.getCell(`I${row+1}`).alignment={vertical: "middle", horizontal: "center"} 
+
+
+        sheet.getCell(`E${row+2}`).value="Total Receptionists";
+        sheet.getCell(`E${row+2}`).font={size: 15, bold: false}
+        sheet.getCell(`E${row+2}`).alignment={vertical: "middle", horizontal: "left"} 
+        sheet.mergeCells(`E${row+2}:H${row+2}`)
+        sheet.getCell(`I${row+2}`).value=receptionists_list.length;
+        sheet.getCell(`I${row+2}`).font={size: 15, bold: false}
+        sheet.getCell(`I${row+2}`).alignment={vertical: "middle", horizontal: "center"} 
+
+
+        sheet.getCell(`E${row+3}`).value="Total Pharmacists";
+        sheet.getCell(`E${row+3}`).font={size: 15, bold: false}
+        sheet.getCell(`E${row+3}`).alignment={vertical: "middle", horizontal: "left"} 
+        sheet.mergeCells(`E${row+3}:H${row+3}`)
+        sheet.getCell(`I${row+3}`).value=pharmacists_list.length;
+        sheet.getCell(`I${row+3}`).font={size: 15, bold: false}
+        sheet.getCell(`I${row+3}`).alignment={vertical: "middle", horizontal: "center"} 
+
+
+        sheet.getCell(`J${row}`).value=admins_list.length+doctors_list.length+pharmacists_list.length+receptionists_list.length;
+        sheet.getCell(`J${row}`).font={size: 20, bold: true}
+        sheet.getCell(`J${row}`).alignment={vertical: "middle", horizontal: "center"}
+        sheet.mergeCells(`J${row}:K${row+3}`);
+        row+=4;
     }
 
-    sheet.getCell("A1").value="Patients";
-    sheet.getCell("A1").font={bold: true, size: 20}
-    sheet.getCell("A1").alignment={vertical: "middle", horizontal: "center"};
-    sheet.mergeCells("A1:H3");
+    // writting appointments size there ...
+    if(appointments.length!=0){
+        sheet.getCell(`A${row}`).value="Total Appointments";
+        sheet.getCell(`A${row}`).font={size: 20, bold: true}
+        sheet.getCell(`A${row}`).alignment={vertical: "middle", horizontal: "center"} 
+        sheet.mergeCells(`A${row}:H${row+2}`);
+
+        sheet.getCell(`I${row}`).value=appointments.length;
+        sheet.getCell(`I${row}`).font={size: 20, bold: true}
+        sheet.getCell(`I${row}`).alignment={vertical: "middle", horizontal: "center"} 
+        sheet.mergeCells(`I${row}:K${row+2}`);
+        row+=3;
+    }
+
+    // writting patients size there ...
+    if(patients.length!=0){
+        sheet.getCell(`A${row}`).value="Total Patients";
+        sheet.getCell(`A${row}`).font={size: 20, bold: true}
+        sheet.getCell(`A${row}`).alignment={vertical: "middle", horizontal: "center"} 
+        sheet.mergeCells(`A${row}:H${row+2}`);
+
+        sheet.getCell(`I${row}`).value=patients.length;
+        sheet.getCell(`I${row}`).font={size: 20, bold: true}
+        sheet.getCell(`I${row}`).alignment={vertical: "middle", horizontal: "center"} 
+        sheet.mergeCells(`I${row}:K${row+2}`);
+        row+=3;
+    }
+
+
+    row+=2;
+    // writting all staffs row by row...
+    if(staff.length!=0){
+        sheet.getCell(`A${row}`).value="Staff List";
+        sheet.getCell(`A${row}`).font={bold: true, size: 35}
+        sheet.getCell(`A${row}`).alignment={vertical: "middle", horizontal: "center"};
+        sheet.mergeCells(`A${row}:X${row+3}`);
+
+        row+=4;
+
+        // generating heading row for data...
+        sheet.getCell(`A${row}`).value="ID";
+        sheet.getCell(`C${row}`).value="First Name";
+        sheet.getCell(`E${row}`).value="Last Name";
+        sheet.getCell(`G${row}`).value="Father Name";
+        sheet.getCell(`I${row}`).value="Gender";
+        sheet.getCell(`K${row}`).value="DOB";
+        sheet.getCell(`M${row}`).value="Contact";
+        sheet.getCell(`O${row}`).value="CNIC";
+        sheet.getCell(`Q${row}`).value="Appointment Date";
+        sheet.getCell(`S${row}`).value="Role";
+        sheet.getCell(`U${row}`).value="Address";
+        sheet.getCell(`U${row}`).font={size: 16, bold: true};
+        sheet.getCell(`U${row}`).alignment={vertical: "middle", horizontal: "center", wrapText: true};
+        sheet.mergeCells(`U${row}:X${row+2}`);
+        for(let i=0; i<20; i+=2){
+            let col = String.fromCharCode("A".charCodeAt(0)+i);
+            sheet.getCell(`${col}${row}`).font={size: 16, bold: true};
+            sheet.getCell(`${col}${row}`).alignment={vertical: "middle", horizontal: "center", wrapText: true};
+            let next_col = String.fromCharCode(col.charCodeAt(0)+1);
+            sheet.mergeCells(`${col}${row}:${next_col}${row+2}`);
+        }
+
+
+        row+=3;
+        // writting original data here...
+        let keys=['id', 'first_name', 'last_name', 'father_name', 'gender', 'dob', 'contact', 'cnic', 'app_date', 'role', 'address'];
+        for(i of staff){
+            let col='A';
+            for(j of keys){
+                if(j==="app_date"){
+                    let app_d = new Date(i[j]);
+                    let date=`${app_d.getDate()} ${months_array[app_d.getMonth()]} ${app_d.getFullYear()}`;
+                    sheet.getCell(`${col}${row}`).value=date;
+                }else if(j==="dob"){
+                    let [y, m, d] = i[j].split("-");
+                    let date = `${d} ${months_array[parseInt(m)-1]} ${y}`;
+                    sheet.getCell(`${col}${row}`).value=date;
+                }else{
+                    sheet.getCell(`${col}${row}`).value=i[j];
+                }
+                sheet.getCell(`${col}${row}`).font={size: 15, bold: false};
+                sheet.getCell(`${col}${row}`).alignment={vertical:"middle", horizontal: "left", wrapText: true};
+                let prev_col=col;
+                let extension=1;
+                if(j==='address')
+                    extension=3;
+                col = String.fromCharCode(col.charCodeAt(0)+extension);
+                sheet.mergeCells(`${prev_col}${row}:${col}${row}`);
+                col = String.fromCharCode(col.charCodeAt(0)+1);
+            }
+            row++;
+        }
+        row+=2;
+    } 
+
+    // writting all appointments row by row...
+    if(appointments.length!=0){
+        sheet.getCell(`A${row}`).value="Appointments List";
+        sheet.getCell(`A${row}`).font={bold: true, size: 35}
+        sheet.getCell(`A${row}`).alignment={vertical: "middle", horizontal: "center"};
+        sheet.mergeCells(`A${row}:AP${row+3}`);
+
+        row+=4;
+
+        // writting heading line for data...
+        sheet.getCell(`A${row}`).value="Appointment ID";
+        sheet.getCell(`C${row}`).value="Patient ID";
+        sheet.getCell(`E${row}`).value="First Name";
+        sheet.getCell(`G${row}`).value="Last Name";
+        sheet.getCell(`I${row}`).value="Father Name";
+        sheet.getCell(`K${row}`).value="Blood Group";
+        sheet.getCell(`M${row}`).value="Gender";
+        sheet.getCell(`O${row}`).value="Marital Status";
+        sheet.getCell(`Q${row}`).value="Contact";
+        sheet.getCell(`S${row}`).value="CNIC";
+        sheet.getCell(`U${row}`).value="Appointment Time";
+        sheet.getCell(`W${row}`).value="Doctor ID";
+        sheet.getCell(`Y${row}`).value="Diagnosis";
+        sheet.getCell(`AA${row}`).value="Precautions";
+        sheet.getCell(`AE${row}`).value="Tests";
+        sheet.getCell(`AI${row}`).value="Prescriptions";
+        sheet.getCell(`AM${row}`).value="Address";
+        for(let i=0; i<26; i+=2){
+            let col = String.fromCharCode("A".charCodeAt(0)+i)
+            sheet.getCell(`${col}${row}`).font={size: 16, bold: true};
+            sheet.getCell(`${col}${row}`).alignment={vertical:"middle", horizontal:"center", wrapText:true};
+            let next_col = String.fromCharCode(col.charCodeAt(0)+1);
+            sheet.mergeCells(`${col}${row}:${next_col}${row+2}`);
+        }
+        for(let i=0; i<16; i+=4){
+            let col = "A"+String.fromCharCode("A".charCodeAt(0)+i)
+            sheet.getCell(`${col}${row}`).font={size: 16, bold: true};
+            sheet.getCell(`${col}${row}`).alignment={vertical:"middle", horizontal:"center", wrapText:true};
+            let next_col = "A"+String.fromCharCode(col.charCodeAt(1)+3);
+            sheet.mergeCells(`${col}${row}:${next_col}${row+2}`);
+        }
+
+        row+=3;
+
+        let keys = ["app_id","id","first_name","last_name","father_name","blood_group","gender","marital_status","contact","cnic","app_time","doctor_id","diagnosis","precautions","tests","prescriptions","address"];
+
+        for(i of appointments){
+            let patient=null;
+            for(j of patients_list){
+                if(j.id===i.id){
+                    patient=j;
+                    break;
+                }
+            }
+            if(patient){
+                let tests = JSON.parse(i[keys[14]]);
+                let prescriptions = JSON.parse(i[keys[15]]);
+                let extenstion=0
+                if(tests.length<prescriptions.length)
+                    extenstion=prescriptions.length-1;
+                else if(prescriptions.length<tests.length)
+                    extenstion=tests.length-1;
+
+                sheet.getCell(`A${row}`).value=i[keys[0]];
+                sheet.getCell(`C${row}`).value=i[keys[1]];
+                sheet.getCell(`E${row}`).value=i[keys[2]];
+                sheet.getCell(`G${row}`).value=i[keys[3]];
+                sheet.getCell(`I${row}`).value=patient[keys[4]];
+                sheet.getCell(`K${row}`).value=patient[keys[5]];
+                sheet.getCell(`M${row}`).value=patient[keys[6]];
+                sheet.getCell(`O${row}`).value=patient[keys[7]];
+                sheet.getCell(`Q${row}`).value=patient[keys[8]];
+                sheet.getCell(`S${row}`).value=patient[keys[9]];
+                let app_time = new Date(i[keys[10]]);
+                let time = `${app_time.getDate()} ${months_array[app_time.getMonth()]} ${app_time.getFullYear()}, ${app_time.getHours()}:${app_time.getMinutes()}:${app_time.getSeconds()}`;
+                sheet.getCell(`U${row}`).value=time;
+                sheet.getCell(`W${row}`).value=i[keys[11]];
+                sheet.getCell(`Y${row}`).value=i[keys[12]];
+                sheet.getCell(`AA${row}`).value=i[keys[13]];
+                for(let j=0; j<tests.length; j++){
+                    let test = tests[j];
+                    if(typeof(test[Object.keys(test)[0]])===typeof([]))
+                        sheet.getCell(`AE${row+j}`).value=`${Object.keys(test)[0]}: [REPORT]`;
+                    else
+                        sheet.getCell(`AE${row+j}`).value=`${Object.keys(test)[0]}: ${test[Object.keys(test)[0]]}`;
+                }
+                for(let j=0; j<prescriptions.length; j++){
+                    let prescription = prescriptions[j];
+                    sheet.getCell(`AI${row+j}`).value=`Name: ${prescription['name']}, Quantity: ${prescription['quantity']}, timmings: ${prescription['timmings']}`;
+                }
+                sheet.getCell(`AM${row}`).value=patient[keys[16]];
+                for(let i=0; i<26; i+=2){
+                    let col = String.fromCharCode("A".charCodeAt(0)+i)
+                    if(col==='U'){
+                        sheet.getCell(`${col}${row}`).font={size: 12, bold: false};
+                    }else{
+                        sheet.getCell(`${col}${row}`).font={size: 15, bold: false};
+                    }
+                    sheet.getCell(`${col}${row}`).border={bottom:{style: "thick", color: {argb: "00000000"}}}
+                    sheet.getCell(`${col}${row}`).alignment={vertical:"middle", horizontal:"center", wrapText:true};
+                    let next_col = String.fromCharCode(col.charCodeAt(0)+1);
+                    sheet.mergeCells(`${col}${row}:${next_col}${row+extenstion}`);
+                }
+                for(let i=0; i<16; i+=4){
+                    let col = "A"+String.fromCharCode("A".charCodeAt(0)+i)
+                    let next_col = "A"+String.fromCharCode(col.charCodeAt(1)+3);
+                    if(i===4 || i===8){
+                        sheet.getCell(`${col}${row+extenstion}`).border={bottom:{style: "thick"}}
+                        for(let i=0; i<=extenstion; i++){
+                            sheet.getCell(`${col}${row+i}`).font={size: 12, bold: false};
+                            sheet.mergeCells(`${col}${row+i}:${next_col}${row+i}`);
+                        }
+                    continue
+                    }
+                    sheet.getCell(`${col}${row}`).font={size: 15, bold: false};
+                    sheet.getCell(`${col}${row}`).alignment={vertical:"middle", horizontal:"center", wrapText:true};
+                    sheet.getCell(`${col}${row}`).border={bottom:{style: "thick"}}
+                    sheet.mergeCells(`${col}${row}:${next_col}${row+extenstion}`);
+                }
+                row+=(extenstion+1);
+            }
+        }
+    }
+
+    // writting all patients row by row...
+    if(patients.length!=0){
+        row+=2;
+        sheet.getCell(`A${row}`).value="Patients List";
+        sheet.getCell(`A${row}`).font={bold: true, size: 35}
+        sheet.getCell(`A${row}`).alignment={vertical: "middle", horizontal: "center"};
+        sheet.mergeCells(`A${row}:X${row+3}`);
+
+        row+=4;
+
+        // writting heading line for data...
+        sheet.getCell(`A${row}`).value="Patient ID";
+        sheet.getCell(`C${row}`).value="First Name";
+        sheet.getCell(`E${row}`).value="Last Name";
+        sheet.getCell(`G${row}`).value="Father Name";
+        sheet.getCell(`I${row}`).value="DOB";
+        sheet.getCell(`K${row}`).value="Blood Group";
+        sheet.getCell(`M${row}`).value="Gender";
+        sheet.getCell(`O${row}`).value="Marital Status";
+        sheet.getCell(`Q${row}`).value="Contact";
+        sheet.getCell(`S${row}`).value="CNIC";
+        sheet.getCell(`U${row}`).value="Address";
+        for(let i=0; i<=20; i+=2){
+            let col = String.fromCharCode("A".charCodeAt(0)+i);
+            sheet.getCell(`${col}${row}`).font={size: 16, bold: true};
+            sheet.getCell(`${col}${row}`).alignment={vertical:"middle", horizontal:"center", wrapText:true};
+            let next_col;
+            if(i===20){
+                next_col = String.fromCharCode(col.charCodeAt(0)+3);
+            }else{
+                next_col = String.fromCharCode(col.charCodeAt(0)+1);
+            }
+            sheet.mergeCells(`${col}${row}:${next_col}${row+2}`);
+        }
+
+        row+=3;
+
+        // writting original data...
+        let keys=['id','first_name','last_name','father_name','dob','blood_group','gender','marital_status','contact','cnic','address'];
+        for(i of patients){
+            console.log(i);
+            let col='A';
+            for(j of keys){
+                if(j==="dob"){
+                    let [y,m,d]=i[j].split("-");
+                    let dob = `${d} ${months_array[parseInt(m)-1]} ${y}`;
+                    sheet.getCell(`${col}${row}`).value=dob;
+                }else{
+                    sheet.getCell(`${col}${row}`).value=i[j];
+                }
+                sheet.getCell(`${col}${row}`).font={size: 15, bold: false};
+                sheet.getCell(`${col}${row}`).alignment={vertical:"middle", horizontal:"left", wrapText:true};
+                let next_col;
+                if(j==="address"){
+                    next_col = String.fromCharCode(col.charCodeAt(0)+3);
+                }else{
+                    next_col = String.fromCharCode(col.charCodeAt(0)+1);
+                }
+                sheet.mergeCells(`${col}${row}:${next_col}${row}`);
+                col = String.fromCharCode(col.charCodeAt(0)+2);
+            }
+            row++;
+        }
+    }
 
     ipcRenderer.send("get-path", "get-path-result");
     ipcRenderer.on("get-path-result", (event, data) => {
