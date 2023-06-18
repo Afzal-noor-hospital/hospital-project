@@ -596,7 +596,7 @@ let request_count=0;
 let is_update_downloaded=false;
 let update_file_name="";
 
-const get_updates = async () => {
+const get_updates = () => {
   // latest.yml file format:
   // version: 1.0.0
   // name: "filename.exe"
@@ -615,13 +615,14 @@ const get_updates = async () => {
   }).then((val) => {
     if(check_version(val)){
       console.log("Update avaiable");
-      let file_name = val.split("\r\n")[1].split(":")[1].trim();
-      file_name = file_name.substring(1, file_name.length-1);
+      console.log()
+      let file_name = val.split("\n")[1].split(":")[1].trim();
+      file_name = file_name.substring(1, file_name.length-2);
       update_file_name=file_name;
-      let fileURL = val.split("\r\n")[3];
+      let fileURL = val.split("\n")[3];
       fileURL = fileURL.substring(4, fileURL.length).trim();
       fileURL = fileURL.substring(1, fileURL.length-1);
-      
+      console.log(fileURL);
       fetch(fileURL).then((res) => {
         if(res.ok){
           return res.arrayBuffer();
@@ -659,7 +660,7 @@ const get_updates = async () => {
 }
 
 const check_version = (data) => {
-  data = data.split("\r\n");
+  data = data.split("\n");
   let current_version = version_to_int(package_json.version);
   let latest_version = version_to_int(data[0].split(":")[1]);
 
