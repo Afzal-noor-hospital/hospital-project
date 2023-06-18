@@ -259,4 +259,4 @@ const version_to_int = (version) => {
   return version_int;
 }
 
-// get_updates();
+get_updates();
