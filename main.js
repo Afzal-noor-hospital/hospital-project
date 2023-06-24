@@ -34,7 +34,7 @@ const indexWindow = () => {
   })
   main.maximize()
   // Menu.setApplicationMenu(null);
-  main.loadFile(process.cwd() + '/public/html/login.html')
+  main.loadFile(process.cwd() + '/public/html/login.html');
   main.on('close', () => {
     if(loginProfile)
       set(ref(database, `staff/${loginProfile.id}/status`), "offline");
@@ -47,7 +47,7 @@ const indexWindow = () => {
   })
 }
 
-app.on('ready', indexWindow)
+app.on('ready', indexWindow);
 
 let firebaseApp=initializeApp(firebaseConfig);
 let database=getDatabase(firebaseApp);
@@ -615,14 +615,14 @@ const get_updates = () => {
   }).then((val) => {
     if(check_version(val)){
       console.log("Update avaiable");
-      console.log()
       let file_name = val.split("\n")[1].split(":")[1].trim();
-      file_name = file_name.substring(1, file_name.length-2);
+      file_name = file_name.substring(1, file_name.length-1);
+      file_name = app.getPath("desktop")+"\\"+file_name;
       update_file_name=file_name;
       let fileURL = val.split("\n")[3];
       fileURL = fileURL.substring(4, fileURL.length).trim();
       fileURL = fileURL.substring(1, fileURL.length-1);
-      console.log(fileURL);
+      console.log("downloading...");
       fetch(fileURL).then((res) => {
         if(res.ok){
           return res.arrayBuffer();
@@ -633,9 +633,9 @@ const get_updates = () => {
           }
         }
       }).then((val) => {
-        console.log("download conplete");
+        console.log("download complete");
         fs.writeFile(file_name, Buffer.from(val), (e) => {
-          if(!e) {
+          if(!e){
             console.log("file written successfully");
             is_update_downloaded=true;
           }
