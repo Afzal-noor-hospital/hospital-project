@@ -531,7 +531,7 @@ prescription_quantity_inp.addEventListener("input", (e) => {
 let diagnosis_label=document.querySelector(".prescription .diagnosis");
 diagnosis_label.addEventListener("click", (e) => {
     select_appointment_dialog(selected_appointment.app_id);
-})
+});
 
 // prescroption name with its search functionality...
 let prescription_name=document.querySelector(".create-prescription-dialog .form textarea[name='med-name']");
@@ -651,17 +651,17 @@ const save_precautions = () => {
 
 const select_appointment_dialog = (app_id) => {
     show_loader()
-    selected_appointment=null;
     for(i of appointment_list){
         if(i.app_id == app_id){
             selected_appointment=i;
             break;
         }
     }
-    if(!selected_appointment)
-        return;
+    let diagnosis="";
+    if(selected_appointment && selected_appointment.diagnosis)
+        diagnosis = selected_appointment.diagnosis;
 
-    document.querySelector(".select-appointment-dialog .input textarea").value=selected_appointment.diagnosis;
+    document.querySelector(".select-appointment-dialog .input textarea").value=diagnosis;
     show_dialog("select-appointment-dialog");
     hide_loader()
 }

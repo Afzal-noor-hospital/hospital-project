@@ -553,8 +553,7 @@ const logout_user = (id) => {
                 hide_notification();
             }, 5500);
         }
-    })
-    hide_loader();
+    });
 }
 
 

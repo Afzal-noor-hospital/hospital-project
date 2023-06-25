@@ -726,8 +726,8 @@ const complete_app = () => {
         t_amt_inp.focus()
         return;
     }
-    if(t_amt_inp.value<0 || t_amt_inp.value>t_amt_inp.max){
-        show_notification("Invalid price entered in received amount...", true);
+    if(t_amt_inp.value<0){
+        show_notification("Negative amount entered in received amount...", true);
         setTimeout(() => {
             hide_notification();
         }, 5500);

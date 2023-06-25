@@ -852,7 +852,9 @@ const generate_appointment = (dialog) => {
     show_loader();
 
     let date=new Date(Date.now());
-    let latest_app_date=new Date(latest_appointment.app_time);
+    let latest_app_date=new Date();
+    if(latest_appointment)
+        latest_app_date=new Date(latest_appointment.app_time);
     let appointment_id=date.getFullYear()+"-"+date.getMonth()+"-"+date.getDate()+"-";
 
     if(latest_appointment){

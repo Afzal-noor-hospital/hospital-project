@@ -621,8 +621,8 @@ const populate_notifications = () => {
     notification_elem.innerHTML="";
     for(i of notifications){
         notification_elem.innerHTML+=`<div>
-            <p>Password reset request from ${i.id}</p>
-            <a href="#" style="--clr: var(--neon-pink);" onclick="reset_password('${i.id}');">reset</a>
+            <p>Password reset request from ${i.username}</p>
+            <a href="#" style="--clr: var(--neon-pink);" onclick="reset_password('${i.username}');">reset</a>
         </div>`;
     }
     let count=notifications.length;
