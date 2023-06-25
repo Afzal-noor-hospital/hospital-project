@@ -307,20 +307,8 @@ const validate_medicine_form = (dialog) => {
     let mfg_date=`${month_array[parseInt(med_mfg_month_input.value)-1]} ${med_mfg_year_input.value}`;
     let exp_date=`${month_array[parseInt(med_exp_month_input.value)-1]} ${med_exp_year_input.value}`;
 
-    if(errors.split(" ").length===2){
-        if(!is_valid_mfg_exp(mfg_date, exp_date)){
-            errors="Exp Date must be greater then Mfg Date ";
-        }else if(med_name_input && med_type_input){
-            let name=med_name_input.value;
-            let type=med_type_input.value;
-            for(i of medicine_list){
-                if(i.name.toLowerCase()===name.toLowerCase() && i.type===type){
-                    errors="A medicine with this name and type already exists ";
-                    med_name_input.focus();
-                    break;
-                }
-            }
-        }
+    if(errors.split(" ").length<=2 && !is_valid_mfg_exp(mfg_date, exp_date)){
+            errors="Exp Date must be greater then Mfg Date";
     }
 
     if(errors.split(" ").length>2){
@@ -375,7 +363,7 @@ const populate_useable_medicines = (search_txt="") => {
                 <span class="edit"><i class="fa-solid fa-edit"></i></span>
                 <p>
                     <span class="bold">Name: </span>
-                    <span>${i.name}</span>
+                    <span>${i.name} (${i.salt})</span>
                 </p>
                 <p>
                     <span class="bold">Quantity: </span>
@@ -402,7 +390,7 @@ const populate_expired_medicines = (search_txt="") => {
                 <span class="edit"><i class="fa-solid fa-edit"></i></span>
                 <p>
                     <span class="bold">Name: </span>
-                    <span>${i.name}</span>
+                    <span>${i.name} (${i.salt})</span>
                 </p>
                 <p>
                     <span class="bold">Quantity: </span>
@@ -812,6 +800,7 @@ const save_medicine = (dialog) => {
 
     show_loader();
     let med_name_input=dialog.querySelector("input[name='name']");
+    let med_salt_input=dialog.querySelector("input[name='salt']");
     let med_quantity_input=dialog.querySelector("input[name='quantity']");
     let med_type_input=dialog.querySelector("select[name='type']");
     let med_price_input=dialog.querySelector("input[name='price']");
@@ -825,6 +814,7 @@ const save_medicine = (dialog) => {
 
     let medicine_obj={
         id:`${medicine_list.length+1}`,
+        salt: med_salt_input.value,
         name:med_name_input.value,
         quantity:med_quantity_input.value,
         type:med_type_input.value,
@@ -862,7 +852,7 @@ const edit_medicine_dialog = (index) => {
     let exp_year_input=document.querySelector(".edit-medicine-dialog input[name='exp-year']");
 
     object_to_be_edit=medicine_list[index]
-    name_label.innerHTML=object_to_be_edit.name
+    name_label.innerHTML=`${object_to_be_edit.name} (${object_to_be_edit.salt})`;
     type_label.innerHTML=object_to_be_edit.type
     quantity_input.value=object_to_be_edit.quantity
     price_input.value=object_to_be_edit.price
