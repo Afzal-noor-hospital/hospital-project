@@ -11,7 +11,7 @@ latest_appointment=null;
 
 let filtered_name="";
 let filtered_fatherName="";
-let filtered_gender="";
+let filtered_gender="Male,Female,Other";
 let filtered_number="";
 let id_inp=document.querySelector(".main-container .id-sec .input input[name='id']");
 
@@ -1143,7 +1143,7 @@ const reset_filters = () => {
     reset_fields(document.querySelector('.search-filters'));
     filtered_name="";
     filtered_fatherName="";
-    filtered_gender="";
+    filtered_gender="Male,Female,Other";
     filtered_number="";
     populate_try_another();
 }
