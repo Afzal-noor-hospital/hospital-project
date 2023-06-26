@@ -239,6 +239,12 @@ const create_navigation = (admin=false) => {
             </div>
 
             <div class="input">
+                <input type="email" name="email" required>
+                <span>E-mail</span>
+                <i></i>
+            </div>
+
+            <div class="input">
                 <input type="text" name="username" required>
                 <span>Username</span>
                 <i></i>

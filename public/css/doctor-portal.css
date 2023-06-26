@@ -48,12 +48,12 @@ body{
 
 
 
-.main-container .tests button.new-test{
-    transform: translateY(calc(-100% - 10px));
-    visibility: hidden;
+.main-container .tests{
+    position: relative;
 }
-.main-container .tests h2{
-    margin-top: -50px;
+.main-container .tests button.new-test{
+    position: absolute;
+    translate: 0 calc(-100% - 10px);
 }
 .main-container .tests .all-test{
     overflow: auto;
@@ -137,38 +137,29 @@ body{
 
 
 
-.main-container .prescription .precautions{
-    transform: translateY(calc(-100% - 10px));
-    width: 200px;
+.main-container .prescription{
+    position: relative;
+}
+.main-container .prescription .top-controls{
     display: flex;
-    visibility: hidden;
     justify-content: center;
-    align-self: flex-end;
+    gap: 10px;
+    width: 100%;
+    position: absolute;
+    translate: 0 calc(-100% - 10px);
+    margin-bottom: 10px;
 }
 .main-container .prescription h2{
-    margin-top: -50px;
+    display: none;
     text-align: center;
 }
-.main-container .prescription a.diagnosis{
-    font-family: poppins-bold;
-    font-size: 20px;
-    display: none;
-    margin-top: -50px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-align: center;
-    width: 100%;
-}
-.main-container .prescription a.diagnosis.show{
-    display: block;
-}
-.main-container .prescription a.diagnosis.show + h2{
-    display: none;
+.main-container .prescription .top-controls button{
+    box-shadow: 0px -1px 5px 2px rgba(0,0,0,0.5),
+                0px -1px 10px 2px rgba(0,0,0,0.5);
 }
 .main-container .prescription .main{
     width: 100%;
-    height: calc(100% - 35px);
+    height: calc(100%);
     padding-bottom: 10px;
     display: flex;
     gap: 10px;
@@ -228,21 +219,26 @@ body{
 } 
 .main-container .prescription .controls .prev-record{
     color: var(--neon-blue);
-    visibility: hidden;
-}
-.main-container .prescription .controls .submit-app{
-    visibility: hidden;
 }
 .main-container .prescription .controls .add-new{
     border-radius: 50%;
     width: 50px;
     height: 50px;
-    visibility: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 25px;
     overflow: hidden;
+}
+.main-container .prescription h2.show{
+    display: block;
+}
+.main-container .prescription:has(h2.show) .controls,
+.main-container .prescription:has(h2.show) .top-controls{
+    display: none;
+}
+.main-container:has(.prescription h2.show) .tests .new-test{
+    display: none;
 }
 
 
@@ -315,7 +311,8 @@ body{
 
 
 
-.dialog .select-appointment-dialog{
+.dialog .diagnosis-dialog,
+.dialog .presenting-complaints-dialog{
     position: relative;
     width: 300px;
     height: 250px;
@@ -327,10 +324,12 @@ body{
     align-items: center;
     justify-content: space-between;
 }
-.dialog .select-appointment-dialog .input{
+.dialog .diagnosis-dialog .input,
+.dialog .presenting-complaints-dialog .input{
     margin-top: 30px;
 }
-.dialog .select-appointment-dialog.show{
+.dialog .diagnosis-dialog.show,
+.dialog .presenting-complaints-dialog.show{
     display: flex;
     animation: dialog-anim 0.5s linear forwards;
 }
@@ -632,6 +631,10 @@ body{
     display: flex;
     animation: dialog-anim 0.5s linear forwards;
 }
+.dialog .prescription-days-dialog .side-by-side{
+    display: flex;
+    gap: 5px;
+}
 .dialog .prescription-days-dialog .input{
     margin-top: 30px;
 }
@@ -673,6 +676,14 @@ body{
     }
     .main-container .tests .new-test{
         background-color: var(--neon-blue);
+    }
+}
+@media(max-width: 450px){
+    .main-container .prescription:has(h2:not(.show)){
+        margin-top: 200px;
+    }
+    .main-container .prescription .top-controls{
+        flex-direction: column-reverse;
     }
 }
 @media (max-width: 400px){

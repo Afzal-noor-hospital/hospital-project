@@ -294,7 +294,7 @@ const populate_appointments = (search="") => {
         if((selected_appointment && i.app_id===selected_appointment.app_id) || i.status==="done" || i.status==="dismiss"){
             continue;
         }else if(i.id.includes(search)){
-            appointments_DOM+=`<button style="--clr: var(--neon-pink);" onclick="select_appointment_dialog('${i.app_id}')">
+            appointments_DOM+=`<button style="--clr: var(--neon-pink);" onclick="proceed_appointment('${i.app_id}')">
                 <p>Sr No: ${i.app_id.split("-")[3]}</p>
                 <p>${i.id}</p>
                 <p>${i.first_name+" "+i.last_name}</p>
@@ -527,13 +527,7 @@ prescription_quantity_inp.addEventListener("input", (e) => {
     prescription_quantity_inp.value=final_val;
 })
 
-// update diagnosis functionality...
-let diagnosis_label=document.querySelector(".prescription .diagnosis");
-diagnosis_label.addEventListener("click", (e) => {
-    select_appointment_dialog(selected_appointment.app_id);
-});
-
-// prescroption name with its search functionality...
+// prescription name with its search functionality...
 let prescription_name=document.querySelector(".create-prescription-dialog .form textarea[name='med-name']");
 prescription_name.addEventListener("input", (e) => {
     let prescription_dropdown=document.querySelector(".create-prescription-dialog .prescription-name .suggestion-dropdown");
@@ -616,6 +610,68 @@ const reffer_test = () => {
     });
 }
 
+const presenting_complaints_dialog = () => {
+    if(!selected_appointment)
+        return;
+    let complain="";
+    if(selected_appointment.presenting_complaints)
+        complain=selected_appointment.presenting_complaints;
+    document.querySelector(".presenting-complaints-dialog textarea[name='complain']").value=complain;
+    show_dialog("presenting-complaints-dialog");
+}
+const save_presenting_complaints = (hidding_elem) => {
+    let complain=hidding_elem.parentElement.querySelector("textarea").value;
+    if(!complain){
+        hide_dialog(hidding_elem);
+        return;
+    }
+    selected_appointment.presenting_complaints=complain;
+    ipcRenderer.send("insert", `appointments/${selected_appointment.app_id}/presenting_complaints`, complain, "complain-saving-result");
+    hide_dialog(hidding_elem);
+    ipcRenderer.on("complain-saving-result", (event, res) => {
+        if(res){
+            show_notification("Complain Saved successfully");
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+        }
+    });
+}
+
+const diagnosis_dialog = () => {
+    if(!selected_appointment)
+        return;
+
+    show_loader()
+    let diagnosis="";
+    if(selected_appointment && selected_appointment.diagnosis)
+        diagnosis = selected_appointment.diagnosis;
+
+    document.querySelector(".diagnosis-dialog .input textarea").value=diagnosis;
+    show_dialog("diagnosis-dialog");
+    hide_loader()
+}
+const save_diagnosis = (hidding_elem) => {
+    let diagnosis = hidding_elem.parentElement.querySelector("textarea").value;
+    if(!diagnosis){
+        hide_dialog(hidding_elem);
+        return;
+    }
+    selected_appointment.diagnosis=diagnosis;
+
+    ipcRenderer.send("insert", `appointments/${selected_appointment.app_id}/diagnosis`, diagnosis, "diagnosis-result");
+    hide_dialog(hidding_elem);
+    ipcRenderer.on("diagnosis-result", (event, res) => {
+        if(res){
+            show_notification("Diagnosis Saved Successfully");
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+        }
+    });
+
+}
+
 const precautions_dialog = () => {
     document.querySelector(".precaution-dialog textarea[name='precaution']").value=selected_appointment.precautions;
     show_dialog("precaution-dialog")
@@ -649,58 +705,34 @@ const save_precautions = () => {
     document.querySelector(".prescription .precautions").scrollIntoView({behavior: "smooth"})
 }
 
-const select_appointment_dialog = (app_id) => {
-    show_loader()
+
+const proceed_appointment = (app_id) => {
+    show_loader();
+    selected_appointment=null;
     for(i of appointment_list){
-        if(i.app_id == app_id){
+        if(i.app_id===app_id){
             selected_appointment=i;
             break;
         }
     }
-    let diagnosis="";
-    if(selected_appointment && selected_appointment.diagnosis)
-        diagnosis = selected_appointment.diagnosis;
 
-    document.querySelector(".select-appointment-dialog .input textarea").value=diagnosis;
-    show_dialog("select-appointment-dialog");
-    hide_loader()
-}
-const proceed_appointment = () => {
-    let diagnosis_inp=document.querySelector(".select-appointment-dialog .input textarea");
-    if(!diagnosis_inp.value){
-        show_notification("Fill empty field first", true);
+    if(!selected_appointment){
+        hide_loader();
+        show_notification("Cannot find appointment. Please Refresh the page and try again");
         setTimeout(() => {
             hide_notification();
         }, 5500);
-        diagnosis_inp.focus()
         return;
     }
 
-    show_loader();
-    selected_appointment.diagnosis=diagnosis_inp.value
-    selected_appointment.status="at doctor";
-
-    ipcRenderer.send("insert", `appointments/${selected_appointment.app_id}/`, selected_appointment, "select-appointment-result");
+    ipcRenderer.send("insert", `appointments/${selected_appointment.app_id}/status`, "at doctor", "select-appointment-result");
     ipcRenderer.on("select-appointment-result", (event, res) => {
         if(res){
-            hide_dialog(document.querySelector(".dialog .select-appointment-dialog .cancel"));
-            document.querySelector(".prescription .precautions").scrollIntoView({behavior: "smooth"})
-            diagnosis_label.innerHTML=`${selected_appointment.first_name+" "+selected_appointment.last_name} has ${selected_appointment.diagnosis}`;
-            diagnosis_label.classList.add("show")
             populate_tests();
             populate_prescriptions();
             populate_appointments();
-
-            let new_test_btn=document.querySelector(".tests .new-test");
-            let precaution_btn=document.querySelector(".prescription .precautions");
-            let prev_record_btn=document.querySelector(".prescription .controls .prev-record");
-            let submit_app_btn=document.querySelector(".prescription .controls .submit-app");
-            let add_new_btn=document.querySelector(".prescription .controls .add-new");
-            new_test_btn.style.visibility="visible"
-            precaution_btn.style.visibility="visible"
-            prev_record_btn.style.visibility="visible"
-            submit_app_btn.style.visibility="visible"
-            add_new_btn.style.visibility="visible"
+            document.querySelector(".prescription h2").classList.remove("show");
+            document.querySelector(".prescription .top-controls").scrollIntoView({behavior: "smooth"})
             hide_loader();
         }else{
             hide_loader();
@@ -984,9 +1016,10 @@ const delete_prescription = () => {
 
 
 
-/* appoitnment submission code */
+/* appointment submission code */
 const submit_appointment = () => {
-    let duration_inp=document.querySelector(".prescription-days-dialog input[name='duration']");
+    let duration_inp=document.querySelector(".prescription-days-dialog input[name='duration']"),
+    duration_unit_inp=document.querySelector(".prescription-days-dialog select[name='duration-unit']");
     if(duration_inp.value){
         for(i of duration_inp.value){
             if(!(i>='0' && i<='9')){
@@ -1009,7 +1042,7 @@ const submit_appointment = () => {
 
     show_loader()
     selected_appointment.status="at pharmacist";
-    selected_appointment.duration=duration_inp.value;
+    selected_appointment.duration=duration_inp.value+" "+duration_unit_inp.value;
 
     let tests=JSON.parse(selected_appointment.tests);
     for(i in tests){
@@ -1024,17 +1057,9 @@ const submit_appointment = () => {
         if(res){
             selected_appointment=null
             editable_prescription_index=-1;
-            let new_test_btn=document.querySelector(".tests .new-test");
-            let precaution_btn=document.querySelector(".prescription .precautions");
-            let prev_record_btn=document.querySelector(".prescription .controls .prev-record");
-            let submit_app_btn=document.querySelector(".prescription .controls .submit-app");
-            let add_new_btn=document.querySelector(".prescription .controls .add-new");
-            new_test_btn.style.visibility="hidden"
-            precaution_btn.style.visibility="hidden"
-            prev_record_btn.style.visibility="hidden"
-            submit_app_btn.style.visibility="hidden"
-            add_new_btn.style.visibility="hidden"
-            diagnosis_label.classList.remove("show")
+
+            document.querySelector(".prescription h2").classList.add("show");
+
             document.querySelector(".prescription .main .prescriptions").innerHTML="";
             document.querySelector(".main-container .tests .all-test").innerHTML="";
             hide_dialog(document.querySelector(".prescription-days-dialog .cancel"));

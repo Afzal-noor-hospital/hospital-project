@@ -22,9 +22,12 @@
         </div>
 
         <div class="container prescription" style="--area-name: prescription;">
-            <button class="precautions" style="--clr: var(--disabled-clr);" onclick="precautions_dialog()">Precautions</button>
-            <a title="Update Diagnosis" class="diagnosis" style="--clr: var(--neon-blue);"></a>
-            <h2>Select appointment from Appointments Tab to proceed</h2>
+            <div class="top-controls">
+                <button style="--clr: var(--neon-blue);" onclick="presenting_complaints_dialog();">Presenting Complaints</button>
+                <button style="--clr: var(--neon-pink);" onclick="diagnosis_dialog();">Diagnosis</button>
+                <button class="precautions" style="--clr: var(--disabled-clr);" onclick="precautions_dialog()">Precautions</button>
+            </div>
+            <h2 class="show">Select appointment from Appointments Tab to proceed</h2>
             <div class="main">
                 <div class="prescriptions"></div>
 
@@ -82,7 +85,21 @@
             </div>
         </div>
 
-        <div class="select-appointment-dialog">
+        <div class="presenting-complaints-dialog">
+            <span class="cancel" onclick="hide_dialog(this);"><i class="fa-solid fa-xmark"></i></span>
+            <h2>Presenting Complaints</h2>
+            <div class="input">
+                <textarea name="complain" rows="3" required></textarea>
+                <span>Presenting Complaints</span>
+                <i></i>
+            </div>
+            <div class="controls">
+                <button style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement);">Cancel</button>
+                <button style="--clr: var(--neon-blue);" onclick="save_presenting_complaints(this.parentElement);">Proceed</button>
+            </div>
+        </div>
+
+        <div class="diagnosis-dialog">
             <span class="cancel" onclick="hide_dialog(this);"><i class="fa-solid fa-xmark"></i></span>
             <h2>Diagnosis</h2>
             <div class="input">
@@ -92,7 +109,7 @@
             </div>
             <div class="controls">
                 <button style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement);">Cancel</button>
-                <button style="--clr: var(--neon-blue);" onclick="proceed_appointment()">Proceed</button>
+                <button style="--clr: var(--neon-blue);" onclick="save_diagnosis(this.parentElement);">Proceed</button>
             </div>
         </div>
 
@@ -164,11 +181,23 @@
         <div class="prescription-days-dialog">
             <span class="cancel" onclick="hide_dialog(this);"><i class="fa-solid fa-xmark"></i></span>
             <h2>Medicine Duration</h2>
-            <div class="input">
-                <input type="text" name="duration" required>
-                <span>Duration</span>
-                <i></i>
+            
+            <div class="side-by-side">
+                <div class="input">
+                    <input type="text" name="duration" required>
+                    <span>Duration</span>
+                    <i></i>
+                </div>
+                <div class="input">
+                    <select name="duration-unit" required>
+                        <option value="Days" selected>Days</option>
+                        <option value="Weeks">Weeks</option>
+                        <option value="Months">Months</option>
+                    </select>
+                    <i></i>
+                </div>
             </div>
+
             <div class="controls">
                 <button style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement)">Cancel</button>
                 <button style="--clr: var(--neon-blue);" onclick="submit_appointment()">Proceed</button>

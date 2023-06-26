@@ -439,6 +439,13 @@ document.querySelector(".medicine-detail.expired input[name='search']").addEvent
 
 /* code for selecting appointment from appointments panel, send appointment back to doctor, print reciept for appointment, finalize the appointment and displaying payment dialog and proceeding it */
 
+let inputs=document.querySelectorAll(".explained-app .data .prescriptions input");
+inputs.forEach((elem, index) => {
+    elem.addEventListener("input", (e) => {
+
+    });
+});
+
 const select_appointment = (index) => {
     selected_appointment=appointment_list[index];
 
@@ -462,8 +469,18 @@ const select_appointment = (index) => {
         t_price+=price;
     });
     JSON.parse(selected_appointment.prescriptions).forEach((i, index) => {
-        let quantity=parseInt(selected_appointment.duration)*parseInt(parseInt(i.quantity))*i.timmings.split(",").length;
-        if(i.name.includes("Syrup"))
+        let duration=0;
+        let raw_duration = selected_appointment.duration.split(" ")[0];
+        let duration_unit = selected_appointment.duration.split(" ")[1];
+        if(duration_unit==="Weeks"){
+            duration=parseInt(raw_duration)*7;
+        }else if(duration_unit==="Months"){
+            duration=parseInt(raw_duration)*30;
+        }else{
+            duration=parseInt(raw_duration);
+        }
+        let quantity=parseInt(duration)*parseInt(parseInt(i.quantity))*i.timmings.split(",").length;
+        if(i.name==="Syrup"||i.name==="Gel"||i.name==="Ointment"||i.name==="Drops"||i.name==="Cream")
             quantity=1;
         for(j of medicine_list){
             if(i.name.toLowerCase().includes(j.name.toLowerCase()) && i.name.toLowerCase().includes(j.type.toLowerCase())){
@@ -544,8 +561,18 @@ const select_appointment = (index) => {
         <h3>Prescriptions</h3>`;
 
         JSON.parse(selected_appointment.prescriptions).forEach((i, index) => {
-            let quantity=parseInt(selected_appointment.duration)*parseInt(i.quantity)*i.timmings.split(",").length;
-            if(i.name.includes("Syrup"))
+            let duration=0;
+            let raw_duration = selected_appointment.duration.split(" ")[0];
+            let duration_unit = selected_appointment.duration.split(" ")[1];
+            if(duration_unit==="Weeks"){
+                duration=parseInt(raw_duration)*7;
+            }else if(duration_unit==="Months"){
+                duration=parseInt(raw_duration)*30;
+            }else{
+                duration=parseInt(raw_duration);
+            }
+            let quantity=parseInt(duration)*parseInt(i.quantity)*i.timmings.split(",").length;
+            if(i.name==="Syrup"||i.name==="Gel"||i.name==="Ointment"||i.name==="Drops"||i.name==="Cream")
                 quantity=1;
             container_DOM+=`<div class="prescription">
                 <span class="bold">Prescription ${index+1}</span>

@@ -179,6 +179,7 @@ const edit_profile = (id) => {
     last_name_inp=document.querySelector(".update-staff-dialog .container input[name='last-name']"),
     father_name_inp=document.querySelector(".update-staff-dialog .container input[name='father-name']"),
     username_lbl=document.querySelector(".update-staff-dialog .container label[name='username']"),
+    email_inp=document.querySelector(".update-staff-dialog .container input[name='email']"),
     number_inp=document.querySelector(".update-staff-dialog .container input[name='number']"),
     cnic_inp=document.querySelector(".update-staff-dialog .container input[name='cnic']"),
     dob_inp=document.querySelector(".update-staff-dialog .container input[name='dob']"),
@@ -192,6 +193,7 @@ const edit_profile = (id) => {
     father_name_inp.value=currentProfile.father_name;
     username_lbl.innerHTML=currentProfile.id;
     username_lbl.title=currentProfile.id;
+    email_inp.value=currentProfile.email;
     number_inp.value=currentProfile.contact;
     cnic_inp.value=currentProfile.cnic;
     dob_inp.value=currentProfile.dob;
@@ -202,6 +204,42 @@ const edit_profile = (id) => {
 
     update_btn.addEventListener("click", (e) => {
         show_loader();
+
+        if(!first_name_inp.value || !last_name_inp.value || !father_name_inp.value || !dob_inp.value || !cnic_inp.value || !number_inp.value || !email_inp.value || !address_inp.value){
+            hide_loader();
+            show_notification("Fill Empty Fields First", true);
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+    
+            if(!first_name_inp.value)
+                first_name_inp.focus();
+            else if(!last_name_inp.value)
+                last_name_inp.focus();
+            else if(!father_name_inp.value)
+                father_name_inp.focus();
+            else if(!dob_inp.value)
+                dob_inp.focus();
+            else if(!cnic_inp.value)
+                cnic_inp.focus();
+            else if(!number_inp.value)
+                number_inp.focus();
+            else if(!email_inp.value)
+                email_inp.focus();
+            else if(!address_inp.value)
+                address_inp.focus();
+            return;
+        }
+    
+        if(!email_inp.checkValidity()){
+            hide_loader();
+            show_notification("Email is not correct. Please check your email and try again", true);
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+            return;
+        }
+
         let staffObj={
             first_name: first_name_inp.value,
             last_name: last_name_inp.value,
@@ -213,6 +251,7 @@ const edit_profile = (id) => {
             dob: dob_inp.value,
             gender: gender_inp.value,
             role: role_inp.value,
+            email: email_inp.value,
             status: currentProfile.status,
             address: address_inp.value,
             app_date: currentProfile.app_date
@@ -1063,11 +1102,11 @@ username_inp.addEventListener("input", (e) => {
     let data=e.target.value;
     let new_data="";
     for(i of data){
-        if((i>='A' && i<='Z') || (i>='a' && i<='z') ||(i>='0' && i<='9'))
+        if((i>='A' && i<='Z') || (i>='a' && i<='z') || (i>='0' && i<='9'))
             new_data+=i;
     }
     e.target.value=new_data;
-})
+});
 
 number_inp.addEventListener("input", (e) => {validate_CNIC_Number(e);});
 cnic_inp.addEventListener("input", (e) => {validate_CNIC_Number(e);});
@@ -1084,10 +1123,11 @@ const validate_CNIC_Number = (e) => {
 const register_staff = (hiding_elem) => {
     let dob_inp=document.querySelector(".add-new-dialog .container input[name='dob']"),
     gender_inp=document.querySelector(".add-new-dialog .container select[name='gender']"),
+    email_inp=document.querySelector(".add-new-dialog .container input[name='email']"),
     role_inp=document.querySelector(".add-new-dialog .container select[name='role']"),
     address_inp=document.querySelector(".add-new-dialog .container textarea[name='address']");
 
-    if(!first_name_inp.value || !last_name_inp.value || !father_name_inp.value || !dob_inp.value || !cnic_inp.value || !number_inp.value || !username_inp.value || !address_inp.value){
+    if(!first_name_inp.value || !last_name_inp.value || !father_name_inp.value || !dob_inp.value || !cnic_inp.value || !number_inp.value || !username_inp.value || !email_inp.value || !address_inp.value){
         show_notification("Fill Empty Fields First", true);
         setTimeout(() => {
             hide_notification();
@@ -1107,8 +1147,18 @@ const register_staff = (hiding_elem) => {
             number_inp.focus();
         else if(!username_inp.value)
             username_inp.focus();
+        else if(!email_inp.value)
+            email_inp.focus();
         else if(!address_inp.value)
             address_inp.focus();
+        return;
+    }
+
+    if(!email_inp.checkValidity()){
+        show_notification("Email is not correct. Please check your email and try again", true);
+        setTimeout(() => {
+            hide_notification();
+        }, 5500);
         return;
     }
 
@@ -1119,6 +1169,7 @@ const register_staff = (hiding_elem) => {
         last_name: last_name_inp.value,
         father_name: father_name_inp.value,
         id: username_inp.value,
+        email: email_inp.value,
         password: "0000000",
         cnic: cnic_inp.value,
         contact: number_inp.value,
