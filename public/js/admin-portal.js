@@ -3,6 +3,8 @@ admins_list=[],
 doctors_list=[],
 pharmacists_list=[],
 receptionists_list=[],
+LHVs_list=[],
+nurses_list=[],
 patients_list=[],
 appointments_list=[],
 tests_list=[],
@@ -170,6 +172,22 @@ const edit_profile = (id) => {
             }
         }
     }
+    else if(active_card_tab==="LHV"){
+        for(i of LHVs_list){
+            if(i.id===id && !currentProfile){
+                currentProfile=i;
+                break;
+            }
+        }
+    }
+    else if(active_card_tab==="Nurse"){
+        for(i of nurses_list){
+            if(i.id===id && !currentProfile){
+                currentProfile=i;
+                break;
+            }
+        }
+    }
     if(!currentProfile)
         return;
     
@@ -282,6 +300,8 @@ const separate_profiles=(prof, data) => {
     doctors_list=[],
     pharmacists_list=[],
     receptionists_list=[],
+    LHVs_list=[],
+    nurses_list=[],
     patients_list=[],
     appointments_list=[];
 
@@ -300,6 +320,10 @@ const separate_profiles=(prof, data) => {
                 receptionists_list.push(staffObj);
             else if(staffObj.role==="Pharmacist")
                 pharmacists_list.push(staffObj);
+            else if(staffObj.role==="LHV")
+                LHVs_list.push(staffObj);
+            else if(staffObj.role==="Nurse")
+                nurses_list.push(staffObj);
         }
     }
 
@@ -795,7 +819,9 @@ const update_cards = () => {
     let online_admins=0,
     online_doctors=0,
     online_receptionists=0,
-    online_pharmacists=0;
+    online_pharmacists=0,
+    online_LHVs=0,
+    online_nurses=0;
 
     for(i of admins_list){
         if(i.status==="online")
@@ -813,11 +839,21 @@ const update_cards = () => {
         if(i.status==="online")
             online_pharmacists++;
     }
+    for(i of LHVs_list){
+        if(i.status==="online")
+            online_LHVs++;
+    }
+    for(i of nurses_list){
+        if(i.status==="online")
+            online_nurses++;
+    }
  
     all_menus[0].querySelector("p:nth-child(2)").innerHTML=admins_list.length;
     all_menus[1].querySelector("p:nth-child(2)").innerHTML=doctors_list.length;
     all_menus[2].querySelector("p:nth-child(2)").innerHTML=receptionists_list.length;
     all_menus[3].querySelector("p:nth-child(2)").innerHTML=pharmacists_list.length;
+    all_menus[4].querySelector("p:nth-child(2)").innerHTML=LHVs_list.length;
+    all_menus[5].querySelector("p:nth-child(2)").innerHTML=nurses_list.length;
 
     if(online_admins>0){
         all_menus[0].classList.add("online");
@@ -842,6 +878,18 @@ const update_cards = () => {
         all_menus[3].setAttribute("data-online", (online_pharmacists>9)?"9+":online_pharmacists);
     }else{
         all_menus[3].classList.remove("online");
+    }
+    if(online_LHVs>0){
+        all_menus[4].classList.add("online");
+        all_menus[4].setAttribute("data-online", (online_LHVs>9)?"9+":online_LHVs);
+    }else{
+        all_menus[4].classList.remove("online");
+    }
+    if(online_nurses>0){
+        all_menus[5].classList.add("online");
+        all_menus[5].setAttribute("data-online", (online_nurses>9)?"9+":online_nurses);
+    }else{
+        all_menus[5].classList.remove("online");
     }
 }
 
@@ -1014,6 +1062,90 @@ const populate_pharmacist = (isNavigate, filter="") => {
     if(isNavigate)
         document.querySelector(".offline-users").scrollIntoView({behavior: "smooth"})
 }
+const populate_LHV = (isNavigate, filter="") => {
+    show_loader();
+    active_card_tab="LHV";
+    // setting up card...
+    for(i of all_menus) {
+        i.classList.remove("active")
+    }
+    all_menus[4].classList.add("active")
+
+    // setting up data...
+    all_users_heading.innerHTML="All LHVs"
+    online_users_heading.innerHTML="Online LHVs"
+    all_users_container.innerHTML="";
+    online_users_container.innerHTML="";
+    for(i of LHVs_list){
+        if(i.status==="offline" && (i.id.includes(filter) || (i.first_name+" "+i.last_name).includes(filter))){
+            all_users_container.innerHTML+=`<div class="user">
+                <div onclick="show_profile_dialog('${i.id}');">
+                    <h3>${i.first_name+" "+i.last_name}</h3>
+                    <p>${i.id}</p>
+                </div>
+                <div>
+                    <span onclick="edit_profile('${i.id}')" title="Edit"><i class="fa-solid fa-pen-to-square"></i></span>
+                </div>
+            </div>`;
+        }else if(i.status==="online" && (i.id.includes(filter) || (i.first_name+" "+i.last_name).includes(filter))){
+            online_users_container.innerHTML+=`<div class="user">
+                <div onclick="show_profile_dialog('${i.id}');">
+                    <h3>${i.first_name+" "+i.last_name}</h3>
+                    <p>${i.id}</p>
+                </div>
+                <div>
+                    <span onclick="edit_profile('${i.id}')" title="Edit"><i class="fa-solid fa-pen-to-square"></i></span>
+                    <span onclick="logout_user('${i.id}')" title="Logout"><i class="fa-solid fa-power-off"></i></span>
+                </div>
+            </div>`;
+        }
+    }
+    hide_loader();
+    if(isNavigate)
+        document.querySelector(".offline-users").scrollIntoView({behavior: "smooth"})
+}
+const populate_nurse = (isNavigate, filter="") => {
+    show_loader();
+    active_card_tab="Nurse";
+    // setting up card...
+    for(i of all_menus) {
+        i.classList.remove("active")
+    }
+    all_menus[5].classList.add("active")
+
+    // setting up data...
+    all_users_heading.innerHTML="All Nurses"
+    online_users_heading.innerHTML="Online Nurses"
+    all_users_container.innerHTML="";
+    online_users_container.innerHTML="";
+    for(i of nurses_list){
+        if(i.status==="offline" && (i.id.includes(filter) || (i.first_name+" "+i.last_name).includes(filter))){
+            all_users_container.innerHTML+=`<div class="user">
+                <div onclick="show_profile_dialog('${i.id}');">
+                    <h3>${i.first_name+" "+i.last_name}</h3>
+                    <p>${i.id}</p>
+                </div>
+                <div>
+                    <span onclick="edit_profile('${i.id}')" title="Edit"><i class="fa-solid fa-pen-to-square"></i></span>
+                </div>
+            </div>`;
+        }else if(i.status==="online" && (i.id.includes(filter) || (i.first_name+" "+i.last_name).includes(filter))){
+            online_users_container.innerHTML+=`<div class="user">
+                <div onclick="show_profile_dialog('${i.id}');">
+                    <h3>${i.first_name+" "+i.last_name}</h3>
+                    <p>${i.id}</p>
+                </div>
+                <div>
+                    <span onclick="edit_profile('${i.id}')" title="Edit"><i class="fa-solid fa-pen-to-square"></i></span>
+                    <span onclick="logout_user('${i.id}')" title="Logout"><i class="fa-solid fa-power-off"></i></span>
+                </div>
+            </div>`;
+        }
+    }
+    hide_loader();
+    if(isNavigate)
+        document.querySelector(".offline-users").scrollIntoView({behavior: "smooth"})
+}
 
 populate_admin(false);
 
@@ -1038,6 +1170,10 @@ document.querySelector(".personal-navigation input[name='search']").addEventList
         populate_pharmacist(false, e.target.value);
     else if(active_card_tab==="receptionist")
         populate_receptionist(false, e.target.value);
+    else if(active_card_tab==="LHV")
+        populate_LHV(false, e.target.value);
+    else if(active_card_tab==="Nurse")
+        populate_nurse(false, e.target.value);
 })
 
 // for patients...
@@ -1239,6 +1375,10 @@ ipcRenderer.on("live-value-update-captured", (event, data) => {
             populate_receptionist();
         else if(active_card_tab==="pharmacist")
             populate_pharmacist();
+        else if(active_card_tab==="LHV")
+            populate_LHV();
+        else if(active_card_tab==="Nurse")
+            populate_nurse();
     }else{
         if(!prof)
             ipcRenderer.send("staff-deleted", "");

@@ -219,6 +219,8 @@ const create_navigation = (admin=false) => {
                         <option value="Doctor">Doctor</option>
                         <option value="Receptionist">Receptionist</option>
                         <option value="Pharmacist">Pharmacist</option>
+                        <option value="LHV">LHV</option>
+                        <option value="Nurse">Nurse</option>
                     </select>
                     <span>Role</span>
                     <i></i>
@@ -400,6 +402,18 @@ const show_profile_dialog = (id) => {
             }
         }
         for(i of pharmacists_list){
+            if(i.id===id && !currentProfile){
+                currentProfile=i
+                break;
+            }
+        }
+        for(i of LHVs_list){
+            if(i.id===id && !currentProfile){
+                currentProfile=i
+                break;
+            }
+        }
+        for(i of nurses_list){
             if(i.id===id && !currentProfile){
                 currentProfile=i
                 break;
