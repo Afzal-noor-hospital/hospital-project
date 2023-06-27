@@ -364,6 +364,7 @@ const separate_profiles=(prof, data) => {
     populate_tests();
     populate_patients();
     populate_appointments();
+    check_birthday_and_wish();
 }
 
 const reset_password = (username) => {

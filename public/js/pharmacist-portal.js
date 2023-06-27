@@ -182,6 +182,7 @@ const separte_data = (data) => {
     populate_appointments();
     populate_useable_medicines();
     populate_expired_medicines();
+    check_birthday_and_wish();
 }
 
 const isExpired = (date) =>{ 

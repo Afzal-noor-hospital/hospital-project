@@ -92,6 +92,24 @@ if(remember_username_label){
 
 
 
+/* checking birthday and wishing */
+const check_birthday_and_wish = () => {
+    let current_date = new Date(Date.now());
+    let [_, month, date] = profile.dob.split("-");
+    if(parseInt(month)-1===current_date.getMonth() && parseInt(date)===current_date.getDate()){
+        if(localStorage.getItem("birthday_wished")!=="yes"){
+            let dialog = document.querySelector(".dialog");
+            dialog.innerHTML+=`<div class='birthday-wish-dialog'>
+                <img src="../res/birthday-wishing.gif" alt="...">
+                <p>Refresh the Page to cancel it</p>
+            </div>`;
+            show_dialog("birthday-wish-dialog");
+            localStorage.setItem("birthday_wished", "yes");
+        }
+    }else{
+        localStorage.setItem("birthday_wished", "");
+    }
+}
 
 
 
@@ -124,7 +142,6 @@ const reset_fields = (dialog) => {
                 elem.value=i.value
     })
 }
-
 
 
 /* .............. setting up internet connection code ................. */
@@ -589,7 +606,7 @@ document.addEventListener("keyup", (e) => {
     }
     else if(e.key==="Escape" && active_dialog){
         hide_dialog(document.querySelector(`.dialog .${active_dialog} .cancel`));
-    }else if(!active_dialog && e.ctrlKey && (e.key==="L" || e.key==="l")){
+    }else if(e.ctrlKey && (e.key==="L" || e.key==="l")){
         logout_user()
     }else if(!active_dialog && e.ctrlKey && e.altKey && (e.key==="P" || e.key==="p")){
         show_dialog('change-password-dialog');

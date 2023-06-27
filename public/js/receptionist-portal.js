@@ -229,6 +229,7 @@ const separate_data = (data) => {
     if(selected_patient)
         select_patient(selected_patient.id);
     populate_try_another();
+    check_birthday_and_wish();
 }
 
 const reset_appointment_container = () => {

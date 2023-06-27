@@ -820,6 +820,36 @@ body:has(.dialog .show){
 
 
 
+
+.dialog .birthday-wish-dialog{
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    height: 500px;
+    border-radius: 10px;
+    display: none;
+}
+.dialog .birthday-wish-dialog.show{
+    display: flex;
+    animation: dialog-anim 0.5s linear forwards;
+}
+.dialog .birthday-wish-dialog img{
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+
+
+
+
+
+
+
 .side-by-side{
     display: flex;
     gap: 20px;

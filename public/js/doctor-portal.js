@@ -191,6 +191,7 @@ const separate_data = (data) => {
         populate_prescriptions();
     }
     populate_appointments();
+    check_birthday_and_wish();
 }
 
 const populate_dropdown = (search_txt="") => {
