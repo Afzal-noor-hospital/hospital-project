@@ -59,26 +59,6 @@ hide_loader()
 
 
 
-/* ............ setting up show password button code ............. */
-
-let show_password_eye=document.querySelector(".input img.show-password"),
-password_inp=document.querySelector(".input input[name='password']");
-if(password_inp){
-    show_password_eye.addEventListener("click", (e) => {
-        let image=show_password_eye.src;
-        if(image.includes("invisible.png")){
-            show_password_eye.src="../res/visible.png";
-            password_inp.type="password"
-        }else{
-            show_password_eye.src="../res/invisible.png";
-            password_inp.type="text"
-        }
-        password_inp.focus()
-    })
-}
-
-
-
 /* ............ setting up remember username input code ............. */
 
 let remember_username_label=document.querySelector(".remember-username.input label"),
@@ -344,18 +324,21 @@ const create_navigation = (admin=false) => {
             <span class="cancel" onclick="hide_dialog(this)"><i class="fa-solid fa-xmark"></i></span>
             <h1>Change Password</h1>
             <div class="input">
-                <input type="password" name="old-password" required>
+                <input type="password" name="old-password" class="password" required>
                 <span>Old Password</span>
+                <img src="../res/visible.png" alt="..." class="show-password">
                 <i></i>
             </div>
             <div class="input">
-                <input type="password" name="new-password" required>
+                <input type="password" name="new-password" class="password" required>
                 <span>New Password</span>
+                <img src="../res/visible.png" alt="..." class="show-password">
                 <i></i>
             </div>
             <div class="input">
-                <input type="password" name="confirm-password" required>
+                <input type="password" name="confirm-password" class="password" required>
                 <span>Confirm Password</span>
+                <img src="../res/visible.png" alt="..." class="show-password">
                 <i></i>
             </div>
             <div class="controls">
@@ -384,7 +367,7 @@ const create_navigation = (admin=false) => {
         </div>
 
     </div>`
-    document.body.innerHTML+=dialog_codes
+    document.body.innerHTML+=dialog_codes;
 }
 
 const show_help = () => {
@@ -392,6 +375,34 @@ const show_help = () => {
     data_elem.innerHTML=help_DOM;
     show_dialog("help-dialog")
 }
+
+
+
+
+
+/* ............ setting up show password button code ............. */
+const setup_show_password = () => {
+    let show_password_eye=document.querySelectorAll(".input img.show-password");
+    show_password_eye.forEach((elem) => {
+        elem.addEventListener("click", (e) => {
+            let pass_inp = e.target.parentElement.querySelector("input.password");
+            let image=elem.src;
+            console.log(image);
+            if(image.includes("invisible.png")){
+                elem.src="../res/visible.png";
+                pass_inp.type="password"
+            }else{
+                elem.src="../res/invisible.png";
+                pass_inp.type="text"
+            }
+            pass_inp.focus()
+        });
+    });
+}
+setup_show_password();
+
+
+
 
 
 /* .................... dialog function .................... */
@@ -436,6 +447,14 @@ const show_profile_dialog = (id) => {
                 break;
             }
         }
+        if(profile.role==="Admin"){
+            for(i of suspended_staff){
+                if(i.id===id && !currentProfile){
+                    currentProfile=i
+                    break;
+                }
+            }
+        }
     }
     if(!currentProfile)
         return;
@@ -451,30 +470,36 @@ const show_profile_dialog = (id) => {
     app_date+=date.getFullYear();
 
     let reset_pssword_link=document.querySelector(".profile-dialog .reset-link");
-    if(currentProfile.id===profile.id)
+    reset_pssword_link.innerHTML="reset password";
+    if(currentProfile.id===profile.id || currentProfile.status==="suspend")
         reset_pssword_link.style.display="none";
-    else
+    else{
         reset_pssword_link.style.display="block";
-    reset_pssword_link.addEventListener("click", (e) => {
-        show_loader();
-        if(currentProfile.id!==profile.id){
-            ipcRenderer.send("insert", `staff/${currentProfile.id}/password`, "0000000", "password-reset-result");
-            ipcRenderer.on("password-reset-result", (event, res) => {
-                hide_loader();
-                if(res){
-                    show_notification("Password Reset Successfully");
-                    setTimeout(() => {
-                        hide_notification();
-                    }, 5500);
-                }else{
-                    show_notification("Password Cannot reset", true);
-                    setTimeout(() => {
-                        hide_notification();
-                    }, 5500);
+        if(currentProfile.password!=="0000000"){
+            reset_pssword_link.addEventListener("click", (e) => {
+                show_loader();
+                if(currentProfile.id!==profile.id){
+                    ipcRenderer.send("insert", `staff/${currentProfile.id}/password`, "0000000", "password-reset-result");
+                    ipcRenderer.on("password-reset-result", (event, res) => {
+                        hide_loader();
+                        if(res){
+                            show_notification("Password Reset Successfully");
+                            setTimeout(() => {
+                                hide_notification();
+                            }, 5500);
+                        }else{
+                            show_notification("Password Cannot reset", true);
+                            setTimeout(() => {
+                                hide_notification();
+                            }, 5500);
+                        }
+                    });
                 }
             });
+        }else{
+            reset_pssword_link.innerHTML="password already reset";
         }
-    });
+    }
     
     document.querySelector(".profile-dialog .role").innerHTML=currentProfile.role;
     document.querySelector(".profile-dialog .left .first-name").innerHTML=currentProfile.first_name;

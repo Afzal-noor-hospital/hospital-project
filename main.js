@@ -71,15 +71,19 @@ ipcMain.on("login", (event, data) => {
   get(ref(database, `/staff/${data.username}`)).then((snapshot) => {
     let value=snapshot.val();
     if(value){
-      if(value.password===data.password){
-        set(ref(database, `staff/${data.username}/status`), "online").then((res) => {
-          loginProfile=value;
-          laod_portal();
-        }).catch((e) => {
-          event.reply("login-result", "Internet Connection Error")
-        })
+      if(value.status!=="suspend"){
+        if(value.password===data.password){
+          set(ref(database, `staff/${data.username}/status`), "online").then((res) => {
+            loginProfile=value;
+            laod_portal();
+          }).catch((e) => {
+            event.reply("login-result", "Internet Connection Error")
+          })
+        }else{
+          event.reply("login-result", "Incorrect Password");
+        }
       }else{
-        event.reply("login-result", "Incorrect Password");
+        event.reply("login-result", `User against Username (${value.id}), suspended by the admin. Please contact to admin for this issue`);
       }
     }else{
       event.reply("login-result", "Such username not exists");

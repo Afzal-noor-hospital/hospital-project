@@ -6,6 +6,7 @@ registered_tests=[];
 
 let selected_appointment=null;
 let editable_prescription_index=-1,
+selected_prescription_id=0,
 month_array=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov', 'Dec'];
 
 
@@ -203,7 +204,7 @@ const populate_dropdown = (search_txt="") => {
         type=i.type;
         if(name.toLowerCase().includes(search_txt.toLowerCase()) && quantity>0){
             prescription_dropdown.innerHTML+=
-                `<p onclick="select_medicine('${name} (${type})');" class="${isExpired(i.exp_date)?'expired':''}">${name} (${quantity} ${type})</p>`
+                `<p onclick="select_medicine('${name} (${type})', ${i.id});" class="${isExpired(i.exp_date)?'expired':''}">${name} (${quantity} ${type})</p>`
         }
     }
 }
@@ -229,12 +230,12 @@ const isExpired = (date) =>{
     return true;
 }
 
-const select_medicine = (name) => {
+const select_medicine = (name, id) => {
     document.querySelector(".create-prescription-dialog .form textarea[name='med-name']").value=name;
     let prescription_dropdown=document.querySelector(".create-prescription-dialog .prescription-name .suggestion-dropdown");
     prescription_dropdown.style.display="none";
     document.querySelector(".create-prescription-dialog .form input[name='med-quantity']").focus();
-
+    selected_prescription_id = id;
 }
 
 const populate_tests = () => {
@@ -504,7 +505,7 @@ const populate_cbc_report = (test) => {
 }
 
 create_navigation()
-
+setup_show_password();
 
 
 
@@ -533,10 +534,11 @@ let prescription_name=document.querySelector(".create-prescription-dialog .form 
 prescription_name.addEventListener("input", (e) => {
     let prescription_dropdown=document.querySelector(".create-prescription-dialog .prescription-name .suggestion-dropdown");
     if(e.target.value.length>0)
-        prescription_dropdown.style.display="flex"
+        prescription_dropdown.style.display="flex";
     else
         prescription_dropdown.style.display="none";
     populate_dropdown(e.target.value);
+    selected_prescription_id=0;
 });
 
 
@@ -831,6 +833,9 @@ const save_prescription = (elem) => {
         name: name_inp.value,
         quantity: prescription_quantity_inp.value
     };
+    if(selected_prescription_id!==0){
+        prescription_obj.med_id = selected_prescription_id;
+    }
     let times="(";
     for(i of timmings2){
         if(i.checked)
@@ -861,9 +866,8 @@ const save_prescription = (elem) => {
         }
     })
     populate_prescriptions();
-
     hide_dialog(dialog.querySelector(".cancel"));
-    document.querySelector('.prescription .precautions').scrollIntoView({behavior: 'smooth'})
+    selected_prescription_id=0;
 }
 const edit_prescription_dialog = (index) => {
     editable_prescription_index=index;
@@ -892,8 +896,8 @@ const edit_prescription_dialog = (index) => {
             i.checked=false;
     }
     dialog.querySelector(".controls button:last-child").innerHTML="Update";
+    selected_prescription_id=0;
     show_dialog('create-prescription-dialog');
-    document.querySelector(".top-of-page").scrollIntoView({behavior: "smooth"})
 }
 const update_prescription = () => {
     let dialog=document.querySelector(".dialog .create-prescription-dialog"),
@@ -943,7 +947,9 @@ const update_prescription = () => {
         name: name_inp.value,
         quantity: prescription_quantity_inp.value
     };
-
+    if(selected_prescription_id!==0){
+        prescription_obj.med_id = selected_prescription_id;
+    }
     let times="(";
     for(i of timmings2){
         if(i.checked)
@@ -979,11 +985,13 @@ const update_prescription = () => {
     let update_btn=dialog.querySelector(".controls button:last-child");
     update_btn.innerHTML="Save"
     editable_prescription_index=-1;
+    selected_prescription_id=0;
     hide_dialog(dialog.querySelector(".cancel"));
 }
 const delete_prescription_dialog = (index) => {
     let dialog = document.querySelector(".dialog .delete-prescription-dialog")
     dialog.setAttribute("id", `${index}`);
+    selected_prescription_id=0;
     show_dialog("delete-prescription-dialog");
 }
 const delete_prescription = () => {

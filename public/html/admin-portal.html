@@ -56,6 +56,36 @@
 
         </div>
 
+        <div class="medicine_info_container">
+            <div class="info useable" style="--clr: var(--neon-blue);">
+                <div class="special-card">
+                    <h2>Useable Medicines</h2>
+                    <p>9</p>
+                    <button onclick="show_dialog('add-new-medicine-dialog');"><i class="fa-solid fa-plus"></i></button>
+                </div>
+                <div class="expanded-info">
+                    <div class="search">
+                        <input type="text" name="search" placeholder="Search Here">
+                        <i class="fa-solid fa-search"></i>
+                    </div>
+                    <div class="info-cards"></div>      
+                </div>
+            </div>
+            <div class="info expired" style="--clr: var(--neon-pink);">
+                <div class="special-card" data-count="4">
+                    <h2>Expired Medicines</h2>
+                    <p>9</p>
+                </div>
+                <div class="expanded-info">
+                    <div class="search" title="Search Here">
+                        <input type="text" name="search" placeholder="Search Here">
+                        <i class="fa-solid fa-search"></i>
+                    </div>
+                    <div class="info-cards"></div>
+                </div>
+            </div>
+        </div>
+
         <div class="patient_info_container">
             <div class="info patients" style="--clr: var(--neon-blue);">
                 <div class="special-card">
@@ -86,6 +116,22 @@
                         </button>
                     </div>
                     <div class="info-cards"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="suspended-staff-main-container">
+            <div class="suspended-staff-container" style="--clr: var(--disabled-clr)">
+                <div class="special-card">
+                    <h2>Suspended Staff</h2>
+                    <p>9</p>
+                </div>
+                <div class="expanded-info">
+                    <div class="search">
+                        <input type="text" name="search" placeholder="Search Here">
+                        <i class="fa-solid fa-search"></i>
+                    </div>
+                    <div class="users"></div>
                 </div>
             </div>
         </div>
@@ -201,6 +247,7 @@
     
             <div class="controls">
                 <button style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement)">Cancel</button>
+                <button style="--clr: rgb(143, 153, 2);">Suspend</button>
                 <button style="--clr: var(--neon-blue);">Update</button>
             </div>
     
@@ -258,6 +305,153 @@
             <div class="controls">
                 <button style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement);">Cancel</button>
                 <button style="--clr: var(--neon-blue);" onclick="update_test(this.parentElement)">Update</button>
+            </div>
+        </div>
+
+        <div class="add-new-medicine-dialog">
+            <span class="cancel" onclick="hide_dialog(this);"><i class="fa-solid fa-xmark"></i></span>
+            <h2>Add New Medicine</h2>
+
+            <div class="form">
+                <div class="input">
+                    <input type="text" name="name" required>
+                    <span>Medicine Name</span>
+                    <i></i>
+                </div>
+                <div class="input">
+                    <input type="text" name="salt" required>
+                    <span>Medicine Salt</span>
+                    <i></i>
+                </div>
+                <div class="side-by-side">
+                    <div class="input">
+                        <input type="number" name="quantity" min="0" required>
+                        <span>Quantity</span>
+                        <i></i>
+                    </div>
+                    <div class="input">
+                        <select name="type">
+                            <option value="Syrup" selected>Syrup</option>
+                            <option value="Gel">Gel</option>
+                            <option value="Ointment">Ointment</option>
+                            <option value="Drops">Drops</option>
+                            <option value="Cream">Cream</option>
+                            <option value="Capsule">Capsule</option>
+                            <option value="Tablet">Tablet</option>
+                            <option value="Injection">Injection</option>
+                        </select>
+                        <span>Type</span>
+                        <i></i>
+                    </div>
+                </div>
+                <div class="input">
+                    <input type="number" name="price" required>
+                    <span>Price</span>
+                    <i></i>
+                </div>
+                <div class="multi-input">
+                    <label>MFG Date: </label>
+                    <div class="input">
+                        <input type="number" name="mfg-month" min="1" max="12" required>
+                        <span>Month</span>
+                        <i></i>
+                    </div>
+                    <div class="input">
+                        <input type="number" name="mfg-year" min="1500" required>
+                        <span>Year</span>
+                        <i></i>
+                    </div>
+                </div>
+                <div class="multi-input">
+                    <label>Exp Date: </label>
+                    <div class="input">
+                        <input type="number" name="exp-month" min="1" max="12" required>
+                        <span>Month</span>
+                        <i></i>
+                    </div>
+                    <div class="input">
+                        <input type="number" name="exp-year" min="1500" required>
+                        <span>Year</span>
+                        <i></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement);">Cancel</button>
+                <button style="--clr: rgb(112,112,5);" onclick="reset_fields(this.parentElement.parentElement)">Reset</button>
+                <button style="--clr: var(--neon-blue);" onclick="save_medicine(this.parentElement.parentElement);">Save</button>
+            </div>
+        </div>
+
+        <div class="edit-medicine-dialog">
+            <span class="cancel" onclick="hide_dialog(this);"><i class="fa-solid fa-xmark"></i></span>
+            <h2>Edit Medicine</h2>
+
+            <div class="data">
+                <p>
+                    <span class="bold">Name: </span>
+                    <span>Calpol</span>
+                </p>
+                <p>
+                    <span class="bold">Type: </span>
+                    <span>Syrup</span>
+                </p>
+            </div>
+
+            <div class="form">
+                <div class="input">
+                    <input type="number" name="quantity" min="0" required>
+                    <span>Quantity</span>
+                    <i></i>
+                </div>
+                <div class="input">
+                    <input type="number" name="price" required>
+                    <span>Price</span>
+                    <i></i>
+                </div>
+                <div class="multi-input">
+                    <label>MFG Date: </label>
+                    <div class="input">
+                        <input type="number" name="mfg-month" min="1" max="12" required>
+                        <span>Month</span>
+                        <i></i>
+                    </div>
+                    <div class="input">
+                        <input type="number" name="mfg-year" min="1500" required>
+                        <span>Year</span>
+                        <i></i>
+                    </div>
+                </div>
+                <div class="multi-input">
+                    <label>Exp Date: </label>
+                    <div class="input">
+                        <input type="number" name="exp-month" min="1" max="12" required>
+                        <span>Month</span>
+                        <i></i>
+                    </div>
+                    <div class="input">
+                        <input type="number" name="exp-year" min="1500" required>
+                        <span>Year</span>
+                        <i></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement);">Cancel</button>
+                <button style="--clr: rgb(112,112,5);" onclick="reset_fields(this.parentElement.parentElement)">Reset</button>
+                <button style="--clr: var(--neon-blue);" onclick="update_medicine(this.parentElement.parentElement);">Update</button>
+            </div>
+        </div>
+
+        <div class="suspend-confirmation-dialog">
+            <span class="cancel" onclick="hide_dialog(this);this.parentElement.querySelector('button:last-child').innerHTML='Suspend';"><i class="fa-solid fa-xmark"></i></span>
+            <h2>Confirmation Dialog</h2>
+            <p>Are you sure, you want to suspend this staff?</p>
+            <div class="controls">
+                <button style="--clr: var(--disabled-clr)" onclick="hide_dialog(this.parentElement);this.parentElement.querySelector('button:last-child').innerHTML='Suspend';">Cancel</button>
+                <button style="--clr: var(--neon-blue)" onclick="suspend_staff(this.parentElement);">Suspend</button>
             </div>
         </div>
 

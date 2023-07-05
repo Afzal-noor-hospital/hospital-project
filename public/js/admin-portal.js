@@ -5,12 +5,17 @@ pharmacists_list=[],
 receptionists_list=[],
 LHVs_list=[],
 nurses_list=[],
+suspended_staff=[],
 patients_list=[],
 appointments_list=[],
+medicine_list=[],
 tests_list=[],
 notifications=[];
 let updateableProfile=null;
-let active_card_tab="admin";
+let active_card_tab="admin",
+object_to_be_edit=null;
+
+let month_array = ['Jan', "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 let filtered_appointments_list=[];
 
@@ -188,6 +193,14 @@ const edit_profile = (id) => {
             }
         }
     }
+    if(!currentProfile){
+        for(i of suspended_staff){
+            if(i.id===id && !currentProfile){
+                currentProfile=i
+                break;
+            }
+        }
+    }
     if(!currentProfile)
         return;
     
@@ -204,6 +217,7 @@ const edit_profile = (id) => {
     gender_inp=document.querySelector(".update-staff-dialog .container select[name='gender']"),
     role_inp=document.querySelector(".update-staff-dialog .container select[name='role']"),
     address_inp=document.querySelector(".update-staff-dialog .container textarea[name='address']"),
+    suspend_btn = document.querySelector(".update-staff-dialog .controls button:nth-child(2)");
     update_btn = document.querySelector(".update-staff-dialog .controls button:last-child");
 
     first_name_inp.value=currentProfile.first_name;
@@ -218,7 +232,20 @@ const edit_profile = (id) => {
     gender_inp.value=currentProfile.gender;
     role_inp.value=currentProfile.role;
     address_inp.value=currentProfile.address;
+    suspend_btn.innerHTML="Suspend";
+    if(updateableProfile.status==="suspend"){
+        suspend_btn.innerHTML="Restore";
+    }
     show_dialog("update-staff-dialog")
+
+    suspend_btn.addEventListener("click", (e) => {
+        if(e.target.innerHTML==="Restore"){
+            document.querySelector(".suspend-confirmation-dialog p").innerHTML="Are you sure you want to restore this staff?";
+            document.querySelector(".suspend-confirmation-dialog .controls button:last-child").innerHTML="Restore";
+        }
+        hide_dialog(document.querySelector(".update-staff-dialog .cancel"));
+        show_dialog("suspend-confirmation-dialog");
+    });
 
     update_btn.addEventListener("click", (e) => {
         show_loader();
@@ -294,6 +321,40 @@ const edit_profile = (id) => {
     })
 }
 
+const suspend_staff = (hidding_elem) => {
+    if(!updateableProfile){
+        show_notification("No records found. Refresh and try again", true);
+        setTimeout(() => {
+            hide_notification();
+        }, 5500);
+        return;
+    }
+    show_loader();
+    if(hidding_elem.querySelector("button:last-child").innerHTML==="Restore"){
+        updateableProfile.password="0000000";
+        updateableProfile.status="offline";
+    }else{
+        updateableProfile.status="suspend";
+    }
+    ipcRenderer.send("insert", `staff/${updateableProfile.id}/`, updateableProfile, "suspend-staff-result");
+    ipcRenderer.on("suspend-staff-result", (event, res) => {
+        hide_loader();
+        if(res){
+            hide_dialog(hidding_elem);
+            document.querySelector(".suspend-confirmation-dialog .controls button:last-child").innerHTML="Suspend";
+            show_notification("Staff Suspended Successfully");
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+        }else{
+            show_notification("Staff cannot Suspended. Please try again", true);
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+        }
+    });
+}
+
 const separate_profiles=(prof, data) => {
     profile=prof;
     admins_list=[],
@@ -302,8 +363,10 @@ const separate_profiles=(prof, data) => {
     receptionists_list=[],
     LHVs_list=[],
     nurses_list=[],
+    suspended_staff=[],
     patients_list=[],
-    appointments_list=[];
+    appointments_list=[],
+    medicine_list=[];
 
     if(!data)
         return;
@@ -312,7 +375,9 @@ const separate_profiles=(prof, data) => {
         let staff_data=data['staff'];
         for(i of Object.keys(staff_data)){
             let staffObj=staff_data[i];
-            if(staffObj.role==="Admin")
+            if(staffObj.status==="suspend")
+                suspended_staff.push(staffObj);
+            else if(staffObj.role==="Admin")
                 admins_list.push(staffObj);
             else if(staffObj.role==="Doctor")
                 doctors_list.push(staffObj);
@@ -340,6 +405,12 @@ const separate_profiles=(prof, data) => {
             appointments_list.push(appointments[i]);
         }
     }
+    if(data['medicines']){
+        let medicines = data['medicines'];
+        for(i of Object.keys(medicines)){
+            medicine_list.push(medicines[i]);
+        }
+    }
 
     // separating tests from data...
     tests_list=[];
@@ -364,6 +435,9 @@ const separate_profiles=(prof, data) => {
     populate_tests();
     populate_patients();
     populate_appointments();
+    populate_useable_medicines();
+    populate_expired_medicines();
+    populate_suspended_staff();
     check_birthday_and_wish();
 }
 
@@ -398,7 +472,7 @@ const reset_password = (username) => {
     })
 };
 
-const populate_tests = () => {
+const populate_tests = (search="") => {
     let test_elem=document.querySelector(".expanded-tests");
     test_elem.innerHTML=`<button class="add-new" onclick="show_dialog('add_new_test_dialog');">Add New Test</button>`;
     for(i of tests_list){
@@ -409,15 +483,16 @@ const populate_tests = () => {
             else
                 test_name+=j;
         }
-
-        test_elem.innerHTML+=`<div class="${i.type==='Basic'?'basic': ''}">
-            <span class='bold'>${test_name}</span>
-            <span>${i.price} Rs/-</span>
-            <div class='controls'>
-                <button style='--clr: var(--neon-blue);' onclick="update_test_dialog('${i.name}');"><i class='fa-solid fa-edit'></i></button>
-                <button style='--clr: red;' onclick="delete_test('${i.name}');"><i class='fa-solid fa-trash'></i></button>
-            </div>
-        </div>`;
+        if(test_name.toLowerCase().includes(search.toLowerCase())){
+            test_elem.innerHTML+=`<div class="${i.type==='Basic'?'basic': ''}">
+                <span class='bold'>${test_name}</span>
+                <span>${i.price} Rs/-</span>
+                <div class='controls'>
+                    <button style='--clr: var(--neon-blue);' onclick="update_test_dialog('${i.name}');"><i class='fa-solid fa-edit'></i></button>
+                    <button style='--clr: red;' onclick="delete_test('${i.name}');"><i class='fa-solid fa-trash'></i></button>
+                </div>
+            </div>`;
+        }
     }        
 }
 
@@ -639,7 +714,7 @@ const populate_appointments = (filtered_list=null) => {
     if(!filtered_list){
         for(let i=0; i<appointments_list.length; i++){
             for(let j=i+1; j<appointments_list.length; j++){
-                if(appointments_list[i].app_time>appointments_list[j].app_time){
+                if(appointments_list[i].app_time<appointments_list[j].app_time){
                     let temp=appointments_list[i];
                     appointments_list[i]=appointments_list[j];
                     appointments_list[j]=temp;
@@ -695,6 +770,351 @@ const populate_notifications = () => {
         notification_button.classList.add("active-dot");
     else
         notification_button.classList.remove("active-dot");
+}
+
+const populate_useable_medicines = (search="") => {
+    let useable_medicine_card = document.querySelector(".medicine_info_container .useable .special-card p");
+    let useable_medicine_container=document.querySelector(".medicine_info_container .useable .info-cards");
+
+    let useable_medicine_list=[];
+
+    for(i of medicine_list){
+        if(!isExpired(i.exp_date))
+            useable_medicine_list.push(i);
+    }
+
+    useable_medicine_card.innerHTML=useable_medicine_list.length;
+
+    let useable_medicine_container_DOM="";
+
+    for(i of useable_medicine_list){
+        if(i.name.toLowerCase().includes(search.toLowerCase()) || i.salt.toLowerCase().includes(search.toLowerCase())){
+            useable_medicine_container_DOM+=`<div class="info-elem" onclick="edit_medicine_dialog('${i.id}');">
+                <div>
+                    <h3>${i.name} (${i.salt})</h3>
+                    <p>Quantity: ${i.quantity}</p>
+                    <p>Price: ${i.price}</p>
+                    <p>Valid from ${i.mfg_date} till ${i.exp_date}</p>
+                </div>
+            </div>`;
+        }
+    }
+
+    useable_medicine_container.innerHTML=useable_medicine_container_DOM;
+}
+
+const populate_expired_medicines = (search="") => {
+    let expired_medicine_card = document.querySelector(".medicine_info_container .expired .special-card p");
+    let expired_medicine_container=document.querySelector(".medicine_info_container .expired .info-cards");
+
+    let expired_medicine_list=[];
+
+    for(i of medicine_list){
+        if(isExpired(i.exp_date))
+            expired_medicine_list.push(i);
+    }
+
+    expired_medicine_card.innerHTML=expired_medicine_list.length;
+
+    let expired_medicine_container_DOM="";
+
+    for(i of expired_medicine_list){
+        if(i.name.toLowerCase().includes(search.toLowerCase()) || i.salt.toLowerCase().include(search.toLowerCase())){
+            expired_medicine_container_DOM+=`<div class="info-elem" onclick="show_medicine_dialog('${i.id}');">
+                <div>
+                    <h3>${i.name} (${i.salt})</h3>
+                    <p>Quantity: ${i.quantity}</p>
+                    <p>Price: ${i.price}</p>
+                </div>
+            </div>`;
+        }
+    }
+
+    expired_medicine_container.innerHTML=expired_medicine_container_DOM;
+}
+
+const populate_suspended_staff = () => {
+    let suspended_container = document.querySelector(".suspended-staff-container .expanded-info .users");
+    let suspended_staff_count = document.querySelector(".suspended-staff-container .special-card p");
+
+    suspended_staff_count.innerHTML=suspended_staff.length;
+
+    let staff_DOM=""
+    for(i of suspended_staff){
+        staff_DOM+=`<div class="user">
+                <div onclick="show_profile_dialog('${i.id}');">
+                    <h3>${i.first_name+" "+i.last_name}</h3>
+                    <p>${i.id}</p>
+                </div>
+                <div>
+                    <span onclick="edit_profile('${i.id}')" title="Edit"><i class="fa-solid fa-pen-to-square"></i></span>
+                </div>
+            </div>`;
+    }
+    suspended_container.innerHTML=staff_DOM;
+}
+
+const is_valid_mfg_exp = (mfg, exp) => {
+    let given_mfg_month=mfg.split(" ")[0];
+    let given_mfg_year=mfg.split(" ")[1];
+    let given_exp_month=exp.split(" ")[0];
+    let given_exp_year=exp.split(" ")[1];
+
+    let mfg_month_index=-1;
+    let exp_month_index=-1;
+
+    for(i in month_array){
+        if(month_array[i]===given_mfg_month){
+            mfg_month_index=i;
+            break;
+        }
+    }
+    for(i in month_array){
+        if(month_array[i]===given_exp_month){
+            exp_month_index=i;
+            break;
+        }
+    }
+
+    if(parseInt(given_mfg_year) < parseInt(given_exp_year)){
+        return true;
+    }
+    else if(parseInt(given_mfg_year)===parseInt(given_exp_year) && mfg_month_index>=exp_month_index){
+        return true;
+    }
+    return false;
+}
+
+const validate_medicine_form = (dialog) => {
+    let med_name_input=dialog.querySelector("input[name='name']");
+    let med_quantity_input=dialog.querySelector("input[name='quantity']");
+    let med_price_input=dialog.querySelector("input[name='price']");
+    let med_mfg_month_input=dialog.querySelector("input[name='mfg-month']");
+    let med_mfg_year_input=dialog.querySelector("input[name='mfg-year']");
+    let med_exp_month_input=dialog.querySelector("input[name='exp-month']");
+    let med_exp_year_input=dialog.querySelector("input[name='exp-year']");
+    
+    if((med_name_input && !med_name_input.value) || !med_quantity_input.value || !med_price_input.value || !med_mfg_month_input.value || !med_mfg_year_input.value || !med_exp_month_input.value || !med_exp_year_input.value){
+        show_notification("Fill Empty Fields First", true);
+        setTimeout(() => {
+            hide_notification();
+        }, 5500);
+        if(med_name_input && !med_name_input.value)
+            med_name_input.focus()
+        else if(!med_quantity_input.value)
+            med_quantity_input.focus()
+        else if(!med_price_input.value)
+            med_price_input.focus()
+        else if(!med_mfg_month_input.value)
+            med_mfg_month_input.focus()
+        else if(!med_mfg_year_input.value)
+            med_mfg_year_input.focus()
+        else if(!med_exp_month_input.value)
+            med_exp_month_input.focus()
+        else if(!med_exp_year_input.value)
+            med_exp_year_input.focus()
+        return false;
+    }
+    
+    let errors="Invalid Inputs:";
+
+    if(med_quantity_input.value<med_quantity_input.min){
+        errors+=" Quantity,";
+        med_quantity_input.focus()
+    }
+    if(med_price_input.value<0){
+        errors+=" Price,";
+        med_price_input.focus()
+    }
+    if(med_mfg_month_input.value<1 || med_mfg_month_input.value>12){
+        errors+=" Mfg Month,";
+        med_mfg_month_input.focus()
+    }
+    if(med_mfg_year_input.value<med_mfg_year_input.min){
+        errors+=" Mfg Year,";
+        med_mfg_year_input.focus()
+    }
+    if(med_exp_month_input.value<1 || med_exp_month_input.value>12){
+        errors+=" Exp Month,";
+        med_exp_month_input.focus()
+    }
+    if(med_exp_year_input.value<med_exp_year_input.min){
+        errors+=" Exp Year,";
+        med_exp_year_input.focus()
+    }
+
+    let mfg_date=`${month_array[parseInt(med_mfg_month_input.value)-1]} ${med_mfg_year_input.value}`;
+    let exp_date=`${month_array[parseInt(med_exp_month_input.value)-1]} ${med_exp_year_input.value}`;
+
+    if(errors.split(" ").length<=2 && !is_valid_mfg_exp(mfg_date, exp_date)){
+            errors="Exp Date must be greater then Mfg Date";
+    }
+
+    if(errors.split(" ").length>2){
+        errors=errors.substring(0, errors.length-1);
+        show_notification(errors, true);
+        setTimeout(() => {
+            hide_notification();
+        }, 5500);
+        return false;
+    }
+    return true;
+}
+
+const save_medicine = (dialog) => {
+    if(!validate_medicine_form(dialog))
+        return;
+
+    show_loader();
+    let med_name_input=dialog.querySelector("input[name='name']");
+    let med_salt_input=dialog.querySelector("input[name='salt']");
+    let med_quantity_input=dialog.querySelector("input[name='quantity']");
+    let med_type_input=dialog.querySelector("select[name='type']");
+    let med_price_input=dialog.querySelector("input[name='price']");
+    let med_mfg_month_input=dialog.querySelector("input[name='mfg-month']");
+    let med_mfg_year_input=dialog.querySelector("input[name='mfg-year']");
+    let med_exp_month_input=dialog.querySelector("input[name='exp-month']");
+    let med_exp_year_input=dialog.querySelector("input[name='exp-year']");
+
+    let mfg_date=`${month_array[parseInt(med_mfg_month_input.value)-1]} ${med_mfg_year_input.value}`;
+    let exp_date=`${month_array[parseInt(med_exp_month_input.value)-1]} ${med_exp_year_input.value}`;
+
+    let medicine_obj={
+        id:`${medicine_list.length+1}`,
+        salt: med_salt_input.value,
+        name:med_name_input.value,
+        quantity:med_quantity_input.value,
+        type:med_type_input.value,
+        price:med_price_input.value,
+        mfg_date:mfg_date,
+        exp_date:exp_date
+    };
+    ipcRenderer.send("insert", `medicines/${medicine_obj.id}`, medicine_obj, "save-new-medicine-result");
+    ipcRenderer.on("save-new-medicine-result", (event, res) => {
+        hide_loader();
+        if(res){
+            show_notification("Medicine added successfully");
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+            hide_dialog(dialog.querySelector(".cancel"))
+        }
+        else{
+            show_notification("Medicine not inserted. Check your network connection and try again", true);
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+        }
+    });
+}
+
+const edit_medicine_dialog = (id) => {
+    let name_label=document.querySelector(".edit-medicine-dialog .data p:nth-child(1) span:last-child");
+    let type_label=document.querySelector(".edit-medicine-dialog .data p:nth-child(2) span:last-child");
+    let quantity_input=document.querySelector(".edit-medicine-dialog input[name='quantity']");
+    let price_input=document.querySelector(".edit-medicine-dialog input[name='price']");
+    let mfg_month_input=document.querySelector(".edit-medicine-dialog input[name='mfg-month']");
+    let mfg_year_input=document.querySelector(".edit-medicine-dialog input[name='mfg-year']");
+    let exp_month_input=document.querySelector(".edit-medicine-dialog input[name='exp-month']");
+    let exp_year_input=document.querySelector(".edit-medicine-dialog input[name='exp-year']");
+
+    for(i of medicine_list){
+        if(parseInt(id)===parseInt(i.id)){
+            object_to_be_edit=i;
+            break;
+        }
+    }
+
+    if(!object_to_be_edit){
+        show_notification("Data not Found. Refresh and try again", true);
+        setTimeout(() => {
+            hide_notification();
+        }, 5500);
+        return;
+    }
+    name_label.innerHTML=`${object_to_be_edit.name} (${object_to_be_edit.salt})`;
+    type_label.innerHTML=object_to_be_edit.type
+    quantity_input.value=object_to_be_edit.quantity
+    price_input.value=object_to_be_edit.price
+    
+    let mfg_month=object_to_be_edit.mfg_date.split(" ")[0];
+    for(i in month_array){
+        if(month_array[i]===mfg_month){
+            mfg_month=++i;
+            break;
+        }
+    }
+    mfg_month_input.value=mfg_month;
+    mfg_year_input.value=object_to_be_edit.mfg_date.split(" ")[1];
+    let exp_month=object_to_be_edit.exp_date.split(" ")[0];
+    for(i in month_array){
+        if(month_array[i]===exp_month){
+            exp_month=++i;
+            break;
+        }
+    }
+    exp_month_input.value=exp_month;
+    exp_year_input.value=object_to_be_edit.exp_date.split(" ")[1];
+    
+    show_dialog("edit-medicine-dialog");
+}
+
+const update_medicine = (dialog) => {
+    if(!validate_medicine_form(dialog) && !object_to_be_edit)
+        return;
+
+    show_loader();
+    let quantity_input=dialog.querySelector("input[name='quantity']"),
+    price_input=dialog.querySelector("input[name='price']"),
+    mfg_month_input=dialog.querySelector("input[name='mfg-month']"),
+    mfg_year_input=dialog.querySelector("input[name='mfg-year']"),
+    exp_month_input=dialog.querySelector("input[name='exp-month']"),
+    exp_year_input=dialog.querySelector("input[name='exp-year']");
+
+    object_to_be_edit.quantity=quantity_input.value
+    object_to_be_edit.price=price_input.value
+    let mfg_date=`${month_array[parseInt(mfg_month_input.value)-1]} ${mfg_year_input.value}`;
+    let exp_date=`${month_array[parseInt(exp_month_input.value)-1]} ${exp_year_input.value}`;
+    object_to_be_edit.mfg_date=mfg_date;
+    object_to_be_edit.exp_date=exp_date;
+
+    ipcRenderer.send("insert", `medicines/${object_to_be_edit.id}/`, object_to_be_edit, "update-medicine-result");
+    ipcRenderer.on("update-medicine-result", (event, res) => {
+        hide_loader();
+        if(res){
+            show_notification("Medicine updated successfully");
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+            object_to_be_edit=null;
+            hide_dialog(dialog.querySelector(".cancel"));
+        }else{
+            show_notification("Medicine not updated. Check your network connection and try again", true);
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+        }
+    });
+}
+
+const isExpired = (date) =>{ 
+    let current_Date=new Date(Date.now());
+    let given_Month=date.split(" ")[0];
+    let given_Year=date.split(" ")[1];
+    let index=-1;
+    for(j in month_array){
+        if(month_array[j]===given_Month){
+            index=j;
+            break;
+        }
+    }
+
+    if(current_Date.getFullYear() < parseInt(given_Year)){
+        return false;
+    }else if(current_Date.getFullYear() === parseInt(given_Year) && current_Date.getMonth() <= index){
+        return false;
+    }
+    return true;
 }
 
 const isFocus_anyInput = () => {
@@ -802,6 +1222,7 @@ let new_DOM=`<span class="admin-test-info" title="Add New Test and Price" onclic
     <span class="admin-notifications" data-count="" title="Notifications" onclick="this.classList.toggle('show');document.querySelector('.admin-test-info').classList.remove('show');"><i class="fa-solid fa-bell"></i></span>
     <div class="expanded-notifications"></div>`+old_DOM;
 document.body.innerHTML=new_DOM;
+setup_show_password();
 
 
 
@@ -1163,7 +1584,11 @@ populate_admin(false);
 
 // for staff...
 document.querySelector(".personal-navigation input[name='search']").addEventListener("input", (e) => {
-    if(active_card_tab==="admin")
+    let test_info_button = document.querySelector(".admin-test-info");
+
+    if(test_info_button.classList[1]==="show")
+        populate_tests(e.target.value.trim());
+    else if(active_card_tab==="admin")
         populate_admin(false, e.target.value);
     else if(active_card_tab==="doctor")
         populate_doctor(false, e.target.value);
@@ -1205,6 +1630,17 @@ document.querySelector(".patient_info_container .appointments .filters input").a
     populate_appointments(filtered_app_list);
 });
 
+// for useable medicines search ...
+document.querySelector(".medicine_info_container .useable .search input").addEventListener("input", (e) => {
+    let search_str = e.target.value.trim();
+    populate_useable_medicines(search_str);
+});
+
+// for expired medicines search ...
+document.querySelector(".medicine_info_container .expired .search input").addEventListener("input", (e) => {
+    let search_str = e.target.value.trim();
+    populate_expired_medicines(search_str);
+});
 
 
 

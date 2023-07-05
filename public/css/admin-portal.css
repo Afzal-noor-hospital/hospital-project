@@ -290,6 +290,7 @@ body{
     overflow: hidden;
 }
 .main-container .offline-users .users,
+.suspended-staff-container .users,
 .main-container .online-users .users{
     width: calc(100% - 20px);
     height: 100%;
@@ -299,6 +300,7 @@ body{
     overflow: auto;
 }  
 .main-container .offline-users .users .user,
+.suspended-staff-container .users .user,
 .main-container .online-users .users .user{
     display: flex;
     justify-content: space-between;
@@ -311,6 +313,7 @@ body{
     position: relative;
 }
 .main-container .offline-users .users .user div:first-child,
+.suspended-staff-container .users .user div:first-child,
 .main-container .online-users .users .user div:first-child{
     position: relative;
     width: 100%;
@@ -320,6 +323,7 @@ body{
     justify-content: center;
 }
 .main-container .offline-users .users .user div:first-child::after,
+.suspended-staff-container .users .user div:first-child::after,
 .main-container .online-users .users .user div:first-child::after{
     content: '';
     position: absolute;
@@ -333,10 +337,12 @@ body{
     scale: 0;
 }
 .main-container .offline-users .users .user div:first-child:hover::after,
+.suspended-staff-container .users .user div:first-child:hover::after,
 .main-container .online-users .users .user div:first-child:hover::after{
     scale: 1;
 }
 .main-container .offline-users .users .user div:nth-child(2),
+.suspended-staff-container .users .user div:nth-child(2),
 .main-container .online-users .users .user div:nth-child(2){
     display: flex;
     flex-direction: row;
@@ -345,10 +351,12 @@ body{
     gap: 10px;
 }
 .main-container .offline-users .users .user div:nth-child(2) span:nth-child(2),
+.suspended-staff-container .users .user div:nth-child(2) span:nth-child(2),
 .main-container .online-users .users .user div:nth-child(2) span:nth-child(2){
     background-color: red;
 }
 .main-container .offline-users .users .user div:nth-child(2) span,
+.suspended-staff-container .users .user div:nth-child(2) span,
 .main-container .online-users .users .user div:nth-child(2) span{
     width: 40px;
     height: 40px;
@@ -361,15 +369,18 @@ body{
     cursor: pointer;
 }
 .main-container .offline-users .users::-webkit-scrollbar,
+.suspended-staff-container .users::-webkit-scrollbar,
 .main-container .online-users .users::-webkit-scrollbar{
     width: 15px;
 }
 .main-container .offline-users .users::-webkit-scrollbar-thumb,
+.suspended-staff-container .users::-webkit-scrollbar-thumb,
 .main-container .online-users .users::-webkit-scrollbar-thumb{
     background-color: var(--clr);
     border-radius: 5px;
 }
 .main-container .offline-users .users::-webkit-scrollbar-track,
+.suspended-staff-container .users::-webkit-scrollbar-track,
 .main-container .online-users .users::-webkit-scrollbar-track{
     border-radius: 5px;
     background-color: var(--fg);
@@ -383,8 +394,8 @@ body{
 
 
 
-
-
+.medicine_info_container,
+.suspended-staff-main-container,
 .patient_info_container{
     display: flex;
     gap: 30px;
@@ -392,6 +403,11 @@ body{
     width: calc(100% - 40px);
     padding: 20px 20px 40px 20px;
 }
+.suspended-staff-main-container{
+    justify-content: left;
+}
+.suspended-staff-container,
+.medicine_info_container .info,
 .patient_info_container .info{
     width: calc(50% - 40px);
     min-width: 260px;
@@ -402,6 +418,8 @@ body{
     border-radius: 10px;
     position: relative;
 }
+.medicine_info_container .info .special-card,
+.suspended-staff-container .special-card,
 .patient_info_container .info .special-card{
     background-color: var(--fg);
     color: var(--bg);
@@ -414,13 +432,28 @@ body{
     justify-content: space-between;
     align-items: flex-end;
 }
+.medicine_info_container .info .special-card h2,
+.suspended-staff-container .special-card h2,
 .patient_info_container .info .special-card h2{
     color: var(--clr);
 }
+.medicine_info_container .info .special-card p,
+.suspended-staff-container .special-card p,
 .patient_info_container .info .special-card p{
     font-size: 35px;
     font-family: poppins-bold;
 }
+.medicine_info_container .info .special-card button{
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: var(--clr);
+    left: 5px;
+    bottom: 5px;
+    position: absolute;
+}
+.medicine_info_container .info .special-card.online::before,
+.suspended-staff-container .special-card.online::before,
 .patient_info_container .info .special-card.online::before{
     content: attr(data-count);
     position: absolute;
@@ -454,6 +487,8 @@ body{
     justify-content: center;
     font-size: 25px;
 }
+.medicine_info_container .expanded-info,
+.suspended-staff-container .expanded-info,
 .patient_info_container .expanded-info{
     border: 2px solid var(--clr);
     border-radius: 10px;
@@ -461,6 +496,8 @@ body{
     display: flex;
     flex-direction: column;
 }
+.medicine_info_container .expanded-info .search,
+.suspended-staff-container .expanded-info .search,
 .patient_info_container .expanded-info .search{
     display: flex;
     align-items: center;
@@ -470,6 +507,8 @@ body{
     overflow: hidden;
     padding: 0px 10px;
 }
+.medicine_info_container .expanded-info .search input,
+.suspended-staff-container .expanded-info .search input,
 .patient_info_container .expanded-info .search input{
     width: 100%;
     background-color: rgb(0, 0, 0);
@@ -479,23 +518,32 @@ body{
     color: var(--fg);
     padding: 10px;
 }
+.medicine_info_container .expanded-info .info-cards,
+.suspended-staff-container .expanded-info .info-cards,
 .patient_info_container .expanded-info .info-cards{
     width: calc(100% - 15px);
     height: 100%;
     padding: 5px;
     overflow: auto;
 }
+.medicine_info_container .expanded-info .info-cards::-webkit-scrollbar,
+.suspended-staff-container .expanded-info .info-cards::-webkit-scrollbar,
 .patient_info_container .expanded-info .info-cards::-webkit-scrollbar{
     width: 15px;
 }
+.medicine_info_container .expanded-info .info-cards::-webkit-scrollbar-track,
+.suspended-staff-container .expanded-info .info-cards::-webkit-scrollbar-track,
 .patient_info_container .expanded-info .info-cards::-webkit-scrollbar-track{
     border-radius: 10px;
     background-color: var(--fg);
 }
+.medicine_info_container .expanded-info .info-cards::-webkit-scrollbar-thumb,
+.suspended-staff-container .expanded-info .info-cards::-webkit-scrollbar-thumb,
 .patient_info_container .expanded-info .info-cards::-webkit-scrollbar-thumb{
     border-radius: 10px;
     background-color: var(--clr);
 }
+.medicine_info_container .expanded-info .info-elem,
 .patient_info_container .expanded-info .info-elem{
     width: calc(100% - 20px);
     display: flex;
@@ -507,6 +555,7 @@ body{
     position: relative;
     overflow: hidden;
 }
+.medicine_info_container .expanded-info .info-elem::before,
 .patient_info_container .expanded-info .info-elem::before{
     content: '';
     position: absolute;
@@ -520,9 +569,11 @@ body{
     z-index: -1;
     transition: 0.5s;
 }
+.medicine_info_container .expanded-info .info-elem:hover::before,
 .patient_info_container .expanded-info .info-elem:hover::before{
     scale: 1;
 }
+.medicine_info_container .expanded-info .info-elem div,
 .patient_info_container .expanded-info .info-elem div{
     display: flex;
     flex-direction: column;
@@ -532,6 +583,7 @@ body{
 .patient_info_container .expanded-info .info-elem:has(span) div{
     width: calc(100% - 50px);
 }
+.medicine_info_container .expanded-info .info-elem div *,
 .patient_info_container .expanded-info .info-elem div *{
     text-overflow: ellipsis;
     overflow: hidden;
@@ -546,6 +598,175 @@ body{
     align-items: center;
     justify-content: center;
 }
+
+
+
+
+
+
+
+
+
+.dialog .add-new-medicine-dialog{
+    position: relative;
+    min-width: 260px;
+    width: 40%;
+    height: 450px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: -20px;
+}
+.dialog .add-new-medicine-dialog.show{
+    display: flex;
+    animation: dialog-anim 0.5s linear forwards;
+}
+.dialog .add-new-medicine-dialog .form::-webkit-scrollbar{
+    width: 15px;
+}
+.dialog .add-new-medicine-dialog .form::-webkit-scrollbar-track{
+    border-radius: 10px;
+    background-color: var(--fg);
+}
+.dialog .add-new-medicine-dialog .form::-webkit-scrollbar-thumb{
+    border-radius: 10px;
+    background-color: var(--neon-pink);
+}
+.dialog .add-new-medicine-dialog .form{
+    width: calc(100% - 10px);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 30px;
+    overflow: auto;
+    padding: 20px 5px 5px 5px;
+    scroll-behavior: smooth;
+}
+.dialog .add-new-medicine-dialog .form .multi-input{
+    display: flex;
+    gap: 20px;
+    align-items: baseline;
+}
+.dialog .add-new-medicine-dialog .form .multi-input label{
+    white-space: nowrap;
+    font-size: 18px;
+}
+.dialog .add-new-medicine-dialog .controls,
+.dialog .edit-medicine-dialog .controls{
+    width: 100%;
+}
+
+
+
+
+
+
+
+
+
+
+
+.dialog .suspend-confirmation-dialog{
+    position: relative;
+    width: 280px;
+    height: 200px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+.dialog .suspend-confirmation-dialog.show{
+    display: flex;
+    animation: dialog-anim 0.5s linear forwards;
+}
+.dialog .suspend-confirmation-dialog h2,
+.dialog .suspend-confirmation-dialog p{
+    text-align: center;
+}
+.dialog .suspend-confirmation-dialog .controls{
+    width: 100%;
+}
+
+
+
+
+
+
+
+
+
+
+
+.dialog .edit-medicine-dialog{
+    position: relative;
+    min-width: 260px;
+    width: 40%;
+    height: 450px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: -20px;
+}
+.dialog .edit-medicine-dialog.show{
+    display: flex;
+    animation: dialog-anim 0.5s linear forwards;
+}
+.dialog .edit-medicine-dialog .form::-webkit-scrollbar{
+    width: 15px;
+}
+.dialog .edit-medicine-dialog .form::-webkit-scrollbar-track{
+    border-radius: 10px;
+    background-color: var(--fg);
+}
+.dialog .edit-medicine-dialog .form::-webkit-scrollbar-thumb{
+    border-radius: 10px;
+    background-color: var(--neon-pink);
+}
+.dialog .edit-medicine-dialog .data{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 17px;
+    margin-bottom: -20px;
+}
+.dialog .edit-medicine-dialog .form{
+    width: calc(100% - 10px);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 30px;
+    overflow: auto;
+    padding: 20px 5px 5px 5px;
+    scroll-behavior: smooth;
+    border: 2px solid var(--neon-blue);
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+.dialog .edit-medicine-dialog .form .multi-input{
+    display: flex;
+    gap: 20px;
+    align-items: baseline;
+}
+.dialog .edit-medicine-dialog .form .multi-input label{
+    white-space: nowrap;
+    font-size: 18px;
+}
+
+
+
+
 
 
 
@@ -736,6 +957,7 @@ body{
         width: 200px;
     }
     .main-container,
+    .medicine_info_container,
     .patient_info_container{
         flex-direction: column;
         align-items: center;
@@ -743,11 +965,13 @@ body{
         padding: 0;
         width: 100%;
     }
+    .medicine_info_container,
     .patient_info_container{
         margin-top: 50px;
     }
     .main-container .offline-users,
     .main-container .online-users,
+    .medicine_info_container .info,
     .patient_info_container .info{
         width: 90%;
     }  

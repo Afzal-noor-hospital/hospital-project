@@ -214,12 +214,6 @@ body{
     text-align: left;
     font-family: poppins;
 }
-.try-another-way-container .patients button p:nth-child(2){
-    color: rgba(255,255,255,0.8);
-}
-.try-another-way-container .patients button p:nth-child(3){
-    color: rgba(255,255,255,0.5);
-}
 
 
 

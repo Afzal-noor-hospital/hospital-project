@@ -237,19 +237,18 @@ const is_valid_mfg_exp = (mfg, exp) => {
         }
     }
 
-    if(parseInt(given_mfg_year) > parseInt(given_exp_year)){
-        return false;
+    if(parseInt(given_mfg_year) < parseInt(given_exp_year)){
+        return true;
     }
-    else if(parseInt(given_mfg_year)===parseInt(given_exp_year) && mfg_month_index>exp_month_index){
-        return false;
+    else if(parseInt(given_mfg_year)===parseInt(given_exp_year) && mfg_month_index>=exp_month_index){
+        return true;
     }
-    return true;
+    return false;
 }
 
 const validate_medicine_form = (dialog) => {
     let med_name_input=dialog.querySelector("input[name='name']");
     let med_quantity_input=dialog.querySelector("input[name='quantity']");
-    let med_type_input=dialog.querySelector("select[name='type']");
     let med_price_input=dialog.querySelector("input[name='price']");
     let med_mfg_month_input=dialog.querySelector("input[name='mfg-month']");
     let med_mfg_year_input=dialog.querySelector("input[name='mfg-year']");
@@ -410,6 +409,7 @@ create_navigation()
 let personal_navigation=document.querySelector(".personal-navigation div:last-child");
 let old_DOM=personal_navigation.innerHTML;
 personal_navigation.innerHTML=`<span title="New Medicine (N)" class="btn" onclick="show_dialog('add-new-medicine-dialog');"><i class='fa-solid fa-plus'></i></span>`+old_DOM;
+setup_show_password();
 
 
 
@@ -443,7 +443,7 @@ document.querySelector(".medicine-detail.expired input[name='search']").addEvent
 let inputs=document.querySelectorAll(".explained-app .data .prescriptions input");
 inputs.forEach((elem, index) => {
     elem.addEventListener("input", (e) => {
-
+        // setting up code for price if medicine quantity up or down...
     });
 });
 
@@ -481,10 +481,10 @@ const select_appointment = (index) => {
             duration=parseInt(raw_duration);
         }
         let quantity=parseInt(duration)*parseInt(parseInt(i.quantity))*i.timmings.split(",").length;
-        if(i.name==="Syrup"||i.name==="Gel"||i.name==="Ointment"||i.name==="Drops"||i.name==="Cream")
+        if(i.name.toLowerCase().includes("(Syrup)".toLowerCase())||i.name.toLowerCase().includes("(Gel)".toLowerCase())||i.name.toLowerCase().includes("(Ointment)".toLowerCase())||i.name.toLowerCase().includes("(Drops)".toLowerCase())||i.name.toLowerCase().includes("(Cream)".toLowerCase()))
             quantity=1;
         for(j of medicine_list){
-            if(i.name.toLowerCase().includes(j.name.toLowerCase()) && i.name.toLowerCase().includes(j.type.toLowerCase())){
+            if(i.med_id && parseInt(i.med_id)===parseInt(j.id)){
                 t_price+=(parseInt(j.price)*quantity);
             }
         }
@@ -509,6 +509,10 @@ const select_appointment = (index) => {
     <p>
         <span class="bold">Doctor Name: </span>
         <span>${doctor_name}</span>
+    </p>
+    <p>
+        <span class="bold">Presenting Complaints: </span>
+        <span>${selected_appointment.presenting_complaints}</span>
     </p>
     <p>
         <span class="bold">Diagnosis: </span>
@@ -573,7 +577,7 @@ const select_appointment = (index) => {
                 duration=parseInt(raw_duration);
             }
             let quantity=parseInt(duration)*parseInt(i.quantity)*i.timmings.split(",").length;
-            if(i.name==="Syrup"||i.name==="Gel"||i.name==="Ointment"||i.name==="Drops"||i.name==="Cream")
+            if(i.name.toLowerCase().includes("(Syrup)".toLowerCase())||i.name.toLowerCase().includes("(Gel)".toLowerCase())||i.name.toLowerCase().includes("(Ointment)".toLowerCase())||i.name.toLowerCase().includes("(Drops)".toLowerCase())||i.name.toLowerCase().includes("(Cream)".toLowerCase()))
                 quantity=1;
             container_DOM+=`<div class="prescription">
                 <span class="bold">Prescription ${index+1}</span>
@@ -631,6 +635,10 @@ const populate_print_dialog = () => {
         <p>
             <span class="bold">Doctor Name: </span>
             <span>${doctor_name}</span>
+        </p>
+        <p>
+            <span class="bold">Presenting Complaints: </span>
+            <span>${selected_appointment.presenting_complaints}</span>
         </p>
         <p>
             <span class="bold">Diagnosis: </span>

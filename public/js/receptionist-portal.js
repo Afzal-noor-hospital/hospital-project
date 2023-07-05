@@ -502,14 +502,14 @@ const populate_cbc_report = (test_name) => {
 
 const populate_try_another = (list) => {
     if(!list)
-        list=patient_list        
+        list=patient_list
     let container=document.querySelector(".try-another-way-container .patients");
     let new_DOM="";
     for(i of list){
         new_DOM+=`<button style="--clr: var(--neon-blue);" onclick="select_patient('${i.id}');">
-            <p>${i.id}</p>
-            <p>${i.first_name+" "+i.last_name} <b class="bold">S/O</b> ${i.father_name}</p>
-            <p>${i.address}</p>
+            <p><span class="bold">Name: </span>${i.first_name+" "+i.last_name}</p>
+            <p><span class="bold">Father Name: </span>${i.father_name}</p>
+            <p><span class="bold">Contact: </span>${i.contact}</p>
         </button>`;
     }
     container.innerHTML=new_DOM;
@@ -520,6 +520,7 @@ create_navigation()
 let personal_navigation=document.querySelector(".personal-navigation div:last-child");
 let old_DOM=personal_navigation.innerHTML;
 personal_navigation.innerHTML=`<span title="Add New Patient (N)" class="btn" onclick="show_dialog('add-new-patient-dialog');"><i class='fa-solid fa-plus'></i></span>`+old_DOM;
+setup_show_password();
 
 
 
