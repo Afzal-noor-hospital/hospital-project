@@ -7,28 +7,28 @@ const fs = require("fs");
 
 
 // dummy database credentials...
-// const firebaseConfig = {
-//   apiKey: "AIzaSyDeK1E0m2Yegiy-NYJbl-i40BT-XdDlj5I",
-//   authDomain: "dummy-156c4.firebaseapp.com",
-//   databaseURL: "https://dummy-156c4-default-rtdb.firebaseio.com",
-//   projectId: "dummy-156c4",
-//   storageBucket: "dummy-156c4.appspot.com",
-//   messagingSenderId: "623796312875",
-//   appId: "1:623796312875:web:37f39c49d314649cd2036e",
-//   measurementId: "G-57Q9RL4J8R"
-// };
+const firebaseConfig = {
+  apiKey: "AIzaSyDeK1E0m2Yegiy-NYJbl-i40BT-XdDlj5I",
+  authDomain: "dummy-156c4.firebaseapp.com",
+  databaseURL: "https://dummy-156c4-default-rtdb.firebaseio.com",
+  projectId: "dummy-156c4",
+  storageBucket: "dummy-156c4.appspot.com",
+  messagingSenderId: "623796312875",
+  appId: "1:623796312875:web:37f39c49d314649cd2036e",
+  measurementId: "G-57Q9RL4J8R"
+};
 
 
 // original database credentials...
-const firebaseConfig = {
-  apiKey: "AIzaSyD7avof426AbkWj3vPJV7pED7IRIAylg9g",
-  authDomain: "afzal-noor-trust.firebaseapp.com",
-  projectId: "afzal-noor-trust",
-  storageBucket: "afzal-noor-trust.appspot.com",
-  messagingSenderId: "988039714855",
-  appId: "1:988039714855:web:80170b7d44fb7976d3d602",
-  measurementId: "G-FJCK67WRXE"
-};
+// const firebaseConfig = {
+//   apiKey: "AIzaSyD7avof426AbkWj3vPJV7pED7IRIAylg9g",
+//   authDomain: "afzal-noor-trust.firebaseapp.com",
+//   projectId: "afzal-noor-trust",
+//   storageBucket: "afzal-noor-trust.appspot.com",
+//   messagingSenderId: "988039714855",
+//   appId: "1:988039714855:web:80170b7d44fb7976d3d602",
+//   measurementId: "G-FJCK67WRXE"
+// };
 
 let main=null,
 loginProfile=null;
@@ -163,6 +163,11 @@ ipcMain.on("fetch", (event, path, reply_id) => {
 ipcMain.on("write-excel-file", (event, staff, patients, appointments, original_patients_list, reply_id) => {
   write_excel_file(event, staff, patients, appointments, original_patients_list, reply_id);
 });
+
+ipcMain.on("read_medicines_and_upload", (event, file_path, medicine_types, medicine_list, reply_id) => {
+  read_medicines_and_upload(event, file_path, JSON.parse(medicine_types), JSON.parse(medicine_list), reply_id);
+});
+
 
 
 
@@ -574,6 +579,143 @@ const write_excel_file = async (event, staff=[], patients=[], appointments=[], p
 }
 
 
+const read_medicines_and_upload = (event, path, medicine_types, medicine_list, reply_id) => {
+  // file format ...
+  // sr.No., name, salt, type, Total packs, Tab/Pack, Price/Pack, MFG Date, EXP Date, discount
+
+  const Workbook = new writer.Workbook();
+  Workbook.xlsx.readFile(path).then((e) => {
+    let sheet = Workbook.getWorksheet(1);
+    let invalid_error_log="";
+    let medicines=[];
+    let empty_error_log="";
+    sheet.eachRow((row, rowNumber) => {
+      if(rowNumber!=1){
+        let medicine=[];
+        row.eachCell({includeEmpty: true}, (cell, colNumber) => {
+          let address = cell.$col$row.split("$")[1]+cell.row;
+          let value = cell.value;
+          if(colNumber===1){ // we get serial number here...
+            if(!value)
+              empty_error_log+=address+"\n";
+            else if(typeof(parseInt(value)) === typeof(0)) // checking either it is int or not
+              medicine.push(value);
+            else
+              invalid_error_log+=address+"\n";
+          }else if(colNumber===2){ // we get medicine name here...
+            if(!value)
+              empty_error_log+=address+"\n";
+            else
+              medicine.push(value);
+          }else if(colNumber===3){ // we get medicine salt here...
+            if(!value)
+              empty_error_log+=address+"\n";
+            else
+              medicine.push(value);
+          }else if(colNumber===4){ // we get medicine type here...
+            if(!value)
+              empty_error_log+=address+"\n";
+            else{
+              let isCorrectType=false;
+              for(i of medicine_types){
+                if(value.toString().toLowerCase()===i.name.toLowerCase()){
+                  isCorrectType=true;
+                  break;
+                }
+              }
+              if(isCorrectType)
+                medicine.push(value);
+              else
+                invalid_error_log+=address+"\n";
+            }
+          }else if(colNumber===5){ // we gets total packs here...
+            if(!value)
+              empty_error_log+=address+"\n";
+            else if(typeof(parseFloat(value))===typeof(0.0))
+              medicine.push(value);
+            else
+              invalid_error_log+=address+"\n";
+          }else if(colNumber===6){ // we get tablets per pack here...
+            if(!value)
+              empty_error_log+=address+"\n";
+            else if(typeof(parseFloat(value))===typeof(0))
+              medicine.push(value);
+            else
+              invalid_error_log+=address+"\n";
+          }else if(colNumber===7){ // we get price per pack here...
+            if(!value)
+              empty_error_log+=address+"\n";
+            else if(typeof(parseFloat(value))===typeof(0.0))
+              medicine.push(value);
+            else
+              invalid_error_log+=address+"\n";
+          }else if(colNumber===8){ // we get MFG date here...
+            let date = new Date(value);
+            if(!value)
+              empty_error_log+=address+"\n";
+            else if(!Date.parse(value))
+              invalid_error_log+=address+"\n";
+            else
+              medicine.push(months_array[date.getMonth()]+" "+date.getFullYear());
+          }else if(colNumber===9){ // we get EXP date here...
+            let date = new Date(value);
+            console.log(Date.parse(value));
+            if(!value)
+              empty_error_log+=address+"\n";
+            else if(!Date.parse(value))
+              invalid_error_log+=address+"\n";
+            else
+              medicine.push(months_array[date.getMonth()]+" "+date.getFullYear());
+          }else if(colNumber===10){ // we get discount here...
+            if(!value)
+              empty_error_log+=address+"\n";
+            else if(typeof(parseFloat(value))===typeof(0.0))
+              medicine.push(value);
+            else
+              invalid_error_log+=address+"\n";
+          }
+        });
+        medicines.push(medicine);
+      }
+    });
+
+    if(!invalid_error_log && !empty_error_log){
+      for(let i=0; i<medicine_list.length; i++){
+        medicine_list[i].id=i;
+      }
+      for(i of medicines){
+        let medicine_obj={};
+        medicine_obj.id=medicine_list.length;
+        medicine_obj.name=i[1];
+        medicine_obj.salt=i[2];
+        medicine_obj.type=i[3];
+        medicine_obj.quantity=i[4]*i[5];
+        medicine_obj.price=Math.ceil(i[6]/i[5]);
+        medicine_obj.mfg_date=i[7];
+        medicine_obj.exp_date=i[8];
+        medicine_obj.discount=(i.length>=10)?i[9]:0;
+        medicine_list.push(medicine_obj);
+      }
+      set(ref(database, "medicines/"), medicine_list).then((val) => {
+        event.reply(reply_id, false, "Data uploaded successfully");
+      }).catch((err) => {
+        event.reply(reply_id, true, "Check your internet connection and try again");
+      });
+    }else{
+      let log_file="";
+      if(path.includes("/"))
+        log_file = path.substring(0, path.lastIndexOf("/"))+"/error_logs.txt";
+      else
+        log_file = path.substring(0, path.lastIndexOf("\\"))+"\\error_logs.txt";
+      let log_data = "Empty field cell addresses are given below:\n"+empty_error_log+"\n\nInvalid data cell addresses are given below:\n"+invalid_error_log;
+      fs.writeFile(log_file, log_data, (err) => {
+        event.reply(reply_id, true, "We have saved error logs aside of excel file. Please correct them and proceed again");
+      });
+    }
+  }).catch((error) => {
+    event.reply(reply_id, true, "Either file not found or permission denied"+error);
+  });
+}
 
 
 
@@ -593,7 +735,7 @@ const laod_portal = () => {
     main.loadFile(process.cwd()+"/public/html/receptionist-portal.html"); 
   else if(loginProfile.role==="Pharmacist") 
     main.loadFile(process.cwd()+"/public/html/pharmacist-portal.html"); 
-  else if(loginProfile.role==="Doctor") 
+  else if(loginProfile.role==="Doctor" || loginProfile.role==="Nurse") 
     main.loadFile(process.cwd()+"/public/html/doctor-portal.html"); 
 }
 

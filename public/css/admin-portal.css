@@ -11,7 +11,7 @@ body{
 
 
 
-
+.medicine-types-info,
 .admin-test-info,
 .admin-notifications{
     position: fixed;
@@ -30,10 +30,18 @@ body{
     transition: background-color 0.2s;
     overflow: hidden;
 }
+.medicine-types-info{
+    bottom: 190px;
+    background-color: rgba(55, 235, 85, 0.5);
+}
+.medicine-types-info:hover{
+    background-color: rgba(55, 235, 85, 1);
+}
 .admin-test-info{
     bottom: 130px;
     background-color: rgba(88, 175, 6, 0.5);
 }
+.medicine-types-info::after,
 .admin-test-info:after,
 .admin-notifications:after{
     content: '+';
@@ -50,6 +58,7 @@ body{
     scale: 0;
     transition: 0.5s;
 }
+.medicine-types-info.show:after,
 .admin-test-info.show:after,
 .admin-notifications.show:after{
     scale: 1;
@@ -76,21 +85,25 @@ body{
     background-color: rgb(88, 175, 6);
 }
 
+.medicine-types-info::-webkit-scrollbar,
 .expanded-tests::-webkit-scrollbar,
 .expanded-notifications::-webkit-scrollbar{
     width: 15px;
 }
+.medicine-types-info::-webkit-scrollbar-track,
 .expanded-tests::-webkit-scrollbar-track,
 .expanded-notifications::-webkit-scrollbar-track{
     border-radius: 10px;
     background-color: var(--fg);
 }
+.medicine-types-info::-webkit-scrollbar-thumb,
 .expanded-tests::-webkit-scrollbar-thumb,
 .expanded-notifications::-webkit-scrollbar-thumb{
     border-radius: 10px;
     background-color: var(--neon-blue);
 }
 
+.expanded-medicine-types,
 .expanded-tests,
 .expanded-notifications{
     position: fixed;
@@ -108,6 +121,46 @@ body{
     gap: 5px;
     align-items: flex-start;
     overflow: auto;
+}
+.expanded-medicine-types{
+    bottom: 190px;
+    right: 70px;
+}
+.expanded-medicine-types .types{
+    width: 100%;
+    height: fit-content;
+    max-height: 100%;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    overflow-y: auto;
+}
+.expanded-medicine-types .types span{
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    height: fit-content;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: var(--bg);
+    background-color: rgba(173, 173, 173, 0.5);
+    cursor: pointer;
+    transition: 0.3s;
+}
+.expanded-medicine-types .types span label{
+    cursor: pointer;
+}
+.expanded-medicine-types .types span svg{
+    font-size: 20px;
+}
+.expanded-medicine-types .types span:hover{
+    background-color: rgba(173, 173, 173, 1);
+}
+.expanded-medicine-types .types span:first-child{
+    background-color: var(--clr);
+    color: var(--fg);
 }
 .expanded-tests{
     bottom: 130px;
@@ -143,6 +196,7 @@ body{
     height: 50px;
 }
 
+.medicine-types-info.show ~ .expanded-medicine-types,
 .admin-test-info.show ~ .expanded-tests,
 .admin-notifications.show ~ .expanded-notifications{
     display: flex;
@@ -187,7 +241,6 @@ body{
 .cards{
     display: flex;
     justify-content: space-evenly;
-    /* flex-wrap: wrap; */
     gap: 20px;
     transform: translateY(50%);
     padding: 0px 20px;
@@ -917,6 +970,77 @@ body{
 }
 
 
+
+
+
+
+
+
+
+
+.add_new_medicine_type_dialog{
+    position: relative;
+    width: 280px;
+    height: 260px;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: rgba(0,0,0,0.5);
+    display: none;
+    flex-direction: column;
+    text-align: center;
+}
+.add_new_medicine_type_dialog.show{
+    display: flex;
+    animation: dialog-anim 0.5s linear forwards;
+}
+.add_new_medicine_type_dialog .form{
+    margin-top: 30px;
+}
+
+
+
+
+
+
+
+
+
+.dialog .upload_file_dialog{
+    position: relative;
+    width: 280px;
+    height: 220px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: -20px;
+}
+.dialog .upload_file_dialog.show{
+    display: flex;
+    animation: dialog-anim 0.5s linear forwards;
+}
+.dialog .upload_file_dialog .upload_file{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 200px;
+    overflow: hidden;
+}
+.dialog .upload_file_dialog .upload_file input{
+    position: absolute;
+    scale: 10;
+    cursor: pointer;
+    opacity: 0;
+}
+.dialog .upload_file_dialog .controls{
+    width: 100%;
+}
+.dialog .upload_file_dialog .controls button{
+    margin-top: 20px;
+}
 
 
 

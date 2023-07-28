@@ -493,6 +493,48 @@ body{
 
 
 
+.dialog .upload_file_dialog{
+    position: relative;
+    width: 280px;
+    height: 220px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: -20px;
+}
+.dialog .upload_file_dialog.show{
+    display: flex;
+    animation: dialog-anim 0.5s linear forwards;
+}
+.dialog .upload_file_dialog .upload_file{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 200px;
+    overflow: hidden;
+}
+.dialog .upload_file_dialog .upload_file input{
+    position: absolute;
+    scale: 10;
+    cursor: pointer;
+    opacity: 0;
+}
+.dialog .upload_file_dialog .controls button{
+    margin-top: 20px;
+}
+
+
+
+
+
+
+
+
+
 
 .print-dialog{
     width: calc(100% - 40px);
@@ -523,7 +565,13 @@ body{
 
 
 
-
+@media(max-width:750px){
+    .add-new-medicine-dialog .form .side-by-side,
+    .edit-medicine-dialog .form .side-by-side{
+        flex-direction: column;
+        gap: 0;
+    }
+}
 @media(max-width:650px){
     .cards{
         flex-wrap: wrap;

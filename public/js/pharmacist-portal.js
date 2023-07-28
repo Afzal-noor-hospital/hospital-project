@@ -2,6 +2,7 @@ let profile=null,
 appointment_list=[],
 doctors_list = [],
 medicine_list=[],
+medicine_types_list=[],
 registered_tests_list=[],
 selected_appointment,
 object_to_be_edit=null;
@@ -179,9 +180,18 @@ const separte_data = (data) => {
             registered_tests_list.push(tests[i]);
         }
     }
+
+    medicine_types_list=[];
+    if(settings && settings["medicine_types"]){
+        let medicine_types = settings["medicine_types"];
+        for(i of Object.keys(medicine_types)){
+            medicine_types_list.push(medicine_types[i]);
+        }
+    }
     populate_appointments();
     populate_useable_medicines();
     populate_expired_medicines();
+    populate_medicine_type_dropdown();
     check_birthday_and_wish();
 }
 
@@ -250,12 +260,13 @@ const validate_medicine_form = (dialog) => {
     let med_name_input=dialog.querySelector("input[name='name']");
     let med_quantity_input=dialog.querySelector("input[name='quantity']");
     let med_price_input=dialog.querySelector("input[name='price']");
+    let discount_input=dialog.querySelector("input[name='discount']");
     let med_mfg_month_input=dialog.querySelector("input[name='mfg-month']");
     let med_mfg_year_input=dialog.querySelector("input[name='mfg-year']");
     let med_exp_month_input=dialog.querySelector("input[name='exp-month']");
     let med_exp_year_input=dialog.querySelector("input[name='exp-year']");
     
-    if((med_name_input && !med_name_input.value) || !med_quantity_input.value || !med_price_input.value || !med_mfg_month_input.value || !med_mfg_year_input.value || !med_exp_month_input.value || !med_exp_year_input.value){
+    if((med_name_input && !med_name_input.value) || !med_quantity_input.value || !med_price_input.value || !discount_input.value || !med_mfg_month_input.value || !med_mfg_year_input.value || !med_exp_month_input.value || !med_exp_year_input.value){
         show_notification("Fill Empty Fields First", true);
         setTimeout(() => {
             hide_notification();
@@ -266,6 +277,8 @@ const validate_medicine_form = (dialog) => {
             med_quantity_input.focus()
         else if(!med_price_input.value)
             med_price_input.focus()
+        else if(!discount_input.value)
+            discount_input.focus()
         else if(!med_mfg_month_input.value)
             med_mfg_month_input.focus()
         else if(!med_mfg_year_input.value)
@@ -286,6 +299,10 @@ const validate_medicine_form = (dialog) => {
     if(med_price_input.value<0){
         errors+=" Price,";
         med_price_input.focus()
+    }
+    if(discount_input.value<0 || discount_input.value>100){
+        errors+=" Discount,";
+        discount_input.focus()
     }
     if(med_mfg_month_input.value<1 || med_mfg_month_input.value>12){
         errors+=" Mfg Month,";
@@ -404,11 +421,45 @@ const populate_expired_medicines = (search_txt="") => {
     document.querySelector(".cards .card.Expired span").innerHTML=count;
 }
 
+const populate_medicine_type_dropdown = () => {
+    let dropdown = document.querySelector(".add-new-medicine-dialog .form select[name='type']");
+    dropdown.innerHTML="";
+    let count=0;
+    for(i of medicine_types_list){
+        dropdown.innerHTML+=`<option value="${i.name}" ${(count===0)?"selected":""}>${i.name}</option>`;
+        count++;
+    }
+}
+
+const read_medicines_and_upload = (element) => {
+    let file_path = element.files[0].path;
+    if(file_path.split(".").pop().toLowerCase()==="xlsx"){
+        show_loader();
+        ipcRenderer.send("read_medicines_and_upload", file_path, JSON.stringify(medicine_types_list), JSON.stringify(medicine_list), "read_medicines_and_upload_result");
+        ipcRenderer.on("read_medicines_and_upload_result", (event, isError, msg) => {
+            hide_loader();
+            show_notification(msg, isError);
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+            if(!isError){
+                hide_dialog(element.parentElement);
+            }
+        });
+    }else{
+        show_notification("Only excel file will be considered here", true);
+        setTimeout(() => {
+            hide_notification();
+        }, 5500);
+    }
+}
+
+
 create_navigation()
 // adding add new button in top-nagivaton...
 let personal_navigation=document.querySelector(".personal-navigation div:last-child");
 let old_DOM=personal_navigation.innerHTML;
-personal_navigation.innerHTML=`<span title="New Medicine (N)" class="btn" onclick="show_dialog('add-new-medicine-dialog');"><i class='fa-solid fa-plus'></i></span>`+old_DOM;
+personal_navigation.innerHTML=`<span title="New Medicine (N)" class="btn" onclick="show_dialog('upload_file_dialog');"><i class='fa-solid fa-plus'></i></span>`+old_DOM;
 setup_show_password();
 
 
@@ -783,19 +834,20 @@ const complete_app = () => {
     selected_appointment.status="done";
     selected_appointment.received_amount=t_amt_inp.value;
     let prescriptions=JSON.parse(selected_appointment.prescriptions)
-    let medicine_obj={};
     for(i in prescriptions){
         prescriptions[i].given_quantity=inputs[i].value;
         for(j in medicine_list){
-            if(prescriptions[i].name.toLowerCase().includes(medicine_list[j].name.toLowerCase()) && prescriptions[i].name.toLowerCase().includes(medicine_list[j].type.toLowerCase())){
+            if(prescriptions[i].name.toLowerCase().includes(medicine_list[j].name.toLowerCase()) && prescriptions[i].type.toLowerCase().includes(medicine_list[j].type.toLowerCase())){
                 medicine_list[j].quantity=parseInt(medicine_list[j].quantity)-parseInt(inputs[i].value)
+                if(medicine_list[j].quantity<0)
+                    medicine_list[j].quantity=0;
+                ipcRenderer.send("insert", `medicines/${medicine_list[j].id}/quantity`, medicine_list[j].quantity, "update-medicine-result");
+                break;
             }
-            medicine_obj[`${medicine_list[j].id}`]=medicine_list[j];
         }
     }
 
     selected_appointment.prescriptions=JSON.stringify(prescriptions);
-    ipcRenderer.send("insert", `medicines/`, medicine_obj, "update-medicine-result");
     ipcRenderer.send("insert", `appointments/${selected_appointment.app_id}/`, selected_appointment, "complete-appointment-result");
     ipcRenderer.on("complete-appointment-result", (event, res) => {
         if(res){
@@ -840,6 +892,7 @@ const save_medicine = (dialog) => {
     let med_quantity_input=dialog.querySelector("input[name='quantity']");
     let med_type_input=dialog.querySelector("select[name='type']");
     let med_price_input=dialog.querySelector("input[name='price']");
+    let discount_input=dialog.querySelector("input[name='discount']");
     let med_mfg_month_input=dialog.querySelector("input[name='mfg-month']");
     let med_mfg_year_input=dialog.querySelector("input[name='mfg-year']");
     let med_exp_month_input=dialog.querySelector("input[name='exp-month']");
@@ -849,12 +902,13 @@ const save_medicine = (dialog) => {
     let exp_date=`${month_array[parseInt(med_exp_month_input.value)-1]} ${med_exp_year_input.value}`;
 
     let medicine_obj={
-        id:`${medicine_list.length+1}`,
+        id:`${medicine_list.length}`,
         salt: med_salt_input.value,
         name:med_name_input.value,
         quantity:med_quantity_input.value,
         type:med_type_input.value,
         price:med_price_input.value,
+        discount: discount_input.value,
         mfg_date:mfg_date,
         exp_date:exp_date
     };
@@ -882,6 +936,7 @@ const edit_medicine_dialog = (index) => {
     let type_label=document.querySelector(".edit-medicine-dialog .data p:nth-child(2) span:last-child");
     let quantity_input=document.querySelector(".edit-medicine-dialog input[name='quantity']");
     let price_input=document.querySelector(".edit-medicine-dialog input[name='price']");
+    let discount_input=document.querySelector(".edit-medicine-dialog input[name='discount']");
     let mfg_month_input=document.querySelector(".edit-medicine-dialog input[name='mfg-month']");
     let mfg_year_input=document.querySelector(".edit-medicine-dialog input[name='mfg-year']");
     let exp_month_input=document.querySelector(".edit-medicine-dialog input[name='exp-month']");
@@ -892,6 +947,7 @@ const edit_medicine_dialog = (index) => {
     type_label.innerHTML=object_to_be_edit.type
     quantity_input.value=object_to_be_edit.quantity
     price_input.value=object_to_be_edit.price
+    discount_input.value=object_to_be_edit.discount
     
     let mfg_month=object_to_be_edit.mfg_date.split(" ")[0];
     for(i in month_array){
@@ -916,12 +972,13 @@ const edit_medicine_dialog = (index) => {
     show_dialog("edit-medicine-dialog");
 }
 const update_medicine = (dialog) => {
-    if(!validate_medicine_form(dialog) && !object_to_be_edit)
+    if(!validate_medicine_form(dialog) || !object_to_be_edit)
         return;
 
     show_loader();
     let quantity_input=dialog.querySelector("input[name='quantity']"),
     price_input=dialog.querySelector("input[name='price']"),
+    discount_input=dialog.querySelector("input[name='discount']"),
     mfg_month_input=dialog.querySelector("input[name='mfg-month']"),
     mfg_year_input=dialog.querySelector("input[name='mfg-year']"),
     exp_month_input=dialog.querySelector("input[name='exp-month']"),
@@ -929,6 +986,7 @@ const update_medicine = (dialog) => {
 
     object_to_be_edit.quantity=quantity_input.value
     object_to_be_edit.price=price_input.value
+    object_to_be_edit.price=discount_input.value
     let mfg_date=`${month_array[parseInt(mfg_month_input.value)-1]} ${mfg_year_input.value}`;
     let exp_date=`${month_array[parseInt(exp_month_input.value)-1]} ${exp_year_input.value}`;
     object_to_be_edit.mfg_date=mfg_date;
@@ -988,7 +1046,7 @@ ipcRenderer.on("live-value-update-captured", (event, data) => {
 /* code for shortcut key listeners */
 document.addEventListener("keyup", (e) => {
     if(e.key==="N" || e.key==="n" && !isActiveInput()){
-        show_dialog("add-new-medicine-dialog");
+        show_dialog("upload_file_dialog");
     }else if(e.key==="?" && !isActiveInput()){
         document.querySelector(".top-navigation .personal-navigation input[name='search']").focus();
     }

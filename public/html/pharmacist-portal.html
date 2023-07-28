@@ -117,24 +117,22 @@
                         <i></i>
                     </div>
                     <div class="input">
-                        <select name="type">
-                            <option value="Syrup" selected>Syrup</option>
-                            <option value="Gel">Gel</option>
-                            <option value="Ointment">Ointment</option>
-                            <option value="Drops">Drops</option>
-                            <option value="Cream">Cream</option>
-                            <option value="Capsule">Capsule</option>
-                            <option value="Tablet">Tablet</option>
-                            <option value="Injection">Injection</option>
-                        </select>
+                        <select name="type"></select>
                         <span>Type</span>
                         <i></i>
                     </div>
                 </div>
-                <div class="input">
-                    <input type="number" name="price" required>
-                    <span>Price</span>
-                    <i></i>
+                <div class="side-by-side">
+                    <div class="input">
+                        <input type="number" name="price" required>
+                        <span>Price</span>
+                        <i></i>
+                    </div>
+                    <div class="input">
+                        <input type="number" name="discount" required>
+                        <span>Discount</span>
+                        <i></i>
+                    </div>
                 </div>
                 <div class="multi-input">
                     <label>MFG Date: </label>
@@ -192,10 +190,17 @@
                     <span>Quantity</span>
                     <i></i>
                 </div>
-                <div class="input">
-                    <input type="number" name="price" required>
-                    <span>Price</span>
-                    <i></i>
+                <div class="side-by-side">
+                    <div class="input">
+                        <input type="number" name="price" required>
+                        <span>Price</span>
+                        <i></i>
+                    </div>
+                    <div class="input">
+                        <input type="number" name="discount" required>
+                        <span>Discount</span>
+                        <i></i>
+                    </div>
                 </div>
                 <div class="multi-input">
                     <label>MFG Date: </label>
@@ -230,6 +235,23 @@
                 <button style="--clr: rgb(112,112,5);" onclick="reset_fields(this.parentElement.parentElement)">Reset</button>
                 <button style="--clr: var(--neon-blue);" onclick="update_medicine(this.parentElement.parentElement);">Update</button>
             </div>
+        </div>
+
+        <div class="upload_file_dialog">
+            <span class="cancel" onclick="hide_dialog(this);"><i class="fa-solid fa-xmark"></i></span>
+            <h2>Add Medicines</h2>
+
+            <div class="upload_file btn" style="--clr: var(--neon-blue);">
+                <span>Upload Excel File</span>
+                <input type="file" name="medicine_file" onchange="read_medicines_and_upload(this)">
+            </div>
+
+            <a href="#" style="--clr: var(--neon-pink);" onclick="hide_dialog(this);show_dialog('add-new-medicine-dialog');">Add Medicine Manually</a>
+
+            <div class="controls">
+                <button onclick="hide_dialog(this.parentElement)" style="--clr: var(--disabled-clr);">Cancel</button>
+            </div>
+
         </div>
 
     </div>
