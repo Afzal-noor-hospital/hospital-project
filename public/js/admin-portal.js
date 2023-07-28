@@ -1319,6 +1319,18 @@ const download_report = (report_elem) => {
     })
 }
 
+const download_excel_template = () => {
+    show_loader();
+    ipcRenderer.send("download-medicine-template", "download-medicine-template-result");
+    ipcRenderer.on("download-medicine-template-result", (event, isError, res) => {
+        hide_loader();
+        show_notification(res, isError);
+        setTimeout(() => {
+            hide_notification();
+        }, 5500);
+    });
+}
+
 create_navigation(true); // generating menus located at blue layer...   
 let old_DOM=document.body.innerHTML;
 let new_DOM=`<span class="medicine-types-info" title="Add Medicine Types" onclick="this.classList.toggle('show');document.querySelector('.admin-notifications').classList.remove('show');document.querySelector('.admin-test-info').classList.remove('show');"><i class="fa-solid fa-pills"></i></span>
@@ -1330,7 +1342,9 @@ let new_DOM=`<span class="medicine-types-info" title="Add Medicine Types" onclic
     <div class="expanded-tests"></div>
 
     <span class="admin-notifications" data-count="" title="Notifications" onclick="this.classList.toggle('show');document.querySelector('.admin-test-info').classList.remove('show');document.querySelector('.medicine-types-info').classList.remove('show');"><i class="fa-solid fa-bell"></i></span>
-    <div class="expanded-notifications"></div>`+old_DOM;
+    <div class="expanded-notifications"></div>
+    
+    <span class="medicine-template" title="Download empty Excel file for medicines as a template" onclick="download_excel_template();"><i class="fa-solid fa-file-arrow-down"></i></span>`+old_DOM;
 document.body.innerHTML=new_DOM;
 setup_show_password();
 

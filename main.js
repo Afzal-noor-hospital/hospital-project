@@ -168,6 +168,47 @@ ipcMain.on("read_medicines_and_upload", (event, file_path, medicine_types, medic
   read_medicines_and_upload(event, file_path, JSON.parse(medicine_types), JSON.parse(medicine_list), reply_id);
 });
 
+ipcMain.on("download-medicine-template", (event, reply_id) => {
+  let wbook = new writer.Workbook();
+  let sheet = wbook.addWorksheet("Worksheet 1");
+  sheet.getCell("A1").value="Sr. No.";
+  sheet.getCell("B1").value="Medicine Name";
+  sheet.getCell("C1").value="Salt";
+  sheet.getCell("D1").value="Type";
+  sheet.getCell("E1").value="Total Packs";
+  sheet.getCell("F1").value="Tab/Pack";
+  sheet.getCell("G1").value="Price/Pack";
+  sheet.getCell("H1").value="MFG Date";
+  sheet.getCell("I1").value="EXP Date";
+  sheet.getCell("J1").value="Discount";
+
+  ['A1', "B1","C1","D1","E1","F1","G1","H1","I1","J1"].forEach((elem) => {
+    sheet.getCell(elem).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: '71baff' },
+      bgColor: { argb: 'FFFFFF' }
+    };
+  })
+
+  dialog.showSaveDialog(main).then((path) => {
+    path = path.filePath;
+    if(path){
+      if(path.split(".").pop()!=="xlsx"){
+        path+=".xlsx";
+      }
+      wbook.xlsx.writeFile(path).then((val) => {
+        event.reply(reply_id, false, "File written successfully");
+      }).catch((e) => {
+        event.reply(reply_id, true, "File Cannot written on the specified path");        
+      });
+    }else{
+      event.reply(reply_id, true, "Path cannot be choosen by the user. Please try again");      
+    }
+  }).catch((e) => {
+    event.reply(reply_id, true, "Path cannot be choosen by the system. Please try again")
+  });
+})
 
 
 

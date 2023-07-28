@@ -454,11 +454,26 @@ const read_medicines_and_upload = (element) => {
     }
 }
 
+const download_excel_template = () => {
+    show_loader();
+    ipcRenderer.send("download-medicine-template", "download-medicine-template-result");
+    ipcRenderer.on("download-medicine-template-result", (event, isError, res) => {
+        hide_loader();
+        show_notification(res, isError);
+        setTimeout(() => {
+            hide_notification();
+        }, 5500);
+    });
+}
 
 create_navigation()
 // adding add new button in top-nagivaton...
+let old_DOM=document.body.innerHTML;
+let new_DOM=`<span class="medicine-template" title="Download empty Excel file for medicines as a template" onclick="download_excel_template();"><i class="fa-solid fa-file-arrow-down"></i></span>`+old_DOM;
+document.body.innerHTML=new_DOM;
+
 let personal_navigation=document.querySelector(".personal-navigation div:last-child");
-let old_DOM=personal_navigation.innerHTML;
+old_DOM=personal_navigation.innerHTML;
 personal_navigation.innerHTML=`<span title="New Medicine (N)" class="btn" onclick="show_dialog('upload_file_dialog');"><i class='fa-solid fa-plus'></i></span>`+old_DOM;
 setup_show_password();
 

@@ -10,6 +10,36 @@ body{
 
 
 
+
+.medicine-template{
+    position: fixed;
+    width: 50px;
+    height: 50px;
+    overflow: hidden;
+    bottom: 70px;
+    right: 10px;
+    background-color: rgba(0, 217, 255, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--fg);
+    border-radius: 10px;
+    font-size: 20px;
+    z-index: 10;
+    transition: 0.3s;
+    cursor: pointer;
+}
+.medicine-template:hover{
+    background-color: rgba(0, 217, 255, 1);
+}
+
+
+
+
+
+
+
+
 .cards{
     width: 100%;
     display: flex;
