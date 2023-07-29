@@ -1433,27 +1433,36 @@ const download_report = (report_elem) => {
     show_loader();
     let record_type=report_elem.querySelector("select[name='record-type']").value;
 
-    let staff=[], appointments=[], patients=[];
+    let staff=[], appointments=[], patients=[], medicines=[];
 
     if(record_type==="All"){
         staff=[...admins_list, ...doctors_list, ...receptionists_list, ...pharmacists_list];
         appointments=[...appointments_list];
         patients=[...patients_list];
+        medicines=medicine_list;
     }else if(record_type==="Staff"){
         staff=[...admins_list, ...doctors_list, ...receptionists_list, ...pharmacists_list];
         appointments=[];
         patients=[];
+        medicines=[];
     }else if(record_type==="Appointments"){
         staff=[];
         appointments=[...appointments_list];
         patients=[];
+        medicines=[];
     }else if(record_type==="Patients"){
         staff=[];
         appointments=[];
         patients=[...patients_list];
+        medicines=[];
+    }else if(record_type==="Medicines"){
+        staff=[];
+        appointments=[];
+        patients=[];
+        medicines=[...medicine_list];
     }
 
-    ipcRenderer.send("write-excel-file", staff, patients, appointments, patients_list, "write-excel-file-res");
+    ipcRenderer.send("write-excel-file", staff, patients, appointments, medicines, "write-excel-file-res");
     ipcRenderer.on("write-excel-file-res", (event, res) => {
         hide_loader();
         if(res!=="ok"){
@@ -1467,7 +1476,7 @@ const download_report = (report_elem) => {
                 hide_notification();
             }, 5500);
         }
-    })
+    });
 }
 
 const download_excel_template = () => {

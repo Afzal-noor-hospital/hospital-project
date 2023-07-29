@@ -160,8 +160,8 @@ ipcMain.on("fetch", (event, path, reply_id) => {
 
 
 
-ipcMain.on("write-excel-file", (event, staff, patients, appointments, original_patients_list, reply_id) => {
-  write_excel_file(event, staff, patients, appointments, original_patients_list, reply_id);
+ipcMain.on("write-excel-file", (event, staff, patients, appointments, medicines, reply_id) => {
+  write_excel_file(event, staff, patients, appointments, medicines, reply_id);
 });
 
 ipcMain.on("read_medicines_and_upload", (event, file_path, medicine_types, medicine_list, reply_id) => {
@@ -212,7 +212,7 @@ ipcMain.on("download-medicine-template", (event, reply_id) => {
 
 
 
-const write_excel_file = async (event, staff=[], patients=[], appointments=[], patients_list=[], reply_id) => {
+const write_excel_file = async (event, staff=[], patients=[], appointments=[], medicines=[], reply_id) => {
   if(appointments.length!=0){
       for(let i=0; i<appointments.length; i++){
           for(let j=i+1; j<appointments.length; j++){
@@ -225,26 +225,21 @@ const write_excel_file = async (event, staff=[], patients=[], appointments=[], p
       }
   }
 
-
-  if(staff.length+patients.length+appointments.length===0){
-      hide_loader();
-      show_notification("There is no data to write in a file", true);
-      setTimeout(() => {
-          hide_notification();
-      }, 5500);
-      return;
+  if(staff.length+patients.length+appointments.length+medicines.length===0){
+    event.reply(reply_id, "There is no data to write on the file");
+    return;
   }
 
-  let row=1;
   let wbook = new writer.Workbook();
   let sheet = wbook.addWorksheet("Sheet 1");
+  let row=1;
 
   // writting heading for total records...
   sheet.getCell(`A${row}`).value="Total Records";
   sheet.getCell(`A${row}`).font={size: 25, bold: true};
   sheet.getCell(`A${row}`).alignment={vertical: "middle", horizontal: "center"};
   sheet.mergeCells(`A${row}:H${row+2}`);
-  sheet.getCell(`I${row}`).value=staff.length+patients.length+appointments.length;
+  sheet.getCell(`I${row}`).value=staff.length+patients.length+appointments.length+medicines.length;
   sheet.getCell(`I${row}`).font={size: 25, bold: true}
   sheet.getCell(`I${row}`).alignment={vertical: "middle", horizontal: "center"};
   sheet.mergeCells(`I${row}:K${row+2}`);
@@ -338,6 +333,20 @@ const write_excel_file = async (event, staff=[], patients=[], appointments=[], p
       sheet.mergeCells(`A${row}:H${row+2}`);
 
       sheet.getCell(`I${row}`).value=patients.length;
+      sheet.getCell(`I${row}`).font={size: 20, bold: true}
+      sheet.getCell(`I${row}`).alignment={vertical: "middle", horizontal: "center"} 
+      sheet.mergeCells(`I${row}:K${row+2}`);
+      row+=3;
+  }
+
+  // writting medicines size there ...
+  if(medicines.length!=0){
+      sheet.getCell(`A${row}`).value="Total Medicines";
+      sheet.getCell(`A${row}`).font={size: 20, bold: true}
+      sheet.getCell(`A${row}`).alignment={vertical: "middle", horizontal: "center"} 
+      sheet.mergeCells(`A${row}:H${row+2}`);
+
+      sheet.getCell(`I${row}`).value=medicines.length;
       sheet.getCell(`I${row}`).font={size: 20, bold: true}
       sheet.getCell(`I${row}`).alignment={vertical: "middle", horizontal: "center"} 
       sheet.mergeCells(`I${row}:K${row+2}`);
@@ -459,7 +468,7 @@ const write_excel_file = async (event, staff=[], patients=[], appointments=[], p
 
       for(i of appointments){
           let patient=null;
-          for(j of patients_list){
+          for(j of patients){
               if(j.id===i.id){
                   patient=j;
                   break;
@@ -596,6 +605,56 @@ const write_excel_file = async (event, staff=[], patients=[], appointments=[], p
               col = String.fromCharCode(col.charCodeAt(0)+2);
           }
           row++;
+      }
+  }
+
+  // writting all medicines row by row...
+  if(medicines.length!=0){
+      row+=2;
+      sheet.getCell(`A${row}`).value="Medicines List";
+      sheet.getCell(`A${row}`).font={bold: true, size: 35}
+      sheet.getCell(`A${row}`).alignment={vertical: "middle", horizontal: "center"};
+      sheet.mergeCells(`A${row}:R${row+3}`);
+
+      row+=4;
+
+      // writting heading line for data...
+      sheet.getCell(`A${row}`).value="Sr. No.";
+      sheet.getCell(`C${row}`).value="Name";
+      sheet.getCell(`E${row}`).value="Salt";
+      sheet.getCell(`G${row}`).value="Type";
+      sheet.getCell(`I${row}`).value="Quantity";
+      sheet.getCell(`K${row}`).value="Price/Tab";
+      sheet.getCell(`M${row}`).value="MFG Date";
+      sheet.getCell(`O${row}`).value="EXP Date";
+      sheet.getCell(`Q${row}`).value="Discount";
+      for(let i=0; i<18; i+=2){
+        let col = String.fromCharCode("A".charCodeAt(0)+i);
+        sheet.getCell(`${col}${row}`).font={size: 16, bold: true};
+        sheet.getCell(`${col}${row}`).alignment={vertical:"middle", horizontal:"center", wrapText:true};
+        let next_col = String.fromCharCode(col.charCodeAt(0)+1);
+        sheet.mergeCells(`${col}${row}:${next_col}${row+2}`);
+      }
+
+      row+=3;
+
+      // writting original data...
+      let keys=['id','name','salt','type','quantity','price','mfg_date','exp_date','discount'];
+      for(i of medicines){
+        let col='A';
+        for(j of keys){
+          if(j==='id'){
+            sheet.getCell(`${col}${row}`).value=parseInt(i[j])+1;
+          }else{
+            sheet.getCell(`${col}${row}`).value=i[j];
+          }
+          sheet.getCell(`${col}${row}`).font={size: 15, bold: false};
+          sheet.getCell(`${col}${row}`).alignment={vertical:"middle", horizontal:"left", wrapText:true};
+          let next_col = String.fromCharCode(col.charCodeAt(0)+1);
+          sheet.mergeCells(`${col}${row}:${next_col}${row}`);
+          col = String.fromCharCode(col.charCodeAt(0)+2);
+        }
+        row++;
       }
   }
 
