@@ -537,7 +537,7 @@ const select_appointment = (index) => {
     });
     JSON.parse(selected_appointment.prescriptions).forEach((i, index) => {
         let duration=0;
-        let raw_duration = selected_appointment.duration.split(" ")[0];
+        let raw_duration = selected_appointment.duration.split(" ")[0].trim();
         let duration_unit = selected_appointment.duration.split(" ")[1];
         if(duration_unit==="Weeks"){
             duration=parseInt(raw_duration)*7;
@@ -546,12 +546,21 @@ const select_appointment = (index) => {
         }else{
             duration=parseInt(raw_duration);
         }
-        let quantity=parseInt(duration)*parseInt(parseInt(i.quantity))*i.timmings.split(",").length;
-        if(i.name.toLowerCase().includes("(Syrup)".toLowerCase())||i.name.toLowerCase().includes("(Gel)".toLowerCase())||i.name.toLowerCase().includes("(Ointment)".toLowerCase())||i.name.toLowerCase().includes("(Drops)".toLowerCase())||i.name.toLowerCase().includes("(Cream)".toLowerCase()))
-            quantity=1;
-        for(j of medicine_list){
-            if(i.med_id && parseInt(i.med_id)===parseInt(j.id)){
-                t_price+=(parseInt(j.price)*quantity);
+        let quantity=duration*parseInt(i.quantity)*i.timmings.split(",").length;
+        for(j of medicine_types_list){
+            if(j.name===i.type && j.scale==="syrup"){
+                quantity=1;
+                break;
+            }
+        }
+
+        if(i.med_id!==undefined){
+            for(j of medicine_list){
+                if(parseInt(i.med_id)===parseInt(j.id)){
+                    let price = parseInt(j.price);
+                    t_price+=Math.ceil((price-(price*(j.discount/100.0)))*quantity);
+                    break;
+                }
             }
         }
     });
@@ -642,9 +651,15 @@ const select_appointment = (index) => {
             }else{
                 duration=parseInt(raw_duration);
             }
-            let quantity=parseInt(duration)*parseInt(i.quantity)*i.timmings.split(",").length;
-            if(i.name.toLowerCase().includes("(Syrup)".toLowerCase())||i.name.toLowerCase().includes("(Gel)".toLowerCase())||i.name.toLowerCase().includes("(Ointment)".toLowerCase())||i.name.toLowerCase().includes("(Drops)".toLowerCase())||i.name.toLowerCase().includes("(Cream)".toLowerCase()))
-                quantity=1;
+            let quantity=duration*parseInt(i.quantity)*i.timmings.split(",").length;
+            let measurement_scale="";
+            for(j of medicine_types_list){
+                if(j.name===i.type && j.scale==="syrup"){
+                    measurement_scale=j.scale;
+                    quantity=1;
+                    break;
+                }
+            }
             container_DOM+=`<div class="prescription">
                 <span class="bold">Prescription ${index+1}</span>
                 <p>
@@ -653,7 +668,7 @@ const select_appointment = (index) => {
                 </p>
                 <p>
                     <span class="bold">Quantity: </span>
-                    <span>${quantity} ${i.name.includes("Syrup")?"Bottle":"Tablet/Spoon"}</span>
+                    <span>${quantity} ${(measurement_scale==="syrup")?"bottle":"tablets"}</span>
                 </p>
                 <p>
                     <span class="bold">Timmings: </span>
@@ -676,6 +691,7 @@ const select_appointment = (index) => {
 
 const populate_print_dialog = () => {
     let recieved_amt=document.querySelector(".explained-app .data span input[name='recieved-amt']");
+    let given_qty_inputs=document.querySelectorAll(".explained-app .data .prescription span input");
     let data_elem=document.querySelector(".print-dialog .info");
 
     let doctor_name="";
@@ -687,8 +703,8 @@ const populate_print_dialog = () => {
     }
 
     let DOM=`<p>
-            <span class="bold">Sr. No: </span>
-            <span>${selected_appointment.app_id.split("-")[3]}</span>
+            <span class="bold">Appointment ID: </span>
+            <span>${selected_appointment.app_id}</span>
         </p>
         <p>
             <span class="bold">ID: </span>
@@ -762,6 +778,10 @@ const populate_print_dialog = () => {
                     <p>
                         <span class="bold">Quantity: </span>
                         <span>${i.quantity} Tablet/Spoon</span>
+                    </p>
+                    <p>
+                        <span class="bold">Given Quantity: </span>
+                        <span>${given_qty_inputs[index].value} Tablet/Spoon</span>
                     </p>
                     <p>
                         <span class="bold">Timmings: </span>

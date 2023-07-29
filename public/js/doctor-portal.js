@@ -2,11 +2,12 @@ let profile=null,
 appointment_list=[],
 doctors_list = [],
 medicine_list=[],
+medicine_types_list=[],
 registered_tests=[];
 
 let selected_appointment=null;
 let editable_prescription_index=-1,
-selected_prescription_id=0,
+selected_prescription_id=-1,
 month_array=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov', 'Dec'];
 
 
@@ -185,6 +186,13 @@ const separate_data = (data) => {
             registered_tests.push(tests[i]);
         }
     }
+    medicine_types_list=[];
+    if(data['settings'] && data['settings']['medicine_types']){
+        let medicine_types = data['settings']['medicine_types'];
+        for(i of Object.keys(medicine_types)){
+            medicine_types_list.push(medicine_types[i]);
+        }
+    }
     populate_dropdown();
     populate_doctor_dropdown();
     if(selected_appointment){
@@ -193,6 +201,7 @@ const separate_data = (data) => {
     }
     populate_appointments();
     populate_all_appointments();
+    populate_medicine_type_dropdown();
     check_birthday_and_wish();
 }
 
@@ -205,8 +214,18 @@ const populate_dropdown = (search_txt="") => {
         type=i.type;
         if(name.toLowerCase().includes(search_txt.toLowerCase()) && quantity>0){
             prescription_dropdown.innerHTML+=
-                `<p onclick="select_medicine('${name} (${type})', ${i.id});" class="${isExpired(i.exp_date)?'expired':''}">${name} (${quantity} ${type})</p>`
+                `<p onclick="select_medicine('${name} (${type})', ${i.id}, '${i.type}');" class="${isExpired(i.exp_date)?'expired':''}">${name} (${quantity} ${type})</p>`
         }
+    }
+}
+
+const populate_medicine_type_dropdown = () => {
+    let dropdown = document.querySelector(".create-prescription-dialog select[name='med-type']");
+    dropdown.innerHTML="";
+    let count=0;
+    for(i of medicine_types_list){
+        dropdown.innerHTML+=`<option value="${i.name}" ${(count===0)?"selected":""}>${i.name}</option>`;
+        count++;
     }
 }
 
@@ -292,8 +311,9 @@ const isExpired = (date) =>{
     return true;
 }
 
-const select_medicine = (name, id) => {
-    document.querySelector(".create-prescription-dialog .form textarea[name='med-name']").value=name;
+const select_medicine = (name, id, type) => {
+    document.querySelector(".create-prescription-dialog textarea[name='med-name']").value=name;
+    document.querySelector(".create-prescription-dialog select[name='med-type']").value=type;
     let prescription_dropdown=document.querySelector(".create-prescription-dialog .prescription-name .suggestion-dropdown");
     prescription_dropdown.style.display="none";
     document.querySelector(".create-prescription-dialog .form input[name='med-quantity']").focus();
@@ -1046,6 +1066,7 @@ const save_prescription = (elem) => {
 
     let dialog=document.querySelector(".dialog .create-prescription-dialog"),
     name_inp=dialog.querySelector(".input textarea[name='med-name']"),
+    type_inp=dialog.querySelector(".input select[name='med-type']"),
     timmings1=dialog.querySelectorAll(".timings input[name='time']"),
     timmings2=dialog.querySelectorAll(".timings input[name='meal']");
 
@@ -1092,9 +1113,10 @@ const save_prescription = (elem) => {
         name: name_inp.value,
         quantity: prescription_quantity_inp.value
     };
-    if(selected_prescription_id!==0){
+    if(selected_prescription_id!==-1){
         prescription_obj.med_id = selected_prescription_id;
     }
+    prescription_obj.type=type_inp.value;
     let times="(";
     for(i of timmings2){
         if(i.checked)
@@ -1136,11 +1158,13 @@ const edit_prescription_dialog = (index) => {
     let prescription=selected_appointment.prescriptions[index],
     dialog=document.querySelector(".dialog .create-prescription-dialog"),
     med_name=dialog.querySelector("textarea[name='med-name']"),
+    med_type=dialog.querySelector("select[name='med-type']"),
     med_quantity=dialog.querySelector("input[name='med-quantity']"),
     timmings1=dialog.querySelectorAll("input[name='time']"),
     timmings2=dialog.querySelectorAll("input[name='meal']");
 
     med_name.value=prescription.name;
+    med_type.value=prescription.type;
     med_quantity.value=prescription.quantity;
     for(i of timmings1){
         if(prescription.timmings.includes(i.value))
@@ -1161,6 +1185,7 @@ const edit_prescription_dialog = (index) => {
 const update_prescription = () => {
     let dialog=document.querySelector(".dialog .create-prescription-dialog"),
     name_inp=dialog.querySelector(".input textarea[name='med-name']"),
+    type_inp=dialog.querySelector(".input select[name='med-type']"),
     timmings1=dialog.querySelectorAll(".timings input[name='time']"),
     timmings2=dialog.querySelectorAll(".timings input[name='meal']");
 
@@ -1209,6 +1234,7 @@ const update_prescription = () => {
     if(selected_prescription_id!==0){
         prescription_obj.med_id = selected_prescription_id;
     }
+    prescription_obj.type=type_inp.value;
     let times="(";
     for(i of timmings2){
         if(i.checked)
