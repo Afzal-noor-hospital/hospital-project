@@ -136,6 +136,7 @@ body{
     display: none;
     width: 100%;
     gap: 5px;
+    margin-top: 5px;
 }
 .main-container .app-detail .controls button:nth-child(1){
     width: 60px;

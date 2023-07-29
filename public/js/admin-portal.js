@@ -721,6 +721,157 @@ const populate_patients = (search="") => {
     patient_container.innerHTML=patient_container_DOM;
 }
 
+const show_appointment_dialog = (app_id) => {
+    let appointment = null;
+    for(i of appointments_list){
+        if(i.app_id===app_id){
+            appointment=i;
+            break;
+        }
+    }
+
+    if(!appointment){
+        show_notification("No appointment selected. Please refresh and try again", true);
+        setTimeout(() => {
+            hide_notification();
+        }, 5500);
+        return;
+    }
+
+    let data_container = document.querySelector(".show-appointment-dialog .data");
+    let app_time = new Date(appointment.app_time);
+    let data_container_DOM=`<div class="datum">
+        <span class="bold">Appointment Time: </span>
+        <span>${app_time.getHours()}:${app_time.getMinutes()}, ${app_time.getDate()} ${month_array[app_time.getMonth()]} ${app_time.getFullYear()}</span>
+    </div>
+    <div class="datum">
+        <span class="bold">Patient ID: </span>
+        <span>${appointment.id}</span>
+    </div>
+    <div class="datum">
+        <span class="bold">Patient Name: </span>
+        <span>${appointment.first_name} ${appointment.last_name}</span>
+    </div>
+    <div class="datum">
+        <span class="bold">Presenting Complaints: </span>
+        <span>${(appointment.presenting_complaints)?appointment.presenting_complaints:""}</span>
+    </div>
+    <div class="datum">
+        <span class="bold">Diagnosis: </span>
+        <span>${(appointment.diagnosis)?appointment.diagnosis:""}</span>
+    </div>
+    <div class="datum">
+        <span class="bold">Precautions: </span>
+        <span>${(appointment.precautions)?appointment.precautions:""}</span>
+    </div>
+    <div class="datum">
+        <span class="bold">Doctor ID: </span>
+        <span>${appointment.doctor_id}</span>
+    </div>`;
+    if(appointment.duration){
+        data_container_DOM+=`<div class="datum">
+            <span class="bold">Duration: </span>
+            <span>${appointment.duration}</span>
+        </div>`;
+    }
+    if(appointment.t_amount){
+        data_container_DOM+=`<div class="datum">
+            <span class="bold">Total Amount: </span>
+            <span>${appointment.t_amount} Rs/-</span>
+        </div>`;
+    }
+    if(appointment.received_amount){
+        data_container_DOM+=`<div class="datum">
+            <span class="bold">Recieved Amount: </span>
+            <span>${appointment.received_amount} Rs/-</span>
+        </div>`;
+    }
+    data_container_DOM+=`<div class="datum">
+        <span class="bold">Status: </span>
+        <span>${appointment.status}</span>
+    </div>`;
+
+    let test = JSON.parse(appointment.tests);
+    if(test.length>0){
+        data_container_DOM+=`<div class="datum">
+            <h3>Tests</h3>
+            <div class="tests">`
+            for(i of test){
+                let price=null;
+                for(j of tests_list){
+                    if(Object.keys(i)[0]===j.name){
+                        price=j.price;
+                        break;
+                    }
+                }
+                data_container_DOM+=`<div class="test">
+                    <span class="bold">${Object.keys(i)}: </span>
+                    <span>${Object.values(i)} (${price})</span>
+                </div>`;
+            }
+        data_container_DOM+=`</div>
+        </div>`;
+    }
+
+    let prescription = JSON.parse(appointment.prescriptions);
+    if(prescription.length>0){
+        data_container_DOM+=`<div class="datum">
+            <h3>Prescriptions</h3>
+            <div class="prescriptions">`
+            for(i of prescription){
+                data_container_DOM+=`<div class="prescription">
+                    <p>
+                        <span class="bold">Name: </span>
+                        <span>${i.name} ${(i.med_id)?"<span class='highlight'>Indoor</span>":""}</span>
+                    </p>
+                    <p>
+                        <span class="bold">Quantity: </span>
+                        <span>${i.quantity}</span>
+                    </p>`;
+                    if(i.given_quantity){
+                        data_container_DOM+=`<p>
+                            <span class="bold">Given Quantity: </span>
+                            <span>${i.given_quantity}</span>
+                        </p>`
+                    }
+                    data_container_DOM+=`<p>
+                        <span class="bold">Timmings: </span>
+                        <span>${i.timmings}</span>
+                    </p>
+                    <hr>
+                </div>`;
+            }
+            data_container_DOM+=`</div>
+        </div>`;
+    }
+
+    let controls_section = document.querySelector(".show-appointment-dialog .controls");
+    controls_section.innerHTML=`<button onclick="hide_dialog(this.parentElement);" style="--clr: var(--disabled-clr);">Cancel</button>`
+    if(appointment.status!=="dismiss" && appointment.status!=="done")
+        controls_section.innerHTML+=`<button style="--clr: var(--neon-blue);" onclick="dismiss_appointment('${app_id}');">Dismiss</button>`;
+
+    data_container.innerHTML=data_container_DOM;
+    show_dialog("show-appointment-dialog");
+}   
+
+const dismiss_appointment = (appId) => {
+    ipcRenderer.send("insert", `appointments/${appId}/status`, "dismiss", "appointment-dismiss-result");
+    ipcRenderer.on("appointment-dismiss-result", (event, res) => {
+        hide_loader();
+        if(res){
+            show_notification("Appointment dismissed Successfully");
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+        }else{
+            show_notification("Appointment Cannot dismiss. Try again", true);
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+        }
+    });
+}
+
 const populate_appointments = (filtered_list=null) => {
     if(!filtered_list){
         for(let i=0; i<appointments_list.length; i++){
@@ -754,7 +905,7 @@ const populate_appointments = (filtered_list=null) => {
     if(!filtered_list)
         filtered_list=appointments_list;        
     for(i of filtered_list){
-        appointment_container.innerHTML+=`<div class="info-elem">
+        appointment_container.innerHTML+=`<div class="info-elem" onclick="show_appointment_dialog('${i.app_id}');">
             <div>
                 <h3>${i.app_id}</h3>
                 <p>${i.first_name+" "+i.last_name} (${i.id})</p>

@@ -186,12 +186,13 @@ const separate_data = (data) => {
         }
     }
     populate_dropdown();
-
+    populate_doctor_dropdown();
     if(selected_appointment){
         populate_tests();
         populate_prescriptions();
     }
     populate_appointments();
+    populate_all_appointments();
     check_birthday_and_wish();
 }
 
@@ -207,6 +208,67 @@ const populate_dropdown = (search_txt="") => {
                 `<p onclick="select_medicine('${name} (${type})', ${i.id});" class="${isExpired(i.exp_date)?'expired':''}">${name} (${quantity} ${type})</p>`
         }
     }
+}
+
+const populate_doctor_dropdown = () => {
+    let dropdown = document.querySelector(".doctor-list-dialog select[name='doctor-list']");
+    dropdown.innerHTML="";
+    let count=0;
+    let list = doctors_list;
+    let online_list=[];
+    for(i in list){
+        if(list[i].status==="online"){
+            online_list.push(list[i]);
+            list.splice(i, 1);
+        }
+    }
+    for(i of online_list){
+        if(i.id===profile.id) continue;
+        dropdown.innerHTML+=`<option value="${i.id}" ${(count===0)?"selected":""}>${i.first_name} ${i.last_name} (Online)</option>`;
+    }
+    for(i of list){
+        if(i.id===profile.id) continue;
+        dropdown.innerHTML+=`<option value="${i.id}" ${(count===0)?"selected":""}>${i.first_name} ${i.last_name}</option>`;
+    }
+}
+
+const show_doctor_selection_dialog = (dialog_class) => {
+    if(doctors_list.length===0){
+        show_notification("There is no doctor available except you", true);
+        setTimeout(() => {
+            hide_notification();
+        }, 5500);
+        return;
+    }
+    show_dialog(dialog_class);
+}
+
+const send_appointment = (hidding_elem) => {
+    show_loader();
+    let doctor_id = document.querySelector(".doctor-list-dialog select[name='doctor-list']").value;
+    ipcRenderer.send("insert", `appointments/${selected_appointment.app_id}/doctor_id`, doctor_id, "updating-doctor-id-result");
+    ipcRenderer.on("updating-doctor-id-result", (event, res) => {
+        if(res){
+            selected_appointment=null;
+            editable_prescription_index=-1;
+            document.querySelector(".prescription h2").classList.add("show");
+            document.querySelector(".prescription .main .prescriptions").innerHTML="";
+            document.querySelector(".main-container .tests .all-test").innerHTML="";
+            populate_appointments();
+            hide_dialog(hidding_elem);
+            hide_loader();
+            show_notification("Appointment sent successfully");
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+        }else{
+            hide_loader();
+            show_notification("Cannot send appointment. Check you connection and try again", true);
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+        }
+    });
 }
 
 const isExpired = (date) =>{ 
@@ -304,6 +366,161 @@ const populate_appointments = (search="") => {
         }
     }
     container.innerHTML=appointments_DOM;
+}
+
+const show_appointment_dialog = (app_id) => {
+    let appointment = null;
+    for(i of appointment_list){
+        if(i.app_id===app_id){
+            appointment=i;
+            break;
+        }
+    }
+
+    if(!appointment){
+        show_notification("No appointment selected. Please refresh and try again", true);
+        setTimeout(() => {
+            hide_notification();
+        }, 5500);
+        return;
+    }
+
+    let data_container = document.querySelector(".show-appointment-dialog .data");
+    let app_time = new Date(appointment.app_time);
+    let data_container_DOM=`<div class="datum">
+        <span class="bold">Appointment Time: </span>
+        <span>${app_time.getHours()}:${app_time.getMinutes()}, ${app_time.getDate()} ${month_array[app_time.getMonth()]} ${app_time.getFullYear()}</span>
+    </div>
+    <div class="datum">
+        <span class="bold">Patient ID: </span>
+        <span>${appointment.id}</span>
+    </div>
+    <div class="datum">
+        <span class="bold">Patient Name: </span>
+        <span>${appointment.first_name} ${appointment.last_name}</span>
+    </div>
+    <div class="datum">
+        <span class="bold">Presenting Complaints: </span>
+        <span>${(appointment.presenting_complaints)?appointment.presenting_complaints:""}</span>
+    </div>
+    <div class="datum">
+        <span class="bold">Diagnosis: </span>
+        <span>${(appointment.diagnosis)?appointment.diagnosis:""}</span>
+    </div>
+    <div class="datum">
+        <span class="bold">Precautions: </span>
+        <span>${(appointment.precautions)?appointment.precautions:""}</span>
+    </div>
+    <div class="datum">
+        <span class="bold">Doctor ID: </span>
+        <span>${appointment.doctor_id}</span>
+    </div>`;
+    if(appointment.duration){
+        data_container_DOM+=`<div class="datum">
+            <span class="bold">Duration: </span>
+            <span>${appointment.duration}</span>
+        </div>`;
+    }
+    if(appointment.t_amount){
+        data_container_DOM+=`<div class="datum">
+            <span class="bold">Total Amount: </span>
+            <span>${appointment.t_amount} Rs/-</span>
+        </div>`;
+    }
+    if(appointment.received_amount){
+        data_container_DOM+=`<div class="datum">
+            <span class="bold">Recieved Amount: </span>
+            <span>${appointment.received_amount} Rs/-</span>
+        </div>`;
+    }
+    data_container_DOM+=`<div class="datum">
+        <span class="bold">Status: </span>
+        <span>${appointment.status}</span>
+    </div>`;
+
+    let test = JSON.parse(appointment.tests);
+    if(test.length>0){
+        data_container_DOM+=`<div class="datum">
+            <h3>Tests</h3>
+            <div class="tests">`
+            for(i of test){
+                let price=null;
+                for(j of registered_tests){
+                    if(Object.keys(i)[0]===j.name){
+                        price=j.price;
+                        break;
+                    }
+                }
+                data_container_DOM+=`<div class="test">
+                    <span class="bold">${Object.keys(i)}: </span>
+                    <span>${Object.values(i)} (${price})</span>
+                </div>`;
+            }
+        data_container_DOM+=`</div>
+        </div>`;
+    }
+
+    let prescription = JSON.parse(appointment.prescriptions);
+    if(prescription.length>0){
+        data_container_DOM+=`<div class="datum">
+            <h3>Prescriptions</h3>
+            <div class="prescriptions">`
+            for(i of prescription){
+                data_container_DOM+=`<div class="prescription">
+                    <p>
+                        <span class="bold">Name: </span>
+                        <span>${i.name} ${(i.med_id)?"<span class='highlight'>Indoor</span>":""}</span>
+                    </p>
+                    <p>
+                        <span class="bold">Quantity: </span>
+                        <span>${i.quantity}</span>
+                    </p>`;
+                    if(i.given_quantity){
+                        data_container_DOM+=`<p>
+                            <span class="bold">Given Quantity: </span>
+                            <span>${i.given_quantity}</span>
+                        </p>`
+                    }
+                    data_container_DOM+=`<p>
+                        <span class="bold">Timmings: </span>
+                        <span>${i.timmings}</span>
+                    </p>
+                    <hr>
+                </div>`;
+            }
+            data_container_DOM+=`</div>
+        </div>`;
+    }
+    data_container.innerHTML=data_container_DOM;
+    show_dialog("show-appointment-dialog");
+}
+
+const populate_all_appointments = (filtered_list=null) => {
+    if(!filtered_list)
+        filtered_list=appointment_list;        
+    for(let i=0; i<filtered_list.length; i++){
+        for(let j=i+1; j<filtered_list.length; j++){
+            if(filtered_list[i].app_time<filtered_list[j].app_time){
+                let temp=filtered_list[i];
+                filtered_list[i]=filtered_list[j];
+                filtered_list[j]=temp;
+            }
+        }
+    }
+
+
+    let container = document.querySelector(".appointment-search .appointments");
+    let container_DOM="";
+    for(i of filtered_list){
+        if(i.status==="done" || i.status==="dismiss"){
+            container_DOM+=`<div class="btn appointment" onclick="show_appointment_dialog('${i.app_id}');">
+                <h3>${i.app_id}</h3>
+                <p>${i.first_name+" "+i.last_name} (${i.id})</p>
+                <p>Status: ${i.status}</p>
+            </div>`;
+        }
+    }
+    container.innerHTML=container_DOM;
 }
 
 const populate_new_test_dialog = (dialog_class) => {
@@ -539,6 +756,48 @@ prescription_name.addEventListener("input", (e) => {
         prescription_dropdown.style.display="none";
     populate_dropdown(e.target.value);
     selected_prescription_id=0;
+});
+
+// all appointments search functionality...
+let all_app_search = document.querySelector(".appointment-search .search input");
+all_app_search.addEventListener("input", (e) => {
+    let search_txt = e.target.value;
+    
+    let search_type="app_id";
+    let is_int=false;
+    let isString=false;
+    for(i of search_txt){
+        if(i>='0' && i<='9'){
+            is_int=true;
+        }else{
+            is_int=false;
+            break;
+        }
+    }
+    if(is_int){
+        search_type="id";
+    }else{
+        for(i of search_txt){
+            if(i>='0' && i<='9'){
+                isString=false;
+                break;
+            }else{
+                isString=true;
+            }
+        }
+        if(isString){
+            search_type="first_name";
+        }
+    }
+
+    let filtered_list=[];
+    for(i of appointment_list){
+        if((search_type==="app_id" && i.app_id.includes(search_txt)) || (search_type==="id" && i.id.includes(search_txt)) || (search_type==="first_name" && (i.first_name+" "+i.last_name).toLowerCase().includes(search_txt.toLowerCase()))){
+            filtered_list.push(i);
+        }
+    }
+    
+    populate_all_appointments(filtered_list);
 });
 
 

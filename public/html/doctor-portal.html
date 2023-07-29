@@ -37,6 +37,7 @@
                     <button onclick="show_dialog('create-prescription-dialog');" style="--clr: var(--neon-pink);" class="add-new"><i class="fa-solid fa-plus"></i></button>
                 </div>
             </div>
+            <button onclick="show_doctor_selection_dialog('doctor-list-dialog');" class="send-appointment" style="--clr: var(--neon-blue);">Send to <i class="fa-solid fa-paper-plane"></i></button>
         </div>
 
         <div class="container appointments" style="--area-name: appointments;">
@@ -45,6 +46,19 @@
         </div>
 
     </div>
+
+
+
+    <div class="appointment-search">
+        <h2>Appointment List</h2>
+        <div class="search">
+            <input type="text" name="appointment-search" placeholder="Search Here" required>
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+        <div class="appointments"></div>
+    </div>
+
+
 
 
     <div class="dialog">
@@ -201,6 +215,33 @@
             <div class="controls">
                 <button style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement)">Cancel</button>
                 <button style="--clr: var(--neon-blue);" onclick="submit_appointment()">Proceed</button>
+            </div>
+        </div>
+
+        <div class="doctor-list-dialog">
+            <span class="cancel" onclick="hide_dialog(this);"><i class="fa-solid fa-xmark"></i></span>
+            <h2>Select Doctor</h2>
+
+            <div class="input">
+                <select name="doctor-list"></select>
+                <span>Select Doctor</span>
+                <i></i>
+            </div>
+
+            <div class="controls">
+                <button onclick="hide_dialog(this.parentElement);" style="--clr: var(--disabled-clr);">Cancel</button>
+                <button onclick="send_appointment(this.parentElement);" style="--clr: var(--neon-blue);">Send</button>
+            </div>
+        </div>
+
+        <div class="show-appointment-dialog">
+            <span class="cancel" onclick="hide_dialog(this)"><i class="fa-solid fa-xmark"></i></span>
+            <h2>Appointment Info</h2>
+
+            <div class="data"></div>
+
+            <div class="controls">
+                <button onclick="hide_dialog(this.parentElement);" style="--clr: var(--disabled-clr);">Cancel</button>
             </div>
         </div>
 

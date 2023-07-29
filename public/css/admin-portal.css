@@ -1058,6 +1058,75 @@ body{
 
 
 
+.dialog .show-appointment-dialog{
+    position: relative;
+    width: 300px;
+    height: 450px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    padding: 10px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: -20px;
+}
+.dialog .show-appointment-dialog.show{
+    display: flex;
+    animation: dialog-anim 0.5s linear forwards;
+}
+.dialog .show-appointment-dialog .data{
+    margin-top: 10px;
+    overflow-y: auto;
+}
+.dialog .show-appointment-dialog .data::-webkit-scrollbar{
+    width: 15px;
+}
+.dialog .show-appointment-dialog .data::-webkit-scrollbar-track{
+    border-radius: 10px;
+    background-color: var(--fg);
+}
+.dialog .show-appointment-dialog .data::-webkit-scrollbar-thumb{
+    border-radius: 10px;
+    background-color: var(--neon-pink);
+}
+.dialog .show-appointment-dialog .data .datum span.highlight{
+    background-color: yellow;
+    padding: 2px 5px;
+    color: var(--bg);
+    border-radius: 5px;
+}
+.dialog .show-appointment-dialog .data .datum span.bold{
+    color: var(--neon-blue);
+}
+.dialog .show-appointment-dialog .data .datum:has(h3){
+    margin-bottom: 10px;
+}
+.dialog .show-appointment-dialog .data .datum h3{
+    background: linear-gradient(90deg, transparent, var(--fg), transparent);
+    color: var(--bg);
+    width: 100%;
+    margin-bottom: 5px;
+    text-align: center;
+    border-radius: 10px;
+    padding: 10px 0px;
+}
+.dialog .show-appointment-dialog .data .prescriptions hr{
+    width: calc(100% - 20px);
+    margin-left: 10px;
+}
+.dialog .show-appointment-dialog .controls{
+    width: 100%;
+    margin-top: 10px;
+}
+
+
+
+
+
+
+
+
 
 @media (max-width: 1100px) {
     .cards{

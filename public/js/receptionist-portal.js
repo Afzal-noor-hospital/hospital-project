@@ -264,10 +264,12 @@ const reset_appointment_container = () => {
             <i></i>
         </div>
     </div>`;
-    let report_btn=document.querySelector(".app-detail .controls button:first-child");
-    let generate_app_btn=document.querySelector(".app-detail .controls button:last-child");
+    let report_btn=document.querySelector(".app-detail .controls button:nth-child(1)");
+    let generate_app_btn=document.querySelector(".app-detail .controls button:nth-child(2)");
+    let dismiss_app_btn=document.querySelector(".app-detail .controls button:nth-child(3)");
     report_btn.style.display="block";
     generate_app_btn.style.display="block";
+    dismiss_app_btn.style.display="none";
     generate_app_btn.innerHTML="Generate Appointment"
     generate_app_btn.style.backgroundColor="var(--neon-blue)";
 }
@@ -515,6 +517,24 @@ const populate_try_another = (list) => {
     container.innerHTML=new_DOM;
 }
 
+const dismiss_appointment = () => {
+    show_loader();
+    ipcRenderer.send("insert", `appointments/${selected_app.app_id}/status`, "dismiss", "appointment-dismiss-result");
+    ipcRenderer.on("appointment-dismiss-result", (event, res) => {
+        hide_loader();
+        if(res){
+            show_notification("Appointment dismiss successfully");
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+        }else{
+            show_notification("Appointment cannot dismiss. Try again", true);
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+        }
+    })
+}
 
 create_navigation()
 let personal_navigation=document.querySelector(".personal-navigation div:last-child");
@@ -767,8 +787,9 @@ const set_appointment_data = () => {
         }
     }
     tests_container.innerHTML=test_DOM;
-    let report_btn=document.querySelector(".app-detail .controls button:first-child");
-    let generate_app_btn=document.querySelector(".app-detail .controls button:last-child");
+    let report_btn=document.querySelector(".app-detail .controls button:nth-child(1)");
+    let generate_app_btn=document.querySelector(".app-detail .controls button:nth-child(2)");
+    let dismiss_app_btn=document.querySelector(".app-detail .controls button:nth-child(3)");
     generate_app_btn.innerHTML="Update Appointment"
     generate_app_btn.style.backgroundColor="#8b8d1d";
     let hasTest=false;
@@ -779,9 +800,11 @@ const set_appointment_data = () => {
         }
     }
     if(!hasTest){
+        dismiss_app_btn.style.display="block";
         report_btn.style.display="none";
         generate_app_btn.style.display="none";
     }else{
+        dismiss_app_btn.style.display="none";
         report_btn.style.display="block";
         generate_app_btn.style.display="block";
     }
