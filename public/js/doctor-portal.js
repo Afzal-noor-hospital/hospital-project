@@ -244,10 +244,11 @@ const populate_dropdown = (search_txt="") => {
     for(i of medicine_list){
         let name=i.name,
         quantity=i.quantity,
-        type=i.type;
-        if(name.toLowerCase().includes(search_txt.toLowerCase()) && quantity>0){
+        type=i.type,
+        salt=i.salt;
+        if((name.toLowerCase().includes(search_txt.toLowerCase()) || salt.toLowerCase().includes(search_txt.toLowerCase())) && quantity>0){
             prescription_dropdown.innerHTML+=
-                `<p onclick="select_medicine('${name} (${type})', ${i.id}, '${i.type}');" class="${isExpired(i.exp_date)?'expired':''}">${name} (${quantity} ${type})</p>`
+                `<p onclick="select_medicine('${name} (${salt} - ${type})', ${i.id}, '${i.type}');" class="${isExpired(i.exp_date)?'expired':''}">${name} (${salt} - ${quantity} ${type})</p>`
         }
     }
 }

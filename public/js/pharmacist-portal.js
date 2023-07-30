@@ -509,12 +509,60 @@ document.querySelector(".medicine-detail.expired input[name='search']").addEvent
 
 /* code for selecting appointment from appointments panel, send appointment back to doctor, print reciept for appointment, finalize the appointment and displaying payment dialog and proceeding it */
 
-let inputs=document.querySelectorAll(".explained-app .data .prescriptions input");
-inputs.forEach((elem, index) => {
-    elem.addEventListener("input", (e) => {
-        // setting up code for price if medicine quantity up or down...
+const calculate_price_again = (inp_elem, inp_index) => {
+    let recieved_amt = document.querySelector(".explained-app .data input[name='recieved-amt']");
+
+    let t_price=0;
+    JSON.parse(selected_appointment.tests).forEach((i) => {
+        let test_name=Object.keys(i)[0];
+        let price=0;
+        for(j of registered_tests_list){
+            if(j.name===test_name){
+                price=parseInt(j.price);
+                break;
+            }
+        }
+        t_price+=price;
     });
-});
+    JSON.parse(selected_appointment.prescriptions).forEach((i, index) => {
+        let duration=0;
+        let raw_duration = selected_appointment.duration.split(" ")[0].trim();
+        let duration_unit = selected_appointment.duration.split(" ")[1];
+        if(duration_unit==="Weeks"){
+            duration=parseInt(raw_duration)*7;
+        }else if(duration_unit==="Months"){
+            duration=parseInt(raw_duration)*30;
+        }else{
+            duration=parseInt(raw_duration);
+        }
+        let quantity=0;
+        if(inp_index===index){
+            quantity=parseInt(inp_elem.value);
+        }else{
+            quantity=duration*parseInt(i.quantity)*i.timmings.split(",").length;
+            for(j of medicine_types_list){
+                if(j.name===i.type && j.scale==="syrup"){
+                    quantity=1;
+                    break;
+                }
+            }
+        }
+
+        if(i.med_id!==undefined){
+            for(j of medicine_list){
+                if(parseInt(i.med_id)===parseInt(j.id)){
+                    let price = parseInt(j.price);
+                    if(j.quantity<quantity)
+                        quantity=j.quantity;
+                    t_price+=Math.ceil((price-(price*(j.discount/100.0)))*quantity);
+                    break;
+                }
+            }
+        }
+    });
+
+    recieved_amt.value=t_price;
+}
 
 const select_appointment = (index) => {
     selected_appointment=appointment_list[index];
@@ -691,7 +739,7 @@ const select_appointment = (index) => {
                 </p>
                 <p>
                     <span class="bold">Given Quantity: </span>
-                    <span><input type="number" max="${quantity_to_be_given}" min="0" value="${quantity_to_be_given}"></span>
+                    <span><input type="number" max="${quantity_to_be_given}" min="0" value="${quantity_to_be_given}" oninput="calculate_price_again(this, ${index});"></span>
                 </p>
                 <hr>
             </div>`;
