@@ -37,6 +37,42 @@ let help_DOM = `<p class="bold" style="color: var(--neon-blue); text-align: cent
         <span>View Help</span>
     </p>
     <p>
+        <span class="bold">F: </span>
+        <span>Activate search for appointments</span>
+    </p>
+    <p>
+        <span class="bold">N: </span>
+        <span>Add new prescription</span>
+    </p>
+    <p>
+        <span class="bold">CTRL + N: </span>
+        <span>Reffer new test</span>
+    </p>
+    <p>
+        <span class="bold">C: </span>
+        <span>Add presenting complaints</span>
+    </p>
+    <p>
+        <span class="bold">D: </span>
+        <span>Add diagnosis</span>
+    </p>
+    <p>
+        <span class="bold">P: </span>
+        <span>Add precautions</span>
+    </p>
+    <p>
+        <span class="bold">A: </span>
+        <span>Jump to whole appointment search</span>
+    </p>
+    <p>
+        <span class="bold">R: </span>
+        <span>View previous Records of patient</span>
+    </p>
+    <p>
+        <span class="bold">CTRL + RightArrow: </span>
+        <span>Send appointment to another doctor</span>
+    </p>
+    <p>
         <span class="bold">F5: </span>
         <span>Refresh Whole App</span>
     </p>
@@ -64,20 +100,19 @@ let help_DOM = `<p class="bold" style="color: var(--neon-blue); text-align: cent
     </ul>
     <p class="bold">How to Search:</p>
     <ul>
-        <li>Click on <b>Search Here</b> placed at top of page.</li>
+        <li>Click on <b>Search Here</b> placed at top of page or press <b>F</b>.</li>
         <li>Now you can search your appointments by using his/her ID.</li>
     </ul>
     <p class="bold">How to select appointment:</p>
     <ul>
         <li>Click on the appointment you want to select. A dialog will appear wants diagnosis of patient.</li>
         <li>After entering diagnosis of patient, click on <b>Proceed</b> button. Selected appointment located at top of all the appointments and its color will like a yellow.</li>
-        <li>If you want to edit diagnosis then click on the blue link provided at top of gray color bordered container and update your diagnosis</li>
-        <li>Now, you will be able to add precautions, prescriptions or tests against that patient.</li>
+        <li>Now, you will be able to add presenting complaints, diagnosis, precautions, prescriptions or tests against that patient.</li>
     </ul>
     <p class="bold">How to add Prescription(s):</p>
     <ul>
-        <li>Click on the + icon located at bottom-right corner of gray color bordered container. A dialog will appears</li>
-        <li>In this dialog, put all the details like medicine name, quantity and timmings. When you will enter medicine name, medicines available in store automatically offered in dropdown. You can select appropriate from there.</li>
+        <li>Click on the + icon located at bottom-right corner of gray color bordered container or press <b>N</b>. A dialog will appears</li>
+        <li>In this dialog, put all the details like medicine name, type, quantity and timmings. When you will enter medicine name, medicines available in store automatically offered in dropdown. You can select appropriate from there.</li>
         <li>After enetering all the records, click on <b>Save</b> button to save prescription</li>
     </ul>
     <p class="bold">How to Update or Delete Prescription:</p>
@@ -85,28 +120,26 @@ let help_DOM = `<p class="bold" style="color: var(--neon-blue); text-align: cent
         <li>To edit, click on the <i class="fa-solid fa-edit"></i> icon on the prescription.</li>
         <li>A dialog with previous entered detail appears. Change required data.</li>
         <li>Click on the <b>Update</b> button. Prescription then updated.</li>
-        <li>To Delete, click on the <i class="fa-solid fa-trash"></i> icon. Confirmation dialog will appears. Cloick on <b>Delete</b> button to delete prescription.</li>
+        <li>To Delete, click on the <i class="fa-solid fa-trash"></i> icon. Confirmation dialog will appears. Click on <b>Delete</b> button to delete prescription.</li>
     </ul>
     <p class="bold">How to Refer Test:</p>
     <ul>
         <li>If you want to refer test which is taken already, then click on that test which is to be reffered. A dialog will appears.</li>
         <li>Click on <b>confirm</b> button to rereffer test.</li>
-        <li>If you want to create new test, then click on the <b>New Test</b> button located at the top of tests container in pink color. A dialog will appears.</li>
-        <li>Select test from dropdown you want to reffer. Click on the <b>Confirm</b> button to reffer test.</li>
+        <li>If you want to create new test, then click on the <b>New Test</b> button located at the top of tests container in pink color or press <b>CTRL + N</b>. A dialog will appears.</li>
+        <li>Select test from dropdown you want to reffer. Click on the <b>Confirm</b> button to reffer test. If you not find the appropriate test then contact to admin.</li>
         <li>If test is reffered, unless the value for test is not uploaded, color of test is gray.</li>
     </ul>
     <p class="bold">How to see previous record:</p>
     <ul>
-        <li>Click on <b>Previous Record</b> button located at bottom-left corner in gray bordered container. A dialog will appear.</li>
+        <li>Click on <b>Previous Record</b> button located at bottom-left corner in gray bordered container or press <b>R</b>. A dialog will appear.</li>
         <li>If patient already visited, then records will shown, otherwise no records displayed</li>
-        <li>List of records appears date-wise. Open record from </li>
-        <li>Select test from dropdown you want to reffer. Click on the <b>Confirm</b> button to reffer test.</li>
-        <li>If test is reffered, unless the value for test is not uploaded, color of test is gray.</li>
+        <li>List of records appears date-wise. Open record from arrow given at end of every record heading.</li>
     </ul>
     <p class="bold">How to Submit Appointment:</p>
     <ul>
         <li>After selecting appointment and entering all data, Click on <b>Submit</b> button located in gray bordered container. A dialog will appear.</li>
-        <li>Enter the duration of medicine such that how mush days patient take these medicines.</li>
+        <li>Enter the duration of medicine such that how much days, weeks or months patient will have to take these medicines.</li>
         <li>After entering data, click on <b>proceed</b> button. Appointment then submitted.</li>
     </ul>
     <h3 style="color: var(--neon-blue);">In any severe issue, you can contact me on: 0349-9019007 (Whatsapp also)</h3>`;
@@ -1390,4 +1423,38 @@ ipcRenderer.on("live-value-update-captured", (event, data) => {
         else
             logout_user();
     }
-})
+});
+
+
+
+
+
+
+/* adding shortcuts */
+window.addEventListener("keyup", (e) => {
+    if(e.ctrlKey && (e.key==="N" || e.key==="n") && !active_dialog && selected_appointment){
+        populate_new_test_dialog('reffer-test-dialog');
+    }
+    else if(e.ctrlKey && e.key.toLowerCase()==="arrowright" && !active_dialog && selected_appointment){
+        show_doctor_selection_dialog('doctor-list-dialog');
+    }
+    else if((e.key==="N" || e.key==="n") && !active_dialog && !is_active_any_input() && selected_appointment){
+        show_dialog('create-prescription-dialog');
+    }
+    else if((e.key==="C" || e.key==="c") && !active_dialog && !is_active_any_input() && selected_appointment){
+        presenting_complaints_dialog();
+    }
+    else if((e.key==="D" || e.key==="d") && !active_dialog && !is_active_any_input() && selected_appointment){
+        diagnosis_dialog();
+    }
+    else if((e.key==="p" || e.key==="P") && !active_dialog && !is_active_any_input() && selected_appointment){
+        precautions_dialog();
+    }
+    else if((e.key==="r" || e.key==="R") && !active_dialog && !is_active_any_input() && selected_appointment){
+        populate_prev_record();
+    }
+    else if((e.key==="a" || e.key==="A") && !active_dialog && !is_active_any_input()){
+        document.querySelector(".appointment-search .search input[name='appointment-search']").focus();
+        document.querySelector(".appointment-search").scrollIntoView({behavior:"smooth"});
+    }
+});

@@ -7,28 +7,28 @@ const fs = require("fs");
 
 
 // dummy database credentials...
-// const firebaseConfig = {
-//   apiKey: "AIzaSyDeK1E0m2Yegiy-NYJbl-i40BT-XdDlj5I",
-//   authDomain: "dummy-156c4.firebaseapp.com",
-//   databaseURL: "https://dummy-156c4-default-rtdb.firebaseio.com",
-//   projectId: "dummy-156c4",
-//   storageBucket: "dummy-156c4.appspot.com",
-//   messagingSenderId: "623796312875",
-//   appId: "1:623796312875:web:37f39c49d314649cd2036e",
-//   measurementId: "G-57Q9RL4J8R"
-// };
+const firebaseConfig = {
+  apiKey: "AIzaSyDeK1E0m2Yegiy-NYJbl-i40BT-XdDlj5I",
+  authDomain: "dummy-156c4.firebaseapp.com",
+  databaseURL: "https://dummy-156c4-default-rtdb.firebaseio.com",
+  projectId: "dummy-156c4",
+  storageBucket: "dummy-156c4.appspot.com",
+  messagingSenderId: "623796312875",
+  appId: "1:623796312875:web:37f39c49d314649cd2036e",
+  measurementId: "G-57Q9RL4J8R"
+};
 
 
 // original database credentials...
-const firebaseConfig = {
-  apiKey: "AIzaSyD7avof426AbkWj3vPJV7pED7IRIAylg9g",
-  authDomain: "afzal-noor-trust.firebaseapp.com",
-  projectId: "afzal-noor-trust",
-  storageBucket: "afzal-noor-trust.appspot.com",
-  messagingSenderId: "988039714855",
-  appId: "1:988039714855:web:80170b7d44fb7976d3d602",
-  measurementId: "G-FJCK67WRXE"
-};
+// const firebaseConfig = {
+//   apiKey: "AIzaSyD7avof426AbkWj3vPJV7pED7IRIAylg9g",
+//   authDomain: "afzal-noor-trust.firebaseapp.com",
+//   projectId: "afzal-noor-trust",
+//   storageBucket: "afzal-noor-trust.appspot.com",
+//   messagingSenderId: "988039714855",
+//   appId: "1:988039714855:web:80170b7d44fb7976d3d602",
+//   measurementId: "G-FJCK67WRXE"
+// };
 
 let main=null,
 loginProfile=null;
@@ -48,7 +48,7 @@ const indexWindow = () => {
     icon: process.cwd() + '/public/res/icon.png',
   })
   main.maximize()
-  Menu.setApplicationMenu(null);
+  // Menu.setApplicationMenu(null);
   main.loadFile(process.cwd() + '/public/html/login.html');
   main.on('close', () => {
     if(loginProfile)
@@ -781,6 +781,10 @@ const read_medicines_and_upload = (event, path, medicine_types, medicine_list, r
 
     if(!invalid_error_log && !empty_error_log){
       for(let i=0; i<medicine_list.length; i++){
+        if(parseInt(medicine_list[i].quantity)===0)
+          medicine_list.splice(i, 1);
+      }
+      for(let i=0; i<medicine_list.length; i++){
         medicine_list[i].id=i;
       }
       for(i of medicines){
@@ -794,7 +798,21 @@ const read_medicines_and_upload = (event, path, medicine_types, medicine_list, r
         medicine_obj.mfg_date=i[7];
         medicine_obj.exp_date=i[8];
         medicine_obj.discount=(i.length>=10)?i[9]:0;
-        medicine_list.push(medicine_obj);
+
+        let isUpdated=false;
+        for(j in medicine_list){
+          if(medicine_list[j].name.toLowerCase()===medicine_obj.name.toLowerCase() && medicine_list[j].salt.toLowerCase()===medicine_obj.salt.toLowerCase() && medicine_list[j].type.toLowerCase()===medicine_obj.type.toLowerCase()){
+            medicine_list[j].quantity+=medicine_obj.quantity;
+            medicine_list[j].mfg_date=medicine_obj.mfg_date;
+            medicine_list[j].exp_date=medicine_obj.exp_date;
+            medicine_list[j].discount=medicine_obj.discount;
+            medicine_list[j].price=medicine_obj.price;
+            isUpdated=true;
+            break;
+          }
+        }
+        if(!isUpdated)
+          medicine_list.push(medicine_obj);
       }
       set(ref(database, "medicines/"), medicine_list).then((val) => {
         event.reply(reply_id, false, "Data uploaded successfully");

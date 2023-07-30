@@ -144,13 +144,13 @@ const create_navigation = (admin=false) => {
     let old_navigation_code=top_navigation.innerHTML
     let new_navigation_code=`<span title="Help (ctrl+h)" class="overall-help" onclick="show_help();"><i class="fa-solid fa-question"></i></span>
         <div class="personal-navigation">
-            <div class="search">
+            <div class="search" title="Search (F)">
                 <input type="text" name="search" placeholder="Search Here">
                 <span><i class="fa-solid fa-search"></i></span>
             </div>
         <div>`;
     if(admin)
-        new_navigation_code+=`<span title="Add New" class="btn" onclick="show_dialog('add-new-dialog');">
+        new_navigation_code+=`<span title="Add New (N)" class="btn" onclick="show_dialog('add-new-dialog');">
             <i class="fa-solid fa-plus"></i>
         </span>`;
     new_navigation_code+=`<span title="Profile (ctrl+p)" class="btn" onclick="show_profile_dialog();">
@@ -618,6 +618,17 @@ const logout_user = (id) => {
     });
 }
 
+const is_active_any_input = () => {
+    let inputs = document.querySelectorAll("input, textarea, select");
+    if(inputs){
+        for(i of inputs){
+            if(i===document.activeElement)
+                return true;
+        }
+    }
+    return false;
+}
+
 
 
 
@@ -625,11 +636,9 @@ const logout_user = (id) => {
 document.addEventListener("keyup", (e) => {
     if(e.key==="F5"){
         window.location.reload();
-    }
-    else if(e.ctrlKey && (e.key==="H" || e.key==="h")){
+    }else if(e.ctrlKey && (e.key==="H" || e.key==="h")){
         show_help();
-    }
-    else if(e.key==="Escape" && active_dialog){
+    }else if(e.key==="Escape" && active_dialog){
         hide_dialog(document.querySelector(`.dialog .${active_dialog} .cancel`));
     }else if(e.ctrlKey && (e.key==="L" || e.key==="l")){
         logout_user()
@@ -637,6 +646,8 @@ document.addEventListener("keyup", (e) => {
         show_dialog('change-password-dialog');
     }else if(!active_dialog && e.ctrlKey && (e.key==="P" || e.key==="p")){
         show_profile_dialog();
+    }else if(!active_dialog && !is_active_any_input() && (e.key==="f" || e.key==="F")){
+        document.querySelector(".personal-navigation input[name='search']").focus();
     }
 });
 

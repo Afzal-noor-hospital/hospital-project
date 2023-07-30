@@ -16,28 +16,28 @@
 
     <div class="main-container">
         <div class="container tests" style="--area-name: tests;">
-            <button class="new-test" style="--clr: var(--neon-pink);" onclick="populate_new_test_dialog('reffer-test-dialog');">New Test</button>
+            <button class="new-test" style="--clr: var(--neon-pink);" onclick="populate_new_test_dialog('reffer-test-dialog');" title="Refer new test (ctrl+N)">New Test</button>
             <h2>Tests</h2>
             <div class="all-test"></div>
         </div>
 
         <div class="container prescription" style="--area-name: prescription;">
             <div class="top-controls">
-                <button style="--clr: var(--neon-blue);" onclick="presenting_complaints_dialog();">Presenting Complaints</button>
-                <button style="--clr: var(--neon-pink);" onclick="diagnosis_dialog();">Diagnosis</button>
-                <button class="precautions" style="--clr: var(--disabled-clr);" onclick="precautions_dialog()">Precautions</button>
+                <button style="--clr: var(--neon-blue);" onclick="presenting_complaints_dialog();" title="Add presenting complaints (C)">Presenting Complaints</button>
+                <button style="--clr: var(--neon-pink);" onclick="diagnosis_dialog();" title="Add diagnosis (D)">Diagnosis</button>
+                <button class="precautions" style="--clr: var(--disabled-clr);" onclick="precautions_dialog()" title="Add precautions (P)">Precautions</button>
             </div>
             <h2 class="show">Select appointment from Appointments Tab to proceed</h2>
             <div class="main">
                 <div class="prescriptions"></div>
 
                 <div class="controls">
-                    <a onclick="populate_prev_record();" class="btn prev-record">prev record</a>
+                    <a onclick="populate_prev_record();" class="btn prev-record" title="View previous record for patient (R)">prev record</a>
                     <button class="submit-app" onclick="show_dialog('prescription-days-dialog')" style="--clr: var(--neon-blue);">Submit</button>
                     <button onclick="show_dialog('create-prescription-dialog');" style="--clr: var(--neon-pink);" class="add-new"><i class="fa-solid fa-plus"></i></button>
                 </div>
             </div>
-            <button onclick="show_doctor_selection_dialog('doctor-list-dialog');" class="send-appointment" style="--clr: var(--neon-blue);">Send to <i class="fa-solid fa-paper-plane"></i></button>
+            <button onclick="show_doctor_selection_dialog('doctor-list-dialog');" class="send-appointment" style="--clr: var(--neon-blue);" title="Send appointment to another doctor (ctrl+RightArrow)">Send to <i class="fa-solid fa-paper-plane"></i></button>
         </div>
 
         <div class="container appointments" style="--area-name: appointments;">
@@ -51,7 +51,7 @@
 
     <div class="appointment-search">
         <h2>Appointment List</h2>
-        <div class="search">
+        <div class="search" title="Search appointment by app Id, patient ID and patient name (A)">
             <input type="text" name="appointment-search" placeholder="Search Here" required>
             <i class="fa-solid fa-magnifying-glass"></i>
         </div>

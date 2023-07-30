@@ -39,6 +39,18 @@ let help_DOM = `<p class="bold" style="color: var(--neon-blue); text-align: cent
         <span>Enter New Medicine</span>
     </p>
     <p>
+        <span class="bold">CTRL + B: </span>
+        <span>Send appointment back to doctor</span>
+    </p>
+    <p>
+        <span class="bold">ALT + P: </span>
+        <span>Print Appointment</span>
+    </p>
+    <p>
+        <span class="bold">CTRL + RightArrow: </span>
+        <span>Proceed Appointment</span>
+    </p>
+    <p>
         <span class="bold">F5: </span>
         <span>Refresh Whole App</span>
     </p>
@@ -51,8 +63,7 @@ let help_DOM = `<p class="bold" style="color: var(--neon-blue); text-align: cent
     <ul>
         <li>First of all click on + icon placed at top-right or press N (ensure that focus is not at any other input).</li>
         <li>Fill all the fields in this form. No field(s) can be negligible.</li>
-        <li>Ensure that Medicine with same name and same type cannot be added again.</li>
-        <li>At last, click on the <b>Save</b> button which is located at bottom-right corner of dialog. Medicine will saved.</li>
+        <li>At last, click on the <b>Save</b> button which is located at bottom-right corner of dialog. Medicine will be saved.</li>
     </ul>
     <p class="bold">How to View Profile:</p>
     <ul>
@@ -88,14 +99,16 @@ let help_DOM = `<p class="bold" style="color: var(--neon-blue); text-align: cent
     </ul>
     <p class="bold">How to Send Back Appointment:</p>
     <ul>
-        <li>After selecting appointment, Click on the <b>Send Back</b> button.</li>
+        <li>After selecting appointment, Click on the <b>Send Back</b> button or press <b>CTRL + B</b>.</li>
         <li>That appointment automatically sent back to doctor again.</li>
     </ul>
     <p class="bold">How to Proceed Appointment:</p>
     <ul>
-        <li>After selecting appointment, Click on the <b>Proceed</b> button. Please make sure that all the data in the appointment is entered correctly.</li>
+        <li>After selecting appointment, Click on the <b>Proceed</b> button or press <b>CTRL + ArrowRight</b>. Please make sure that all the data in the appointment is entered correctly.</li>
         <li>After clicking, a confirmation dialog will appears. Click on <b>Confirm</b> button to confirm the appointment.</li>
-    </ul>`;
+        <li>Remember that if you are using shortcut key, then no confirmation dialog will appear.</li>
+    </ul>
+    <h3 style="color: var(--neon-blue);">In any severe issue, you can contact me on: 0349-9019007 (Whatsapp also)</h3>`;
 
 
 
@@ -213,16 +226,6 @@ const isExpired = (date) =>{
         return false;
     }
     return true;
-}
-
-const isActiveInput = () => {
-    let inputs=document.querySelectorAll("input, textarea");
-    for(i of inputs){
-        if(i===document.activeElement){
-            return true;
-        }
-    }
-    return false;
 }
 
 const is_valid_mfg_exp = (mfg, exp) => {
@@ -558,6 +561,8 @@ const select_appointment = (index) => {
             for(j of medicine_list){
                 if(parseInt(i.med_id)===parseInt(j.id)){
                     let price = parseInt(j.price);
+                    if(j.quantity<quantity)
+                        quantity=j.quantity;
                     t_price+=Math.ceil((price-(price*(j.discount/100.0)))*quantity);
                     break;
                 }
@@ -660,6 +665,16 @@ const select_appointment = (index) => {
                     break;
                 }
             }
+            let quantity_to_be_given=0;
+            for(j of medicine_list){
+                if(parseInt(j.id)===parseInt(i.med_id)){    
+                    if(j.quantity<quantity)
+                        quantity_to_be_given=j.quantity;
+                    else
+                        quantity_to_be_given=quantity;
+                    break;
+                }
+            }
             container_DOM+=`<div class="prescription">
                 <span class="bold">Prescription ${index+1}</span>
                 <p>
@@ -676,7 +691,7 @@ const select_appointment = (index) => {
                 </p>
                 <p>
                     <span class="bold">Given Quantity: </span>
-                    <span><input type="number" max="${quantity}" min="0" value="${quantity}"></span>
+                    <span><input type="number" max="${quantity_to_be_given}" min="0" value="${quantity_to_be_given}"></span>
                 </p>
                 <hr>
             </div>`;
@@ -1080,9 +1095,13 @@ ipcRenderer.on("live-value-update-captured", (event, data) => {
 
 /* code for shortcut key listeners */
 document.addEventListener("keyup", (e) => {
-    if(e.key==="N" || e.key==="n" && !isActiveInput()){
+    if(e.key==="N" || e.key==="n" && !is_active_any_input()){
         show_dialog("upload_file_dialog");
-    }else if(e.key==="?" && !isActiveInput()){
-        document.querySelector(".top-navigation .personal-navigation input[name='search']").focus();
+    }else if(e.ctrlKey && (e.key==="B" || e.key==="b") && !active_dialog && selected_appointment){
+        send_back_app()
+    }else if(e.altKey && (e.key==="P" || e.key==="p") && !active_dialog && selected_appointment){
+        print_reciept();
+    }else if(e.ctrlKey && e.key.toLowerCase()==="arrowright" && !active_dialog && selected_appointment){
+        complete_app();
     }
 })

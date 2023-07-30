@@ -57,6 +57,18 @@ let help_DOM = `<p class="bold" style="color: var(--neon-blue); text-align: cent
         <span>Try Another Way for searching appointnment</span>
     </p>
     <p>
+        <span class="bold">S: </span>
+        <span>Scan QrCode</span>
+    </p>
+    <p>
+        <span class="bold">CTRL + E: </span>
+        <span>Edit Patient</span>
+    </p>
+    <p>
+        <span class="bold">ALT + P: </span>
+        <span>Print patient card</span>
+    </p>
+    <p>
         <span class="bold">F5: </span>
         <span>Refresh Whole App</span>
     </p>
@@ -91,12 +103,11 @@ let help_DOM = `<p class="bold" style="color: var(--neon-blue); text-align: cent
     </ul>
     <p class="bold">How to Search:</p>
     <ul>
-        <li>Click on <b>Search Here</b> placed at top of page or press <b>F</b>. (For shortcut, it will ensured that focus will not be on another input).</li>
-        <li>Now, You can search appointments by using ID.</li>
+        <li>Not implemented yet</li>
     </ul>
     <p class="bold">How to Generate Appointment:</p>
     <ul>
-        <li>Enter ID of patient in <b>New Appointment</b> section na dpress enter or press <i class="fa-solid fa-arrow-right"></i> button to proceed.</li>
+        <li>Enter ID of patient in <b>New Appointment</b> section and press enter or press <i class="fa-solid fa-arrow-right"></i> button to proceed.</li>
         <li>At <b>Appointment Data</b> section, If appointment already generated, then tests which have thier results uploaded will be locked and other will opened for uplaoding thier results.</li>
         <li>Enter data for tests or generate report (Explained in "How to generate Report") for them and click on Generate Appointment or Update Appointment. A dialog will appears.</li>
         <li>Select doctor from dialog and click on <b>proceed</b> button to send appointment.</li>
@@ -112,7 +123,8 @@ let help_DOM = `<p class="bold" style="color: var(--neon-blue); text-align: cent
         <li>Click on the <b>try another way</b> button located in the New Appointment section or press <b>?</b> or scroll down at bottom of page. For shortcut key, ensure that focus is not at any other input.</li>
         <li>In this section, there are four filters: Name, Fathername, Gender or Contact Number. Which filter value is entered, the data against this search will displayed at under the filters.</li>
         <li>At the top-right corner of the try another way section, there is a button which is used for clear all filters</li>
-    </ul>`;
+    </ul>
+    <h3 style="color: var(--neon-blue);">In any severe issue, you can contact me on: 0349-9019007 (Whatsapp also)</h3>`;
 
 
 
@@ -424,18 +436,6 @@ const calculate_age = (dob) => {
     }
 
     return `${calc_year?(calc_year)+"Y":""} ${calc_month?(calc_month)+"M":""} ${calc_days?(calc_days)+"D":""}`;
-}
-
-const isFocusInputs = () => {
-    let all_inps=document.querySelectorAll("input, textarea");
-    let isOK=false;
-    for(i of all_inps){
-        if(i===document.activeElement){
-            isOK=true;
-            break;
-        }
-    }
-    return isOK;
 } 
 
 const populate_cbc_report = (test_name) => {
@@ -726,10 +726,10 @@ const select_patient = (id) => {
         </p>
     </div>
     <div class="controls">
-        <button title="Print Card Again" style="--clr: rgb(112,112,5);" onclick="print_card(${selected_patient.id})">
+        <button title="Print Card Again (ALT + P)" style="--clr: rgb(112,112,5);" onclick="print_card(${selected_patient.id})">
             <i class="fa-solid fa-print"></i>
         </button>
-        <button title="Update Patient Record" style="--clr: var(--neon-pink);" onclick="update_patient_dialog();">
+        <button title="Update Patient Record (CTRL + E)" style="--clr: var(--neon-pink);" onclick="update_patient_dialog();">
             <i class="fa-solid fa-edit"></i>
         </button>
     </div>`
@@ -1193,15 +1193,15 @@ const filter_patients = () => {
 /* ................. shortcut key listener ..................... */
 document.addEventListener("keyup", (e) => {
     let id_inp=document.querySelector(".main-container .id-sec .input input[name='id']");
-    if(!active_dialog && (e.key==="N" || e.key==="n") && !isFocusInputs()){
+    if(!active_dialog && (e.key==="N" || e.key==="n") && !is_active_any_input()){
         show_dialog('add-new-patient-dialog');
-    }else if(!active_dialog && (e.key==="S" || e.key==="s") && !isFocusInputs()){
+    }else if(!active_dialog && (e.key==="S" || e.key==="s") && !is_active_any_input()){
         open_qrcode_camera('qrcode-camera-dialog');
-    }else if(!active_dialog && e.key==="?"){
+    }else if(!active_dialog && e.key==="?" && !is_active_any_input()){
         document.querySelector('.try-another-way-container').scrollIntoView({behavior:'smooth'});
     }else if(!active_dialog && id_inp===document.activeElement && e.key==="Enter"){
         select_patient(id_inp.value);
-    }else if(!active_dialog && (e.key==="F" || e.key==="f")){
+    }else if(!active_dialog && (e.key==="F" || e.key==="f") && !is_active_any_input()){
         let all_inps=document.querySelectorAll("input:not([name='search']), textarea");
         let isOK=true;
         for(i of all_inps){
@@ -1214,6 +1214,10 @@ document.addEventListener("keyup", (e) => {
             document.querySelector("input[name='search']").focus();
             document.querySelector("input[name='search']").value="";
         }
+    }else if(!active_dialog && e.ctrlKey && (e.key==="E" || e.key==="e") && selected_patient){
+        update_patient_dialog();
+    }else if(!active_dialog && e.altKey && (e.key==="P" || e.key==="p") && selected_patient){
+        print_card(selected_patient.id);
     }
 })
 

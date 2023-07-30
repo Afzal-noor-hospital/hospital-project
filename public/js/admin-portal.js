@@ -1372,17 +1372,6 @@ const isExpired = (date) =>{
     return true;
 }
 
-const isFocus_anyInput = () => {
-    let inputs = document.querySelectorAll("input, textarea, select");
-    if(inputs){
-        for(i of inputs){
-            if(i===document.activeElement)
-                return true;
-        }
-    }
-    return false;
-}
-
 const has_numbers = (string_Data) => {
     for(i of string_Data){
         if(i>='0' && i<='9'){
@@ -2113,9 +2102,7 @@ ipcRenderer.on("live-value-update-captured", (event, data) => {
 
 /* adding shortcut commands */
 window.addEventListener("keyup", (e) => {
-    if((e.key==="F" || e.key==='f') && !isFocus_anyInput()){
-        document.querySelector(".personal-navigation input[name='search']").focus();
-    }else if(e.key==="N" ||  e.key==="n" && !isFocus_anyInput()){
+    if((e.key==="N" ||  e.key==="n") && !is_active_any_input()){
         show_dialog("add-new-dialog");
     }
 });
