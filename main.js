@@ -7,28 +7,28 @@ const fs = require("fs");
 
 
 // dummy database credentials...
-const firebaseConfig = {
-  apiKey: "AIzaSyDeK1E0m2Yegiy-NYJbl-i40BT-XdDlj5I",
-  authDomain: "dummy-156c4.firebaseapp.com",
-  databaseURL: "https://dummy-156c4-default-rtdb.firebaseio.com",
-  projectId: "dummy-156c4",
-  storageBucket: "dummy-156c4.appspot.com",
-  messagingSenderId: "623796312875",
-  appId: "1:623796312875:web:37f39c49d314649cd2036e",
-  measurementId: "G-57Q9RL4J8R"
-};
+// const firebaseConfig = {
+//   apiKey: "AIzaSyDeK1E0m2Yegiy-NYJbl-i40BT-XdDlj5I",
+//   authDomain: "dummy-156c4.firebaseapp.com",
+//   databaseURL: "https://dummy-156c4-default-rtdb.firebaseio.com",
+//   projectId: "dummy-156c4",
+//   storageBucket: "dummy-156c4.appspot.com",
+//   messagingSenderId: "623796312875",
+//   appId: "1:623796312875:web:37f39c49d314649cd2036e",
+//   measurementId: "G-57Q9RL4J8R"
+// };
 
 
 // original database credentials...
-// const firebaseConfig = {
-//   apiKey: "AIzaSyD7avof426AbkWj3vPJV7pED7IRIAylg9g",
-//   authDomain: "afzal-noor-trust.firebaseapp.com",
-//   projectId: "afzal-noor-trust",
-//   storageBucket: "afzal-noor-trust.appspot.com",
-//   messagingSenderId: "988039714855",
-//   appId: "1:988039714855:web:80170b7d44fb7976d3d602",
-//   measurementId: "G-FJCK67WRXE"
-// };
+const firebaseConfig = {
+  apiKey: "AIzaSyD7avof426AbkWj3vPJV7pED7IRIAylg9g",
+  authDomain: "afzal-noor-trust.firebaseapp.com",
+  projectId: "afzal-noor-trust",
+  storageBucket: "afzal-noor-trust.appspot.com",
+  messagingSenderId: "988039714855",
+  appId: "1:988039714855:web:80170b7d44fb7976d3d602",
+  measurementId: "G-FJCK67WRXE"
+};
 
 let main=null,
 loginProfile=null;
