@@ -767,7 +767,8 @@ const read_medicines_and_upload = (event, path, medicine_types, medicine_list, r
             else
               medicine.push(months_array[date.getMonth()]+" "+date.getFullYear());
           }else if(colNumber===10){ // we get discount here...
-            if(!value)
+            console.log(value);
+            if(parseInt(value)===NaN)
               empty_error_log+=address+"\n";
             else if(typeof(parseFloat(value))===typeof(0.0))
               medicine.push(value);
