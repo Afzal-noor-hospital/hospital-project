@@ -307,6 +307,9 @@ const create_navigation = (admin=false) => {
                         <p>Contact #:</p>
                         <span class="contact-no">03499019007</span>
                     </div>
+                    <div class="data">
+                        <button onclick="download_activity_log_file();" style="--clr: var(--neon-blue);">Activity Logs <i class="fa-solid fa-file-arrow-down"></i></button>
+                    </div>
                 </div>
             </div>
 
@@ -376,6 +379,24 @@ const show_help = () => {
     show_dialog("help-dialog")
 }
 
+const download_activity_log_file = () => {
+    if(!profile){
+        show_notification("Unexpected error. Please try again", true);
+        setTimeout(() => {
+            hide_notification();
+        }, 5500);
+        return;
+    }
+    show_loader();
+    ipcRenderer.send("download-log-file", profile.id, "download-log-file-res");
+    ipcRenderer.on("download-log-file-res", (event, res) => {
+        hide_loader();
+        show_notification(res.data, res.isError);
+        setTimeout(() => {
+            hide_notification();
+        }, 5500);
+    });
+}   
 
 
 

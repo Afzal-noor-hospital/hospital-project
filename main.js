@@ -52,8 +52,13 @@ const indexWindow = () => {
   // Menu.setApplicationMenu(null);
   main.loadFile(process.cwd() + '/public/html/login.html');
   main.on('close', () => {
-    if(loginProfile)
+    if(loginProfile){
       set(ref(database, `staff/${loginProfile.id}/status`), "offline");
+      let time=Date.now();
+      let log_data = {status:"Offline", timestamp:time};
+      set(ref(database, `staff/${loginProfile.id}/activity_logs/${time}`), log_data);
+      loginProfile=null;
+    }
     if(is_update_downloaded && update_file_name!==""){
       console.log("running installer...");
       shell.openPath(update_file_name).then((val) => {});
@@ -90,8 +95,14 @@ ipcMain.on("login", (event, data) => {
       if(value.status!=="suspend"){
         if(value.password===data.password){
           set(ref(database, `staff/${data.username}/status`), "online").then((res) => {
-            loginProfile=value;
-            laod_portal();
+            let time=Date.now();
+            let log_data = {status:"Online", timestamp:time};
+            set(ref(database, `staff/${data.username}/activity_logs/${time}`), log_data).then((val) => {
+              loginProfile=value;
+              laod_portal();
+            }).catch((e) => {
+              event.reply("login-result", "Unexpected results. Please try again");
+            });
           }).catch((e) => {
             event.reply("login-result", "Internet Connection Error")
           })
@@ -112,14 +123,21 @@ ipcMain.on("login", (event, data) => {
 ipcMain.on("logout", (event, data) => {
   if(main){
     set(ref(database, `staff/${data}/status`), "offline").then((val) => {
-      event.reply("logout-result", false, "");
-      if(loginProfile.id===data)  
-        main.loadFile(process.cwd()+"/public/html/login.html");
+      let time=Date.now();
+      let log_data = {status:"Offline", timestamp:time};
+      set(ref(database, `staff/${data}/activity_logs/${time}`), log_data).then((val) => {
+        event.reply("logout-result", false, "");
+        if(loginProfile.id===data)
+          main.loadFile(process.cwd()+"/public/html/login.html");
+        loginProfile=null;
+      }).catch((e) => {
+        event.reply("logout-result", false, "Cannot logout. Please check your internet and try again");
+      });
     }).catch((e) => {
       event.reply("logout-result", true, "Cannot logout. Please check your internet and try again");
-    })
+    });
   }
-})
+});
 
 ipcMain.on("get-profile", (event, reply_id) => {
   event.reply(reply_id, loginProfile);
@@ -249,6 +267,20 @@ ipcMain.on("download-medicine-template", (event, reply_id) => {
   });
 })
 
+ipcMain.on("download-log-file", (event, username, reply_id) => {
+  get(ref(database, `staff/${username}`)).then((data) => {
+    let user = data.val();
+    if(user){
+      let heading=`${user.first_name} ${user.last_name} - (${user.role})`;
+      download_logs(event, heading, user['activity_logs'], reply_id);
+    }else{
+      event.reply(reply_id, {isError: true, data:"No data found. Please try again"});
+    }
+  }).catch((e) => {
+    console.log(e);
+    event.reply(reply_id, {isError: true, data: "Check your network connection and try again"});
+  });
+});
 
 
 const write_excel_file = async (event, staff=[], patients=[], appointments=[], medicines=[], reply_id) => {
@@ -717,7 +749,6 @@ const write_excel_file = async (event, staff=[], patients=[], appointments=[], m
   });
 }
 
-
 const read_medicines_and_upload = (event, path, medicine_types, medicine_list, reply_id) => {
   // file format ...
   // sr.No., name, salt, type, Total packs, Tab/Pack, Price/Pack, MFG Date, EXP Date, discount
@@ -874,14 +905,87 @@ const read_medicines_and_upload = (event, path, medicine_types, medicine_list, r
   });
 }
 
+const download_logs = (event, heading, logs, reply_id) => {
+  let wbook = new writer.Workbook();
+  let sheet = wbook.addWorksheet("sheet 1");
+  let row=1, offline_no=0, online_no=0;
+  sheet.getCell(`A${row}`).value=heading;
+  sheet.getCell(`A${row}`).font={size: 20, bold: true}
+  sheet.getCell(`A${row}`).alignment={vertical: "middle", horizontal: "center"};
+  sheet.mergeCells(`A${row}:E${row+1}`);
+  row+=3;
+  
+  // writting table headings...
+  sheet.getCell(`A${row}`).value="Date";
+  sheet.getCell(`A${row}`).font={size: 15, bold: true}
+  sheet.getCell(`A${row}`).alignment={vertical: "middle", horizontal: "center"};
+  sheet.mergeCells(`A${row}:C${row+1}`);
+  sheet.getCell(`D${row}`).value="Status";
+  sheet.getCell(`D${row}`).font={size: 15, bold: true}
+  sheet.getCell(`D${row}`).alignment={vertical: "middle", horizontal: "center"};
+  sheet.mergeCells(`D${row}:E${row+1}`);
+  row+=2;
+  
+  for(i of Object.keys(logs)){
+    let date = new Date(logs[i].timestamp);
+    let timestamp=`${date.getDate()<10?"0"+date.getDate():date.getDate()} ${months_array[date.getMonth()]} ${date.getFullYear()} ${date.getHours()<10?"0"+date.getHours():date.getHours()}:${date.getMinutes()<10?"0"+date.getMinutes():date.getMinutes()}:${date.getSeconds()<10?"0"+date.getSeconds():date.getSeconds()}`;
+
+    if(logs[i].status==="Online"){
+      online_no++;
+    }else if(logs[i].status==="Offline"){
+      offline_no++;
+    }
+
+    sheet.getCell(`A${row}`).value=timestamp;
+    sheet.getCell(`A${row}`).font={size: 12}
+    sheet.getCell(`A${row}`).alignment={vertical: "middle", horizontal: "center"};
+    sheet.mergeCells(`A${row}:C${row}`);
+
+    sheet.getCell(`D${row}`).value=logs[i].status;
+    sheet.getCell(`D${row}`).font={size: 12}
+    sheet.getCell(`D${row}`).alignment={vertical: "middle", horizontal: "center"};
+    sheet.mergeCells(`D${row}:E${row}`);
+  
+    row++;
+  }
+
+  sheet.getCell(`G1`).value="Total Onlines"
+  sheet.getCell(`G1`).font={size: 15, bold: true};
+  sheet.getCell(`G1`).alignment={vertical: "middle", horizontal: "center"};
+  sheet.mergeCells(`G1:I2`);
+  sheet.getCell(`J1`).value=online_no;
+  sheet.getCell(`J1`).font={size: 15, bold: true};
+  sheet.getCell(`J1`).alignment={vertical: "middle", horizontal: "center"};
+  sheet.mergeCells(`J1:K2`);
+
+  sheet.getCell(`G3`).value="Total Offlines"
+  sheet.getCell(`G3`).font={size: 15, bold: true};
+  sheet.getCell(`G3`).alignment={vertical: "middle", horizontal: "center"};
+  sheet.mergeCells(`G3:I4`);
+  sheet.getCell(`J3`).value=offline_no;
+  sheet.getCell(`J3`).font={size: 15, bold: true};
+  sheet.getCell(`J3`).alignment={vertical: "middle", horizontal: "center"};
+  sheet.mergeCells(`J3:K4`);
 
 
-onValue(ref(database, "/"), (snapshot) => {
-  if(main)
-    main.webContents.send("live-value-update-captured", snapshot.val());
-})
-
-
+  dialog.showSaveDialog(main).then((path) => {
+    path = path.filePath;
+    if(path){
+      if(path.split(".").pop()!=="xlsx"){
+        path+=".xlsx";
+      }
+      wbook.xlsx.writeFile(path).then((val) => {
+        event.reply(reply_id, {isError: false, data:"File written successfully on the path specified"});
+      }).catch((e) => {
+        event.reply(reply_id, {isError: true, data:"File Cannot written on the specified path"});        
+      });
+    }else{
+      event.reply(reply_id, {isError: true, data:"Path cannot be choosen by the user. Please try again"});      
+    }
+  }).catch((e) => {
+    event.reply(reply_id, {isError: true, data:"Path cannot be choosen by the system. Please try again"})
+  });
+}
 
 const laod_portal = () => {
   if(loginProfile.password==="0000000")
@@ -901,6 +1005,13 @@ const laod_portal = () => {
 
 
 
+
+onValue(ref(database, "/"), (snapshot) => {
+  if(main)
+    main.webContents.send("live-value-update-captured", snapshot.val());
+});
+
+
 powerMonitor.on("lock-screen", (e) => {
   if(main && loginProfile){
     set(ref(database, `staff/${loginProfile.id}/status`), "offline").then((val) => {
@@ -908,6 +1019,9 @@ powerMonitor.on("lock-screen", (e) => {
     });
   }
 });
+
+
+
 
 
 

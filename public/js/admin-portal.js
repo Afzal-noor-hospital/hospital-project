@@ -213,7 +213,6 @@ const edit_profile = (id) => {
     last_name_inp=document.querySelector(".update-staff-dialog .container input[name='last-name']"),
     father_name_inp=document.querySelector(".update-staff-dialog .container input[name='father-name']"),
     username_lbl=document.querySelector(".update-staff-dialog .container label[name='username']"),
-    email_inp=document.querySelector(".update-staff-dialog .container input[name='email']"),
     number_inp=document.querySelector(".update-staff-dialog .container input[name='number']"),
     cnic_inp=document.querySelector(".update-staff-dialog .container input[name='cnic']"),
     dob_inp=document.querySelector(".update-staff-dialog .container input[name='dob']"),
@@ -228,7 +227,6 @@ const edit_profile = (id) => {
     father_name_inp.value=currentProfile.father_name;
     username_lbl.innerHTML=currentProfile.id;
     username_lbl.title=currentProfile.id;
-    email_inp.value=(currentProfile.email)?currentProfile.email:"";
     number_inp.value=currentProfile.contact;
     cnic_inp.value=currentProfile.cnic;
     dob_inp.value=currentProfile.dob;
@@ -253,7 +251,7 @@ const edit_profile = (id) => {
     update_btn.addEventListener("click", (e) => {
         show_loader();
 
-        if(!first_name_inp.value || !last_name_inp.value || !father_name_inp.value || !dob_inp.value || !cnic_inp.value || !number_inp.value || !email_inp.value || !address_inp.value){
+        if(!first_name_inp.value || !last_name_inp.value || !father_name_inp.value || !dob_inp.value || !cnic_inp.value || !number_inp.value || !address_inp.value){
             hide_loader();
             show_notification("Fill Empty Fields First", true);
             setTimeout(() => {
@@ -272,19 +270,8 @@ const edit_profile = (id) => {
                 cnic_inp.focus();
             else if(!number_inp.value)
                 number_inp.focus();
-            else if(!email_inp.value)
-                email_inp.focus();
             else if(!address_inp.value)
                 address_inp.focus();
-            return;
-        }
-    
-        if(!email_inp.checkValidity()){
-            hide_loader();
-            show_notification("Email is not correct. Please check your email and try again", true);
-            setTimeout(() => {
-                hide_notification();
-            }, 5500);
             return;
         }
 
@@ -299,7 +286,6 @@ const edit_profile = (id) => {
             dob: dob_inp.value,
             gender: gender_inp.value,
             role: role_inp.value,
-            email: email_inp.value,
             status: currentProfile.status,
             address: address_inp.value,
             app_date: currentProfile.app_date
