@@ -2,6 +2,7 @@ let profile=null,
 patient_list=[],
 appointments_list=[],
 doctor_list=[],
+nurse_list=[],
 all_with_no_admin_list=[],
 medicine_list=[],
 registered_tests_list=[],
@@ -193,6 +194,13 @@ const separate_data = (data) => {
                 doctor_list.push(staff[i]);
         }
     }
+    nurse_list=[];
+    if(staff){
+        for(i of Object.keys(staff)){
+            if(staff[i].role==="Nurse")
+                nurse_list.push(staff[i]);
+        }
+    }
     medicine_list=[];
     if(medicines){
         for(i of Object.keys(medicines)){
@@ -227,19 +235,9 @@ const separate_data = (data) => {
         }
     }
 
-    let doctor_inp = document.querySelector(".doctor-selection-dialog select[name='doctor-name']");
-    doctor_inp.innerHTML="";
-    for(i of doctor_list){
-        if(i.status==="online")
-        doctor_inp.innerHTML+=`<option value="${i.id}">${i.first_name+" "+i.last_name} (Online)</option>`;
-    }
-    for(i of doctor_list){
-        if(i.status==="offline")
-        doctor_inp.innerHTML+=`<option value="${i.id}">${i.first_name+" "+i.last_name}</option>`;
-    }
-
     if(selected_patient)
         select_patient(selected_patient.id);
+    populate_doctor_selection_dialog();
     populate_try_another();
     check_birthday_and_wish();
 }
@@ -510,11 +508,32 @@ const populate_try_another = (list) => {
     for(i of list){
         new_DOM+=`<button style="--clr: var(--neon-blue);" onclick="select_patient('${i.id}');">
             <p><span class="bold">Name: </span>${i.first_name+" "+i.last_name}</p>
-            <p><span class="bold">Father Name: </span>${i.father_name}</p>
+            <p><span class="bold">Father/Husband Name: </span>${i.father_name}</p>
             <p><span class="bold">Contact: </span>${i.contact}</p>
         </button>`;
     }
     container.innerHTML=new_DOM;
+}
+
+const populate_doctor_selection_dialog = () => {
+    let doctor_inp = document.querySelector(".doctor-selection-dialog select[name='doctor-name']");
+    doctor_inp.innerHTML="";
+    for(i of doctor_list){
+        if(i.status==="online")
+            doctor_inp.innerHTML+=`<option value="${i.id}">Doctor -> ${i.first_name+" "+i.last_name} (Online)</option>`;
+    }
+    for(i of doctor_list){
+        if(i.status==="offline")
+            doctor_inp.innerHTML+=`<option value="${i.id}">Doctor -> ${i.first_name+" "+i.last_name}</option>`;
+    }
+    for(i of nurse_list){
+        if(i.status==="online")
+            doctor_inp.innerHTML+=`<option value="${i.id}">Nurse -> ${i.first_name+" "+i.last_name} (Online)</option>`;
+    }
+    for(i of nurse_list){
+        if(i.status==="offline")
+            doctor_inp.innerHTML+=`<option value="${i.id}">Nurse -> ${i.first_name+" "+i.last_name}</option>`;
+    }
 }
 
 const dismiss_appointment = () => {

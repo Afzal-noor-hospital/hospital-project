@@ -1,6 +1,7 @@
 let profile=null,
 appointment_list=[],
 doctors_list = [],
+nurse_list=[],
 medicine_list=[],
 medicine_types_list=[],
 registered_tests=[];
@@ -195,6 +196,14 @@ const separate_data = (data) => {
             }
         }
     }
+    nurse_list=[];
+    if(staff){
+        for(i of Object.keys(staff)){
+            if(staff[i].role==="Nurse"){
+                nurse_list.push(staff[i]);
+            }
+        }
+    }
     appointment_list=[];
     if(appointments){
         for(i of Object.keys(appointments)){
@@ -277,17 +286,33 @@ const populate_doctor_dropdown = () => {
     }
     for(i of online_list){
         if(i.id===profile.id) continue;
-        dropdown.innerHTML+=`<option value="${i.id}" ${(count===0)?"selected":""}>${i.first_name} ${i.last_name} (Online)</option>`;
+        dropdown.innerHTML+=`<option value="${i.id}" ${(count===0)?"selected":""}>Doctor -> ${i.first_name} ${i.last_name} (Online)</option>`;
     }
     for(i of list){
         if(i.id===profile.id) continue;
-        dropdown.innerHTML+=`<option value="${i.id}" ${(count===0)?"selected":""}>${i.first_name} ${i.last_name}</option>`;
+        dropdown.innerHTML+=`<option value="${i.id}" ${(count===0)?"selected":""}>Doctor -> ${i.first_name} ${i.last_name}</option>`;
+    }
+    list = nurse_list;
+    online_list=[];
+    for(i in list){
+        if(list[i].status==="online"){
+            online_list.push(list[i]);
+            list.splice(i, 1);
+        }
+    }
+    for(i of online_list){
+        if(i.id===profile.id) continue;
+        dropdown.innerHTML+=`<option value="${i.id}" ${(count===0)?"selected":""}>Nurse -> ${i.first_name} ${i.last_name} (Online)</option>`;
+    }
+    for(i of list){
+        if(i.id===profile.id) continue;
+        dropdown.innerHTML+=`<option value="${i.id}" ${(count===0)?"selected":""}>Nurse -> ${i.first_name} ${i.last_name}</option>`;
     }
 }
 
 const show_doctor_selection_dialog = (dialog_class) => {
-    if(doctors_list.length===0){
-        show_notification("There is no doctor available except you", true);
+    if(doctors_list.length===0 && nurse_list.length===0){
+        show_notification("There is no doctor or nurse available except you", true);
         setTimeout(() => {
             hide_notification();
         }, 5500);
@@ -566,9 +591,13 @@ const populate_all_appointments = (filtered_list=null) => {
     let container = document.querySelector(".appointment-search .appointments");
     let container_DOM="";
     for(i of filtered_list){
+        let id=i.app_id;
+        let splitted_id = id.split("-");
+        let month = parseInt(splitted_id[1])+1
+        id=splitted_id[0]+"-"+month+"-"+splitted_id[2]+"-"+splitted_id[3];
         if(i.status==="done" || i.status==="dismiss"){
             container_DOM+=`<div class="btn appointment" onclick="show_appointment_dialog('${i.app_id}');">
-                <h3>${i.app_id}</h3>
+                <h3>${id}</h3>
                 <p>${i.first_name+" "+i.last_name} (${i.id})</p>
                 <p>Status: ${i.status}</p>
             </div>`;
@@ -1416,7 +1445,7 @@ const submit_appointment = () => {
 /* listening live data change */
 ipcRenderer.on("live-value-update-captured", (event, data) => {
     let prof=data["staff"][profile.id];
-    if(prof && prof.role==="Doctor" && prof.status==="online"){
+    if(prof && (prof.role==="Doctor" || prof.role==="Nurse") && prof.status==="online"){
         separate_data(data);
     }else{
         if(!prof)

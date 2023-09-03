@@ -4,6 +4,7 @@ const {getDatabase, ref, set, get, remove, onValue} = require("firebase/database
 const package_json = require("./package.json")
 const writer = require("exceljs");
 const fs = require("fs");
+const mailer = require("nodemailer");
 
 
 // dummy database credentials...
@@ -78,9 +79,9 @@ ipcMain.on("reset-middleware", (event, password) => {
       laod_portal();
     }).catch((e) => {
       event.reply("reset-middleware-result", "Please check your connection and try again.");
-    })
+    });
   }
-})
+});
 
 ipcMain.on("login", (event, data) => {
   get(ref(database, `/staff/${data.username}`)).then((snapshot) => {
@@ -119,6 +120,44 @@ ipcMain.on("logout", (event, data) => {
     })
   }
 })
+
+ipcMain.on("get-profile", (event, reply_id) => {
+  event.reply(reply_id, loginProfile);
+});
+
+ipcMain.on("load_portal", (event) => {
+  get(ref(database, `staff/${loginProfile.id}`)).then((data) => {
+    loginProfile=data.val(); 
+    laod_portal();
+  }).catch((e) => {console.log(e)});
+});
+
+ipcMain.on("send-code-to-mail", (event, path, data, email, reply_id) => {
+  let transporter = mailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: "afzalnoortrusthospital@gmail.com",
+      pass: "aifjbxkocgxhyrrs"
+    }
+  });
+  let mailOptions = {
+    from: "afzalnoortrusthospital@gmail.com",
+    to: email,
+    subject: "Password Reset Code from afzal Noor Trust Hospital",
+    text: `Your password reset code is ${data.code}.\nThe expiration time for this code is 1 Hour`
+  }
+  transporter.sendMail(mailOptions, (err, info) => {
+    if(err){
+      event.reply(reply_id, false);
+    }else{
+      set(ref(database, path), data).then((val) => {
+        event.reply(reply_id, true);
+      }).catch((e) => {
+        event.reply(reply_id, false);
+      });
+    }
+  })
+});
 
 ipcMain.on("staff-deleted", (event, data) => {
   main.loadFile(process.cwd()+"/public/html/login.html");
@@ -847,6 +886,8 @@ onValue(ref(database, "/"), (snapshot) => {
 const laod_portal = () => {
   if(loginProfile.password==="0000000")
     main.loadFile(process.cwd()+"/public/html/reset-middleware.html");
+  else if(loginProfile.email==="")
+    main.loadFile(process.cwd()+"/public/html/verify-email.html");
   else if(loginProfile.role==="Admin")
     main.loadFile(process.cwd()+"/public/html/admin-portal.html");
   else if(loginProfile.role==="Receptionist") 

@@ -1012,6 +1012,76 @@ body{
 
 
 
+.verify-email-dialog{
+    position: relative;
+    width: 280px;
+    height: fit-content;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: rgba(0,0,0,0.5);
+    display: none;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    gap: 10px;
+}
+.verify-email-dialog.show{
+    display: flex;
+    animation: dialog-anim 0.5s linear forwards;
+}
+.verify-email-dialog a{
+    width: fit-content;
+}
+.verify-email-dialog .controls{
+    width: 100%;
+}
+.verify-email-dialog .input{
+    margin-top: 20px;
+    margin-bottom: -10px;
+    display: none;
+}
+
+
+
+
+
+
+
+
+.dialog .password-reset-code-dialog {
+    position: relative;
+    width: 280px;
+    height: 330px;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: rgba(0,0,0,0.5);
+    display: none;
+    flex-direction: column;
+}
+.dialog .password-reset-code-dialog{
+    height: fit-content;
+}
+.dialog .password-reset-code-dialog.show{
+    display: flex;
+    animation: dialog-anim 0.5s linear forwards;
+}
+.dialog .password-reset-code-dialog h2{
+    margin-bottom: 40px;
+    text-align: center;
+}
+.dialog .forgot-password-dialog .controls{
+    flex-direction: column-reverse;
+}
+
+
+
+
+
+
+
+
+
+
 .dialog .upload_file_dialog{
     position: relative;
     width: 280px;

@@ -639,7 +639,8 @@ document.addEventListener("keyup", (e) => {
     }else if(e.ctrlKey && (e.key==="H" || e.key==="h")){
         show_help();
     }else if(e.key==="Escape" && active_dialog){
-        hide_dialog(document.querySelector(`.dialog .${active_dialog} .cancel`));
+        if(!document.querySelector(`.${active_dialog}`).classList.contains("no-esc-cancel"))
+            hide_dialog(document.querySelector(`.dialog .${active_dialog} .cancel`));
     }else if(e.ctrlKey && (e.key==="L" || e.key==="l")){
         logout_user()
     }else if(!active_dialog && e.ctrlKey && e.altKey && (e.key==="P" || e.key==="p")){

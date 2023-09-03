@@ -1,7 +1,7 @@
 let username_inp=document.querySelector("form .body input[name='email']");
 let pasword_inp=document.querySelector("form .body input[name='password']");
 let remember_username_inp=document.querySelector("form .body .remember-username input");
-
+let forgot_username="";
 
 
 
@@ -43,7 +43,7 @@ document.querySelector(".forgot-password-dialog input[name='cnic']").addEventLis
 
 username_inp.addEventListener("input", (e) => {username_contraint(e.target);});
 
-document.querySelector(".forgot-password-dialog input[name='id']").addEventListener("input", (e) =>{
+document.querySelector(".forgot-password-dialog input[name='username']").addEventListener("input", (e) =>{
     username_contraint(e.target);
 })
 
@@ -85,24 +85,24 @@ document.querySelector("button[type='submit']").addEventListener("click", (e) =>
 
 
 /* if from dialog send Request button is clicked */
-const forgot_request = () => {
-    let id_inp=document.querySelector(".forgot-password-dialog input[name='id']"),
+const forgot_request = (hidding_elem) => {
+    let username_inp=document.querySelector(".forgot-password-dialog input[name='username']"),
     cnic_inp=document.querySelector(".forgot-password-dialog input[name='cnic']");
 
-    if(!id_inp.value || !cnic_inp.value){
+    if(!username_inp.value || !cnic_inp.value){
         show_notification("Fill empty field(s) first", true);
         setTimeout(() => {
             hide_notification();
         }, 5500);
-        if(!id_inp.value)
-            id_inp.focus();
+        if(!username_inp.value)
+            username_inp.focus();
         else if(!cnic_inp.value)
             cnic_inp.focus();
         return;
     }
 
     show_loader();
-    ipcRenderer.send("fetch", `staff/${id_inp.value}/`, "forgot-password-getting-data");
+    ipcRenderer.send("fetch", `staff/${username_inp.value}/`, "forgot-password-getting-data");
     ipcRenderer.on("forgot-password-getting-data", (event, isError, profile, data) => {
         if(isError){
             show_notification(data, true);
@@ -112,22 +112,35 @@ const forgot_request = () => {
         }
         else if(data){
             if(data.cnic && data.cnic==cnic_inp.value){
-                ipcRenderer.send("insert", `settings/password-requests/${id_inp.value}`, {username: id_inp.value}, "reset-password-result");
-                ipcRenderer.on("reset-password-result", (event, res) => {
+                if(data.email){
+                    forgot_username = username_inp.value;
+                    let code=Date.now()%1000000
+                    let time = Date.now();
+                    let email = data.email;
+                    ipcRenderer.send("send-code-to-mail", `staff/${data.id}/password_reset/`, {code: code, generate_time:time}, email, "send-code-to-mail-result");
+                    ipcRenderer.on("send-code-to-mail-result", (event, res) => {
+                        hide_loader();
+                        if(res){
+                            hide_dialog(hidding_elem);
+                            show_dialog("password-reset-code-dialog");
+                            show_notification("Code sent successfully to your mail. If not found, then check your spam folder as well");
+                            setTimeout(() => {
+                                hide_notification();
+                            }, 5500);
+                        }else{
+                            show_notification("Code cannot sent. Please try again", true);
+                            setTimeout(() => {
+                                hide_notification();
+                            }, 5500);
+                        }
+                    });
+                }else{
                     hide_loader();
-                    if(res){
-                        show_notification("Request sent to admin successfully");
-                        setTimeout(() => {
-                            hide_notification();
-                        }, 5500);
-                        hide_dialog(document.querySelector(".forgot-password-dialog .cancel"));
-                    }else{
-                        show_notification("Request cannot sent", true);
-                        setTimeout(() => {
-                            hide_notification();
-                        }, 5500);
-                    }
-                });
+                    show_notification("Email not registered yet. Please contact to admin", true);
+                    setTimeout(() => {
+                        hide_notification();
+                    }, 5500);
+                }
             }else{  
                 hide_loader();
                 show_notification("CNIC not matched with the record", true);
@@ -143,4 +156,64 @@ const forgot_request = () => {
             }, 5500);
         }
     });
+}
+
+const verify_code = (hidding_elem) => {
+    let code_inp = document.querySelector(".password-reset-code-dialog input[name='code']");
+    if(!code_inp.value){
+        show_notification("Fill empty field first", true)
+        setTimeout(() => {
+            hide_notification();
+        }, 5500);
+        code_inp.focus();
+    }
+    show_loader();
+    ipcRenderer.send("fetch", `staff/${forgot_username}/password_reset/`, "fetch-result");
+    ipcRenderer.on("fetch-result", (event, isError, profile, data) => {
+        if(isError){
+            hide_loader();
+            show_notification(data, true);
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+        }else{
+            if(parseInt(data.code)===parseInt(code_inp.value)){
+                let exp_time = 60;
+                if(data.generate_time+(exp_time*60*1000)>=Date.now()){
+                    ipcRenderer.send("insert", `staff/${forgot_username}/password`, "0000000", "password-reset-res");
+                    ipcRenderer.on("password-reset-res", (event, res) => {
+                        if(res){
+                            ipcRenderer.send("insert", `staff/${forgot_username}/password_reset/`, null, "deleting-reset-code-res");
+                            ipcRenderer.on("deleting-reset-code-res", (event, res) => {
+                                hide_dialog(hidding_elem);
+                                hide_loader();
+                                show_notification("Now, your password is 0000000 (7 Zeros)");
+                                setTimeout(() => {
+                                    hide_notification();
+                                }, 5500);
+                            });
+                        }else{
+                            hide_loader();
+                            show_notification("Password cannot reset. Please try again", true);
+                            setTimeout(() => {
+                                hide_notification();
+                            }, 5500);
+                        }
+                    })
+                }else{
+                    hide_loader();
+                    show_notification("Code expired. Please Try again", true);
+                    setTimeout(() => {
+                        hide_notification();
+                    }, 5500);
+                }
+            }else{
+                hide_loader();
+                show_notification("Code not matched", true);
+                setTimeout(() => {
+                    hide_notification();
+                }, 5500);
+            }
+        }
+    })
 }

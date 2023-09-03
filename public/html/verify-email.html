@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/general.css">
+    <link rel="stylesheet" href="../css/verify-email.css">
+    <link rel="stylesheet" href="../css/all.css">
+    <title>Verify Mail</title>
+</head>
+<body>
+    
+    <form action="#" method="post" onsubmit="send_code(event);return false;" class="mail wrapper">
+
+        <div class="body">
+            <h2>Verify E-mail</h2>
+
+            <div class="email">
+                <p>Write your email to verify. This helps you when you forgot your password. Now, we sent code on this email and it will be verified then.</p>
+                <div class="input">
+                    <input type="email" name="email" required>
+                    <span>E-mail</span>
+                    <i></i>
+                </div>
+                <div class="controls">
+                    <button style="--clr: var(--neon-blue);" type="submit">Send Code</button>
+                </div>
+            </div>
+
+        </div>
+
+    </form>
+
+    <form action="#" method="post" onsubmit="verify_code(event);return false;" class="code wrapper">
+
+        <div class="body">
+            <h2>Verify E-mail</h2>
+            
+            <div class="code">
+                <p>We sent you a verification code on <span>ah5958076@gmail.com</span>, if not foud, then check spam folder as well</p>
+                <div class="input">
+                    <input type="number" name="code" required>
+                    <span>Code</span>
+                    <i></i>
+                </div>
+                <a href="#" style="--clr: var(--neon-pink);" onclick="send_code_again();">Send Code again</a>
+                <div class="controls">
+                    <button style="--clr: var(--neon-blue);" type="submit">Verify</button>
+                </div>
+            </div>
+
+        </div>
+
+    </form>
+
+    <script src="../js/general.js"></script>
+    <script src="../js/verify-email.js"></script>
+    <script src="../js/all.js"></script>
+
+</body>
+</html>

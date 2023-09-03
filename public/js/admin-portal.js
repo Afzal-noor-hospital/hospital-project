@@ -14,7 +14,8 @@ medicines_types_list=[],
 notifications=[];
 let updateableProfile=null;
 let active_card_tab="admin",
-object_to_be_edit=null;
+object_to_be_edit=null,
+temp_new_staff_object=null;
 
 let month_array = ['Jan', "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -116,22 +117,23 @@ let help_DOM = `<p class="bold" style="color: var(--neon-blue); text-align: cent
 
 /* getting all data from database */
 if(check_network()){
-    ipcRenderer.send("fetch", "/", "get-all-data");
     show_loader();
+    ipcRenderer.send("fetch", "/", "get-all-data");
     ipcRenderer.on("get-all-data", (event, isError, prof, data) => {
         if(!isError){
             ipcRenderer.send("delete", `settings/password-requests/${prof.id}`, "deleting-request-for-forgot");
             separate_profiles(prof, data);
             populate_admin(false);
             update_cards();
+            hide_loader();  
         }else{
+            hide_loader();  
             show_notification(data, true);
             setTimeout(() => {
                 hide_notification();
             }, 5500);
         }
-        hide_loader();  
-    })
+    });
 }
 
 
@@ -226,7 +228,7 @@ const edit_profile = (id) => {
     father_name_inp.value=currentProfile.father_name;
     username_lbl.innerHTML=currentProfile.id;
     username_lbl.title=currentProfile.id;
-    email_inp.value=currentProfile.email;
+    email_inp.value=(currentProfile.email)?currentProfile.email:"";
     number_inp.value=currentProfile.contact;
     cnic_inp.value=currentProfile.cnic;
     dob_inp.value=currentProfile.dob;
@@ -331,11 +333,16 @@ const suspend_staff = (hidding_elem) => {
         return;
     }
     show_loader();
+    let message="", err_message="";
     if(hidding_elem.querySelector("button:last-child").innerHTML==="Restore"){
         updateableProfile.password="0000000";
         updateableProfile.status="offline";
+        message="Staff Restored Successfully"
+        err_message="Staff cannot Restored. Please try again";
     }else{
         updateableProfile.status="suspend";
+        message="Staff Suspended Successfully"
+        err_message="Staff cannot Suspended. Please try again"
     }
     ipcRenderer.send("insert", `staff/${updateableProfile.id}/`, updateableProfile, "suspend-staff-result");
     ipcRenderer.on("suspend-staff-result", (event, res) => {
@@ -343,12 +350,12 @@ const suspend_staff = (hidding_elem) => {
         if(res){
             hide_dialog(hidding_elem);
             document.querySelector(".suspend-confirmation-dialog .controls button:last-child").innerHTML="Suspend";
-            show_notification("Staff Suspended Successfully");
+            show_notification(message);
             setTimeout(() => {
                 hide_notification();
             }, 5500);
         }else{
-            show_notification("Staff cannot Suspended. Please try again", true);
+            show_notification(err_message, true);
             setTimeout(() => {
                 hide_notification();
             }, 5500);
@@ -905,9 +912,13 @@ const populate_appointments = (filtered_list=null) => {
     if(!filtered_list)
         filtered_list=appointments_list;        
     for(i of filtered_list){
+        let id=i.app_id;
+        let splitted_id = id.split("-");
+        let month = parseInt(splitted_id[1])+1
+        id=splitted_id[0]+"-"+month+"-"+splitted_id[2]+"-"+splitted_id[3];
         appointment_container.innerHTML+=`<div class="info-elem" onclick="show_appointment_dialog('${i.app_id}');">
             <div>
-                <h3>${i.app_id}</h3>
+                <h3>${id}</h3>
                 <p>${i.first_name+" "+i.last_name} (${i.id})</p>
                 <p>Status: ${i.status}</p>
             </div>
@@ -1082,13 +1093,13 @@ const is_valid_mfg_exp = (mfg, exp) => {
     let mfg_month_index=-1;
     let exp_month_index=-1;
 
-    for(i in month_array){
+    for(let i=0; i<month_array.length; i++){
         if(month_array[i]===given_mfg_month){
             mfg_month_index=i;
             break;
         }
     }
-    for(i in month_array){
+    for(let i=0; i<month_array.length; i++){
         if(month_array[i]===given_exp_month){
             exp_month_index=i;
             break;
@@ -1097,8 +1108,7 @@ const is_valid_mfg_exp = (mfg, exp) => {
 
     if(parseInt(given_mfg_year) < parseInt(given_exp_year)){
         return true;
-    }
-    else if(parseInt(given_mfg_year)===parseInt(given_exp_year) && mfg_month_index>=exp_month_index){
+    }else if(parseInt(given_mfg_year)===parseInt(given_exp_year) && mfg_month_index<=exp_month_index){
         return true;
     }
     return false;
@@ -1173,7 +1183,7 @@ const validate_medicine_form = (dialog) => {
     let exp_date=`${month_array[parseInt(med_exp_month_input.value)-1]} ${med_exp_year_input.value}`;
 
     if(errors.split(" ").length<=2 && !is_valid_mfg_exp(mfg_date, exp_date)){
-            errors="Exp Date must be greater then Mfg Date";
+            errors="Exp Date must be greater then Mfg Date ";
     }
 
     if(errors.split(" ").length>2){
@@ -1230,7 +1240,7 @@ const save_medicine = (dialog) => {
     let exp_date=`${month_array[parseInt(med_exp_month_input.value)-1]} ${med_exp_year_input.value}`;
 
     let medicine_obj={
-        id:`${medicine_list.length}`,
+        id:`${Date.now()}`,
         salt: med_salt_input.value,
         name:med_name_input.value,
         quantity:med_quantity_input.value,
@@ -1240,6 +1250,7 @@ const save_medicine = (dialog) => {
         mfg_date:mfg_date,
         exp_date:exp_date
     };
+    
     ipcRenderer.send("insert", `medicines/${medicine_obj.id}`, medicine_obj, "save-new-medicine-result");
     ipcRenderer.on("save-new-medicine-result", (event, res) => {
         hide_loader();
@@ -1496,8 +1507,6 @@ let new_DOM=`<span class="medicine-types-info" title="Add Medicine Types" onclic
     <span class="medicine-template" title="Download empty Excel file for medicines as a template" onclick="download_excel_template();"><i class="fa-solid fa-file-arrow-down"></i></span>`+old_DOM;
 document.body.innerHTML=new_DOM;
 setup_show_password();
-
-
 
 
 
@@ -1973,7 +1982,7 @@ const register_staff = (hiding_elem) => {
     role_inp=document.querySelector(".add-new-dialog .container select[name='role']"),
     address_inp=document.querySelector(".add-new-dialog .container textarea[name='address']");
 
-    if(!first_name_inp.value || !last_name_inp.value || !father_name_inp.value || !dob_inp.value || !cnic_inp.value || !number_inp.value || !username_inp.value || !email_inp.value || !address_inp.value){
+    if(!first_name_inp.value || !last_name_inp.value || !father_name_inp.value || !dob_inp.value || !cnic_inp.value || !number_inp.value || !username_inp.value || !address_inp.value){
         show_notification("Fill Empty Fields First", true);
         setTimeout(() => {
             hide_notification();
@@ -1993,14 +2002,12 @@ const register_staff = (hiding_elem) => {
             number_inp.focus();
         else if(!username_inp.value)
             username_inp.focus();
-        else if(!email_inp.value)
-            email_inp.focus();
         else if(!address_inp.value)
             address_inp.focus();
         return;
-    }
+    };
 
-    if(!email_inp.checkValidity()){
+    if(email_inp.value && !email_inp.checkValidity()){
         show_notification("Email is not correct. Please check your email and try again", true);
         setTimeout(() => {
             hide_notification();
@@ -2008,14 +2015,12 @@ const register_staff = (hiding_elem) => {
         return;
     }
 
-    show_loader();
-        
-    let staffObj={
+    temp_new_staff_object={
         first_name: first_name_inp.value,
         last_name: last_name_inp.value,
         father_name: father_name_inp.value,
         id: username_inp.value,
-        email: email_inp.value,
+        email: (email_inp.value)?email_inp.value:"",
         password: "0000000",
         cnic: cnic_inp.value,
         contact: number_inp.value,
@@ -2027,7 +2032,9 @@ const register_staff = (hiding_elem) => {
         app_date: Date.now()
     };
 
-    ipcRenderer.send("fetch", `staff/${staffObj.id}`, "get-existing-staff-against-id");
+    show_loader();
+
+    ipcRenderer.send("fetch", `staff/${temp_new_staff_object.id}`, "get-existing-staff-against-id");
     ipcRenderer.once("get-existing-staff-against-id", (event, isError, profile, data) => {
         if(isError){
             hide_loader();
@@ -2038,34 +2045,200 @@ const register_staff = (hiding_elem) => {
         }
         else if(data){
             hide_loader();
-            show_notification(`User against ID ${staffObj.id}, already exists`, true);
+            show_notification(`User against ID ${temp_new_staff_object.id}, already exists`, true);
             username_inp.focus();
             setTimeout(() => {
                 hide_notification();
             }, 5500);
         }
         else{
-            ipcRenderer.send("insert", `staff/${staffObj.id}`, staffObj, "register-new-staff-result");
+            let newobj = Object.assign({},temp_new_staff_object);
+            newobj.email="";
+            ipcRenderer.send("insert", `staff/${newobj.id}`, newobj, "register-new-staff-result");
             ipcRenderer.once("register-new-staff-result", (event, data) => {
                 if(data){
                     hide_dialog(hiding_elem);
-                    hide_loader();
-                    show_notification("Data Inserted successfully");
-                    setTimeout(() => {
-                        hide_notification();
-                    }, 5500);
+
+                    if(temp_new_staff_object.email && temp_new_staff_object.email!==""){
+                        document.querySelector(".verify-email-dialog p span").innerHTML=`Is the email (${temp_new_staff_object.email}) right?`;
+                        show_dialog("verify-email-dialog");
+                    }else{
+                        hide_loader();
+                        temp_new_staff_object=null;
+                        show_notification("Data Inserted successfully");
+                        setTimeout(() => {
+                            hide_notification();
+                        }, 5500);
+                    }
+
                 }else{
                     hide_loader();
-                    show_notification("Data Not Inserted successfully", true);
+                    show_notification("Unexpected Error. Please try again", true);
                     setTimeout(() => {
                         hide_notification();
                     }, 5500);
                 }
-            })  
+            });
         }
-    });    
+    });
+
+    
 }
 
+const change_email = (dialog) => {
+    show_loader();
+    dialog.querySelector(".input").style.display="block";
+    dialog.querySelector("input[name='email']").value=temp_new_staff_object.email;
+    dialog.querySelector("p").style.display="none";
+    dialog.querySelector("a").style.display="none";
+    hide_loader();
+}
+
+const continue_without_email = (hidding_elem) => {
+    show_loader();
+    ipcRenderer.send("insert", `staff/${temp_new_staff_object.id}/email/`, "", "continue_without_email_res");
+    ipcRenderer.on("continue_without_email_res", (event, res) => {
+        if(res){
+            hide_dialog(hidding_elem);
+            temp_new_staff_object=null;
+            show_notification("Staff Registered Successfully");
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+        }else{
+            show_notification("Staff cannot registered. Please try again", true);
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+        }
+    });
+}
+
+const send_code = (hidding_elem) => {
+    let email_container = document.querySelector(".verify-email-dialog .input");
+    let email_inp_from_dialog = document.querySelector(".verify-email-dialog .input input[name='email']");
+    if(email_container.style.display==="block"){
+        if(!email_inp_from_dialog.value){
+            show_notification("E-mail field is empty", true);
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+            email_inp_from_dialog.focus();
+            return;
+        }
+        if(!email_inp_from_dialog.checkValidity()){
+            show_notification("Email is not correct. Please check your email and try again", true);
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+            return;
+        }
+        temp_new_staff_object.email=email_inp_from_dialog.value;
+    }
+
+    show_loader();
+    let code=Date.now()%1000000;
+    let time = Date.now();
+    ipcRenderer.send("send-code-to-mail", `staff/${temp_new_staff_object.id}/password_reset/`, {code: code, generate_time:time}, temp_new_staff_object.email, "send-code-to-mail-result");
+    ipcRenderer.on("send-code-to-mail-result", (event, res) => {
+        hide_loader();
+        if(res){
+            hide_dialog(hidding_elem);
+            show_dialog("password-reset-code-dialog");
+            show_notification("Code sent successfully to your mail. If not found, then check your spam folder as well");
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+        }else{
+            show_notification("Code cannot sent to you mail. Please try again", true);
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+        }
+    });
+}
+
+const cancel_verification_code_dialog = (hidding_elem) => {
+    show_loader();
+    ipcRenderer.send("delete", `staff/${temp_new_staff_object.id}/`, "deleted_temp_staff_res");
+    ipcRenderer.on("deleted_temp_staff_res", (event, res) => {
+        hide_loader();
+        if(res){
+            hide_dialog(hidding_elem);
+            show_notification("Staff registering cancelled");
+            temp_new_staff_object=null;
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+        }else{
+            show_notification("Unexpected Error. Please Try again", true);
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+        }
+    });
+}
+
+const verify_code = (hidding_elem) => {
+    let code_inp = document.querySelector(".password-reset-code-dialog input[name='code']");
+    if(!code_inp.value){
+        show_notification("Fill empty field first", true)
+        setTimeout(() => {
+            hide_notification();
+        }, 5500);
+        code_inp.focus();
+    }
+    show_loader();
+    ipcRenderer.send("fetch", `staff/${temp_new_staff_object.id}/password_reset/`, "fetch-result");
+    ipcRenderer.on("fetch-result", (event, isError, profile, data) => {
+        if(isError){
+            hide_loader();
+            show_notification(data, true);
+            setTimeout(() => {
+                hide_notification();
+            }, 5500);
+        }else{
+            if(parseInt(data.code)===parseInt(code_inp.value)){
+                let exp_time = 60;
+                if(data.generate_time+(exp_time*60*1000)>=Date.now()){
+                    ipcRenderer.send("insert", `staff/${temp_new_staff_object.id}/email`, temp_new_staff_object.email, "email-verification-res");
+                    ipcRenderer.on("email-verification-res", (event, res) => {
+                        if(res){
+                            ipcRenderer.send("insert", `staff/${temp_new_staff_object.id}/password_reset/`, null, "deleting-reset-code-res");
+                            ipcRenderer.on("deleting-reset-code-res", (event, res) => {
+                                hide_dialog(hidding_elem);
+                                hide_loader();
+                                show_notification("Record inserted with verified email");
+                                temp_new_staff_object=null;
+                                setTimeout(() => {
+                                    hide_notification();
+                                }, 5500);
+                            });
+                        }else{
+                            hide_loader();
+                            show_notification("Email cannot be verified. Please try again", true);
+                            setTimeout(() => {
+                                hide_notification();
+                            }, 5500);
+                        }
+                    })
+                }else{
+                    hide_loader();
+                    show_notification("Code expired. Please Try again", true);
+                    setTimeout(() => {
+                        hide_notification();
+                    }, 5500);
+                }
+            }else{
+                hide_loader();
+                show_notification("Code not matched", true);
+                setTimeout(() => {
+                    hide_notification();
+                }, 5500);
+            }
+        }
+    });
+}
 
 
 

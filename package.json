@@ -23,7 +23,8 @@
     },
     "dependencies": {
         "exceljs": "^4.3.0",
-        "firebase": "^9.17.2"
+        "firebase": "^9.17.2",
+        "nodemailer": "^6.9.4"
     },
     "devDependencies": {
         "electron": "^23.2.0",

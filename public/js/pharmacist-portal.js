@@ -237,13 +237,13 @@ const is_valid_mfg_exp = (mfg, exp) => {
     let mfg_month_index=-1;
     let exp_month_index=-1;
 
-    for(i in month_array){
+    for(let i=0; i<month_array.length; i++) {
         if(month_array[i]===given_mfg_month){
             mfg_month_index=i;
             break;
         }
     }
-    for(i in month_array){
+    for(let i=0; i<month_array.length; i++){
         if(month_array[i]===given_exp_month){
             exp_month_index=i;
             break;
@@ -253,7 +253,7 @@ const is_valid_mfg_exp = (mfg, exp) => {
     if(parseInt(given_mfg_year) < parseInt(given_exp_year)){
         return true;
     }
-    else if(parseInt(given_mfg_year)===parseInt(given_exp_year) && mfg_month_index>=exp_month_index){
+    else if(parseInt(given_mfg_year)===parseInt(given_exp_year) && mfg_month_index<=exp_month_index){
         return true;
     }
     return false;
@@ -588,14 +588,14 @@ const select_appointment = (index) => {
     });
     JSON.parse(selected_appointment.prescriptions).forEach((i, index) => {
         let duration=0;
-        let raw_duration = selected_appointment.duration.split(" ")[0].trim();
+        let raw_duration = parseInt(selected_appointment.duration.split(" ")[0].trim());
         let duration_unit = selected_appointment.duration.split(" ")[1];
         if(duration_unit==="Weeks"){
-            duration=parseInt(raw_duration)*7;
+            duration=raw_duration*7;
         }else if(duration_unit==="Months"){
-            duration=parseInt(raw_duration)*30;
+            duration=raw_duration*30;
         }else{
-            duration=parseInt(raw_duration);
+            duration=raw_duration;
         }
         let quantity=duration*parseInt(i.quantity)*i.timmings.split(",").length;
         for(j of medicine_types_list){
@@ -605,19 +605,18 @@ const select_appointment = (index) => {
             }
         }
 
-        if(i.med_id!==undefined){
+        if(i.med_id){
             for(j of medicine_list){
                 if(parseInt(i.med_id)===parseInt(j.id)){
                     let price = parseInt(j.price);
                     if(j.quantity<quantity)
                         quantity=j.quantity;
-                    t_price+=Math.ceil((price-(price*(j.discount/100.0)))*quantity);
+                    t_price+=Math.ceil((price-(price*((j.discount?j.discount:0)/100.0)))*quantity);
                     break;
                 }
             }
         }
     });
-
     selected_appointment.t_amount=t_price;
 
     let opened_medicine_container=document.querySelector(".main-container .explained-app .data");
@@ -1000,7 +999,7 @@ const save_medicine = (dialog) => {
     let exp_date=`${month_array[parseInt(med_exp_month_input.value)-1]} ${med_exp_year_input.value}`;
 
     let medicine_obj={
-        id:`${medicine_list.length}`,
+        id:`${Date.now()}`,
         salt: med_salt_input.value,
         name:med_name_input.value,
         quantity:med_quantity_input.value,

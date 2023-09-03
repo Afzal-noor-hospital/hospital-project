@@ -48,8 +48,8 @@
             <span class="cancel" onclick="hide_dialog(this);"><i class="fa-solid fa-xmark"></i></span>
             <h2>Forgot Password</h2>
             <div class="input">
-                <input type="text" name="id" required>
-                <span>Enter ID</span>
+                <input type="text" name="username" required>
+                <span>Enter Username</span>
                 <i></i>
             </div>
             <div class="input">
@@ -59,7 +59,23 @@
             </div>
             <div class="controls">
                 <button style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement);">Cancel</button>
-                <button style="--clr: var(--neon-blue);" onclick="forgot_request();">Send Request</button>
+                <button style="--clr: var(--neon-blue);" onclick="forgot_request(this.parentElement);">Send Request</button>
+            </div>
+        </div>
+
+        <div class="password-reset-code-dialog">
+            <span class="cancel" onclick="hide_dialog(this);"><i class="fa-solid fa-xmark"></i></span>
+            <h2>Password Reset Code</h2>
+            
+            <div class="input">
+                <input type="number" name="code" required>
+                <span>Code</span>
+                <i></i>
+            </div>
+            
+            <div class="controls">
+                <button style="--clr: var(--disabled-clr);" onclick="hide_dialog(this.parentElement);">Cancel</button>
+                <button style="--clr: var(--neon-blue);" onclick="verify_code(this.parentElement);">Verify</button>
             </div>
         </div>
 

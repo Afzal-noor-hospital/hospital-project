@@ -1,0 +1,32 @@
+body{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+
+
+
+p{
+    text-align: center;
+}
+.controls{
+    width: 100%;
+}
+
+
+.email, .code{
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    flex-direction: column;
+}
+form.code{
+    display: none;
+}
+.code a{
+    width: fit-content;
+}
